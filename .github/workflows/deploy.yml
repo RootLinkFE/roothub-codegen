@@ -49,7 +49,10 @@ jobs:
         run: yarn build
       - name: Deploy 🚀
         run: yarn deploy
-
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          NPM_USER: ${{ secrets.NPM_USER }}
+          NPM_EMAIL: ${{ secrets.NPM_EMAIL }}
       # - name: Deploy 🚀
       #   uses: JamesIves/github-pages-deploy-action@4.1.4
       #   with:
