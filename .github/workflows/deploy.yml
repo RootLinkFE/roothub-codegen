@@ -41,15 +41,11 @@ jobs:
           git config --global user.name "roothub"
           git config --global user.email "roothub@github.com"
 
-      - name: Bootstrap 🔧
-        run: npm run bootstrap
+      - name: Install Dependencies
+        run: yarn
 
       - name: Build ⛏️
-        run: npm run build
-
-     - name: Build ⛏️
-        run: |
-          npm run build
+        run: yarn build
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@4.1.4
