@@ -1,4 +1,4 @@
-# umi project
+# roothub-gencode
 
 ## Getting Started
 
