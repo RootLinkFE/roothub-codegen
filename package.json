@@ -8,6 +8,7 @@
     "prettier": "prettier --write '**/*.{js,jsx,tsx,ts,less,md,json}'",
     "test": "umi-test",
     "postbuild": "node ./scripts/site/spa-gh-pages.js",
+    "deploy": "node ./scripts/site/gh-pages-publish.js",
     "test:coverage": "umi-test --coverage"
   },
   "gitHooks": {
@@ -38,6 +39,7 @@
     "fs-extra": "^10.0.0",
     "lint-staged": "^10.0.7",
     "prettier": "^2.2.0",
+    "shelljs": "^0.8.4",
     "typescript": "^4.1.2",
     "yorkie": "^2.0.0"
   }
