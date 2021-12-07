@@ -1,4 +1,4 @@
-const { cd, exec, echo, touch } = require('shelljs');
+const { cd, exec, echo, touch, mv, mkdir } = require('shelljs');
 const url = require('url');
 
 /*
@@ -28,6 +28,10 @@ let npmEmail = process.env.NPM_EMAIL;
 // const npmEmail = execSync('git config user.email').toString();
 cd('dist');
 touch('.nojekyll');
+// 配合微前端basePath
+mkdir('gencode');
+mv('-f', '*', 'gencode/');
+mv('-f', 'gencode/CNAME', '../dist/');
 exec('git init');
 exec('git add .');
 exec(`git config user.name "${npmUser}"`);

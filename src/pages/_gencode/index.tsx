@@ -50,7 +50,6 @@ export default function ApiSwitch() {
     useModel('useApiSwitchModel');
 
   console.log('resourceDetail: ', resourceDetail);
-
   return (
     <Card bodyStyle={{ padding: 0 }} title="接口代码生成器">
       {headerRender}
