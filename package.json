@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "roothub-gencode",
+  "name": "roothub-codegen",
   "scripts": {
     "start": "umi dev",
     "build": "umi build",

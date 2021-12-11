@@ -1,4 +1,4 @@
-# roothub-gencode
+# roothub-codegen
 
 ## Getting Started
 

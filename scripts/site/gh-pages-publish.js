@@ -15,7 +15,7 @@ if (typeof pkg.repository === 'object') {
   repoUrl = pkg.repository;
 } */
 
-let repoUrl = 'https://github.com/RootLinkFE/roothub-gencode-site';
+let repoUrl = 'https://github.com/RootLinkFE/roothub-codegen-site';
 
 let parsedUrl = url.parse(repoUrl);
 let repository = (parsedUrl.host || '') + (parsedUrl.path || '');
@@ -29,9 +29,9 @@ let npmEmail = process.env.NPM_EMAIL;
 cd('dist');
 touch('.nojekyll');
 // 配合微前端basePath
-mkdir('gencode');
-mv('-f', '*', 'gencode/');
-mv('-f', 'gencode/CNAME', '../dist/');
+mkdir('codegen');
+mv('-f', '*', 'codegen/');
+mv('-f', 'codegen/CNAME', '../dist/');
 exec('git init');
 exec('git add .');
 exec(`git config user.name "${npmUser}"`);

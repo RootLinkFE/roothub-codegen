@@ -1,5 +1,5 @@
 import { defineConfig } from 'umi';
-const basePath = '/gencode/';
+const basePath = '/codegen/';
 export default defineConfig({
   base: basePath,
   publicPath: basePath,
