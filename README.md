@@ -2,17 +2,13 @@
 
 
 http://codegen.leekhub.com/codegen/
-## Getting Started
+## Screenshots
 
 
-Install dependencies,
+![](./image3.png)
 
-```bash
-$ yarn
-```
+![](./image2.png)
 
-Start the dev server,
+![](./image1.png)
 
-```bash
-$ yarn start
-```
+
