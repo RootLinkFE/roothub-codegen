@@ -109,13 +109,23 @@ export default function ApiSwitch() {
               前一部分地址。 <br />
               比如
               <Typography.Text keyboard>
-                http://protocol-model-server.nc-qa.rootcloudapp.com/frame-pmt/doc.html
+                http://model-server.qa.leekhuub.com/frame-pmt/doc.html
               </Typography.Text>
               地址，就输入
               <Typography.Text keyboard>
-                http://protocol-model-server.nc-qa.rootcloudapp.com/frame-pmt
+                http://model-server.qa.leekhub.com/frame-pmt
               </Typography.Text>
             </blockquote>
+            1、注意https和http的情况，对应swagger
+            api域名协议本工具的http协议保持一致！
+            <br />
+            2、一般都会有跨域问题，建议安装跨域插件，启用跨域再使用：
+            <a
+              href="https://chrome.google.com/webstore/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf?hl=zh"
+              target="_blank"
+            >
+              Allow CORS: Access-Control-Allow-Origin
+            </a>
           </Typography.Paragraph>
         }
       >
