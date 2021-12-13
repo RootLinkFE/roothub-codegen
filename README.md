@@ -5,10 +5,10 @@ http://codegen.leekhub.com/codegen/
 ## Screenshots
 
 
-![](./image3.png)
+![](./screenshots/image3.png)
 
-![](./image2.png)
+![](./screenshots/image2.png)
 
-![](./image1.png)
+![](./screenshots/image1.png)
 
 
