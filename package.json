@@ -26,12 +26,14 @@
     "@ant-design/pro-layout": "^6.5.0",
     "ahooks": "^2.10.9",
     "codesandbox": "^2.2.3",
+    "lodash": "^4.17.21",
     "react": "17.x",
     "react-dom": "17.x",
     "react-monaco-editor": "^0.44.0",
     "umi": "^3.5.20"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.178",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@umijs/plugin-qiankun": "^2.35.2",

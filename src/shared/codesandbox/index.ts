@@ -13,20 +13,22 @@ export default function openOnCodeSandbox({
         content: genJson(boxDependencies),
         isBinary: false,
       },
-      'public/index.html': {
+      'index.html': {
         content: indexHtml,
         isBinary: false,
       },
-      'src/index.tsx': {
+      'index.tsx': {
         content: MainJs,
         isBinary: false,
       },
-      'src/App.tsx': {
+      'App.tsx': {
         content: componentCode,
         isBinary: false,
       },
-      'src/styles.css': {
-        content: '/* Add application styles & imports to this file! */;',
+      'sandbox.config.json': {
+        content: `{
+          "template": "create-react-app"
+        }`,
         isBinary: false,
       },
     },

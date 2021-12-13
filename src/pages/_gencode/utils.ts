@@ -1,5 +1,14 @@
 export function cleanParameterDescription(s: string) {
-  return s.replace(/([\.@#*+?^=!:${}()|\[\]\/\\])/g, '');
+  const s1 = cleanEnumDesc(s);
+  return s1.replace(/([\.@#*+?^=!:${}()|\[\]\/\\])/g, '');
+}
+
+function cleanEnumDesc(s: string) {
+  const idx = s.indexOf('ENUM#');
+  if (idx !== -1) {
+    return s.substring(0, idx);
+  }
+  return s;
 }
 
 export function prettyCode(code: string) {

@@ -1,24 +1,20 @@
-import DownOutlined from '@ant-design/icons/lib/icons/DownOutlined';
-
+import getParameterObject from '@/shared/getParameterObject';
+import getResponseParams from '@/shared/getResponseParams';
 import {
+  Button,
   Drawer,
   DrawerProps,
-  Tag,
+  message,
+  Space,
   Table,
   TableProps,
-  Space,
-  Button,
-  Dropdown,
-  Menu,
-  message,
+  Tag,
 } from 'antd';
 import { useCallback, useEffect, useRef } from 'react';
 import { useModel } from 'umi';
 import { MethodColors } from './ApiTreeForm';
-import generateModelClass from './code-generate/generate-model-class';
 import generateModelFormItemsCode from './code-generate/generate-model-form-items-code';
 import generateTableColumnsProps from './code-generate/generate-table-columns-props';
-import generateTypeScriptType from './code-generate/generate-typescript-type';
 import styles from './index.module.less';
 import ParameterTableDefinition from './ParameterTableDefinition';
 
@@ -62,72 +58,6 @@ function getHeaderParams(api: any) {
   });
 }
 
-function getSwaggerRef(obj: any) {
-  return obj.schema?.$ref || obj.$ref || obj.items?.$ref;
-}
-
-function getParameterObject(
-  resourceDetail: any,
-  parameter: any,
-  parent: string = '',
-): any {
-  const $ref = getSwaggerRef(parameter);
-  let definition: any;
-  let children;
-  if ($ref && /#\/definitions\//.test($ref)) {
-    const refKey = $ref.replace('#/definitions/', '');
-    definition = resourceDetail.definitions?.[refKey];
-    if (definition) {
-      const { properties, required } = definition;
-      children = Object.entries(properties).map(
-        ([propertyKey, property]: [string, any]) => {
-          let result;
-          const hasRef = getSwaggerRef(property);
-          if (hasRef) {
-            if (hasRef !== $ref) {
-              result = {
-                name: propertyKey,
-                ...getParameterObject(
-                  resourceDetail,
-                  property,
-                  `${parent}${propertyKey}#`,
-                ),
-              };
-            } else {
-              result = {
-                name: propertyKey,
-                type: refKey,
-                description: definition.title,
-              };
-            }
-
-            if (hasRef && property.type === 'array') {
-              result.type = result.type + '[]';
-            }
-          } else {
-            result = {
-              name: propertyKey,
-              ...property,
-            };
-          }
-          result.key = parent + propertyKey;
-          result.required = required?.includes(propertyKey) ?? false;
-          return result;
-        },
-      );
-    }
-  }
-  const result = { ...parameter, children, key: parent + parameter.name };
-  if (definition) {
-    result.description = definition.title;
-    result.type = definition.title;
-    result.schema = {
-      ...definition,
-    };
-  }
-  return result;
-}
-
 function getRequestParams(api: any, resourceDetail: any) {
   return api.parameters
     .filter((parameter: any) => {
@@ -136,15 +66,6 @@ function getRequestParams(api: any, resourceDetail: any) {
     .map((parameter: any) => {
       return getParameterObject(resourceDetail, parameter);
     });
-}
-
-function getResponseParams(api: any, resourceDetail: any) {
-  if (!api.responses['200']) {
-    return [];
-  }
-  return (
-    getParameterObject(resourceDetail, api.responses['200']).children || []
-  );
 }
 
 const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {

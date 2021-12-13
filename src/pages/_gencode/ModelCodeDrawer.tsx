@@ -2,8 +2,8 @@ import { Drawer, DrawerProps, Space, Button, message } from 'antd';
 import { CodeSandboxOutlined, CopyOutlined } from '@ant-design/icons';
 import React, { Suspense } from 'react';
 import { useModel } from 'umi';
-import generateModelClass from './code-generate/generate-model-class';
-import openOnCodeSandbox from '@/shared/codesanbox';
+import { omit } from 'lodash';
+import openOnCodeSandbox from '@/shared/codesandbox';
 // import { monaco } from 'react-monaco-editor';
 
 const MonacoEditor = React.lazy(() => import('react-monaco-editor'));
@@ -20,7 +20,7 @@ const ModelCodeDrawer: React.FC<DrawerProps> = (props) => {
       width="60%"
       bodyStyle={{ padding: 0, display: 'flex' }}
       {...props}
-      {...definitionCodeDrawerProps}
+      {...omit(definitionCodeDrawerProps, 'generateCode')}
       zIndex={999}
       extra={
         <Space>

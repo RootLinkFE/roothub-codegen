@@ -16,6 +16,7 @@ import { CodeOutlined } from '@ant-design/icons';
 import ApiDetailDrawer from './ApiDetailDrawer';
 import ModelCodeDrawer from './ModelCodeDrawer';
 import generateRhTablePageCode from './code-generate/generate-rhtable-page';
+import getResponseParams from '@/shared/getResponseParams';
 
 export const MethodColors: any = {
   post: '#f50',
@@ -24,22 +25,26 @@ export const MethodColors: any = {
 
 const ApiDescription = (props: any) => {
   const { api } = props;
-  const { urlRef, selectedResource, selectedTag } =
+  const { resourceDetail, urlRef, selectedResource, selectedTag } =
     useModel('useApiSwitchModel');
 
   const [iframeVisible, setIFrameVisible] = useState(false);
   const { setDefinitionCodeDrawerProps } = useModel('useApiSwitchModel');
 
+  if (!api) return null;
+
   const showRhTablePageCode = useCallback(() => {
     setDefinitionCodeDrawerProps({
-      title: `Model Form Items`,
+      title: api.description,
       visible: true,
       language: 'typescript',
-      generateCode: () => generateRhTablePageCode(api),
+      generateCode: () => {
+        const body = getResponseParams(api, resourceDetail);
+        const code = generateRhTablePageCode(body[1]?.children, api);
+        return code;
+      },
     });
   }, [setDefinitionCodeDrawerProps, api]);
-
-  if (!api) return null;
 
   return (
     <Col flex="40%">
