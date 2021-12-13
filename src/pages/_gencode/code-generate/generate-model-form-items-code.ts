@@ -47,7 +47,9 @@ function getFieldInputCode(prop: any): string {
 
 export default function generateModelFormItemsCode(rows: any[]) {
   return prettyCode(
-    `const renderFormItems = () =>(<>${rows
+    `
+    import React from "react";
+    const renderFormItems = () =>(<>${rows
       .map(
         (row) => `
         ${getFieldInputCode(row)}

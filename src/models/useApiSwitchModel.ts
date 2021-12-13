@@ -1,3 +1,4 @@
+import { defaultSwaggerUrl } from '@/shared/swaggerUrl';
 import { useRequest } from 'ahooks';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -25,9 +26,7 @@ function classifyPathsToTags(tags: any[], pathObj: object) {
 
 export default function useApiSwitchModel() {
   // 接口地址的ref
-  const urlRef = useRef(
-    'https://protocol-model-server.nc-qa.rootcloudapp.com/frame-pmt',
-  );
+  const urlRef = useRef(defaultSwaggerUrl);
   const url = urlRef.current;
 
   // 通过当前资源地址获取资源

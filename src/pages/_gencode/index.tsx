@@ -1,8 +1,19 @@
-import React from 'react';
-import { Card, Row, Col, Input, Button, Divider, Menu, MenuProps } from 'antd';
+import React, { useCallback, useMemo } from 'react';
+import {
+  Card,
+  Row,
+  Col,
+  Input,
+  Typography,
+  Divider,
+  Menu,
+  MenuProps,
+  Popover,
+} from 'antd';
 import useApiSwitchHeader from './useHeader';
 import ApiTreeForm from './ApiTreeForm';
 import { useModel } from 'umi';
+import { InfoCircleOutlined } from '@ant-design/icons';
 
 const ColMenuStyle = {
   height: '500px',
@@ -27,17 +38,51 @@ export const ResourcesTree: React.FC<
   if (!data) {
     return null;
   }
+
+  const highlightMenuName: any = useCallback(
+    (menuName = '', labelKey = 'summary') => {
+      const flag = /列表|分页/.test(menuName);
+      if (!flag) {
+        return menuName;
+      }
+      if (labelKey === 'summary') {
+        const matchResult = menuName.match(/列表|分页/);
+        if (!matchResult) {
+          return menuName;
+        }
+        const arr = [
+          menuName.substring(0, matchResult.index),
+          menuName.substring((matchResult.index as number) + 2),
+        ];
+
+        return (
+          <>
+            {arr[0]}
+            <span style={{ color: 'rgb(255, 85, 0)' }}>{matchResult[0]}</span>
+            {arr[1]}
+          </>
+        );
+      }
+      return menuName;
+    },
+    [],
+  );
+
   return (
     <Col style={ColMenuStyle} flex="20%">
       <Menu style={{ minHeight: '500px' }} onSelect={onSelect}>
-        {data.map((item: any, index: number) => (
-          <Menu.Item
-            title={item[labelKey]}
-            key={dataKey ? item[dataKey] : index}
-          >
-            {item[labelKey]}
-          </Menu.Item>
-        ))}
+        {data.map((item: any, index: number) => {
+          let menuName = item[labelKey];
+
+          return (
+            <Menu.Item
+              title={item[labelKey]}
+              key={dataKey ? item[dataKey] : index}
+            >
+              {highlightMenuName(menuName, labelKey)}
+            </Menu.Item>
+          );
+        })}
       </Menu>
     </Col>
   );
@@ -50,8 +95,42 @@ export default function ApiSwitch() {
     useModel('useApiSwitchModel');
 
   // console.log('resourceDetail: ', resourceDetail);
+
+  const blockContent = useMemo(
+    () => (
+      <Popover
+        title="使用说明"
+        placement="topLeft"
+        content={
+          <Typography.Paragraph>
+            <blockquote>
+              通过Swagger文档地址获取api列表，只需要填写
+              <Typography.Text keyboard>doc.html</Typography.Text>
+              前一部分地址。 <br />
+              比如
+              <Typography.Text keyboard>
+                http://protocol-model-server.nc-qa.rootcloudapp.com/frame-pmt/doc.html
+              </Typography.Text>
+              地址，就输入
+              <Typography.Text keyboard>
+                http://protocol-model-server.nc-qa.rootcloudapp.com/frame-pmt
+              </Typography.Text>
+            </blockquote>
+          </Typography.Paragraph>
+        }
+      >
+        <div style={{ marginLeft: '20px', width: '120px', marginTop: '10px' }}>
+          使用说明
+          <InfoCircleOutlined style={{ marginLeft: '8px' }} />
+        </div>
+      </Popover>
+    ),
+    [],
+  );
+
   return (
     <Card bodyStyle={{ padding: 0 }} title="接口代码生成器">
+      {blockContent}
       {headerRender}
       <TDivider />
       <div>

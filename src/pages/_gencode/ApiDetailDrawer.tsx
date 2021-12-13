@@ -12,7 +12,6 @@ import {
   Menu,
   message,
 } from 'antd';
-import { noop } from 'lodash';
 import { useCallback, useEffect, useRef } from 'react';
 import { useModel } from 'umi';
 import { MethodColors } from './ApiTreeForm';
@@ -184,7 +183,7 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
     setDefinitionCodeDrawerProps({
       title: `Model Form Items`,
       visible: true,
-      language: 'javascript',
+      language: 'typescript',
       generateCode: () =>
         generateModelFormItemsCode(selectedRequestRowRef.current),
     });
@@ -195,6 +194,8 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
       width="90%"
       bodyStyle={{ padding: 0 }}
       {...drawerProps}
+      zIndex={200}
+      destroyOnClose={true}
       footer={
         <Space>
           <Button onClick={showTableColumnsProps}>生成 Table 列配置</Button>

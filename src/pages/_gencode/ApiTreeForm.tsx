@@ -9,11 +9,13 @@ import {
   Space,
   Drawer,
 } from 'antd';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { ResourcesTree } from '.';
 import { useModel } from 'umi';
+import { CodeOutlined } from '@ant-design/icons';
 import ApiDetailDrawer from './ApiDetailDrawer';
 import ModelCodeDrawer from './ModelCodeDrawer';
+import generateRhTablePageCode from './code-generate/generate-rhtable-page';
 
 export const MethodColors: any = {
   post: '#f50',
@@ -26,8 +28,19 @@ const ApiDescription = (props: any) => {
     useModel('useApiSwitchModel');
 
   const [iframeVisible, setIFrameVisible] = useState(false);
+  const { setDefinitionCodeDrawerProps } = useModel('useApiSwitchModel');
+
+  const showRhTablePageCode = useCallback(() => {
+    setDefinitionCodeDrawerProps({
+      title: `Model Form Items`,
+      visible: true,
+      language: 'typescript',
+      generateCode: () => generateRhTablePageCode(api),
+    });
+  }, [setDefinitionCodeDrawerProps, api]);
 
   if (!api) return null;
+
   return (
     <Col flex="40%">
       <Card bordered={false} style={{ height: '500px' }}>
@@ -42,15 +55,26 @@ const ApiDescription = (props: any) => {
           <Button onClick={() => setIFrameVisible(true)} type="primary">
             查看接口文档
           </Button>
+          {/分页/.test(api.summary) && (
+            <Button
+              ghost
+              onClick={() => showRhTablePageCode()}
+              type="primary"
+              icon={<CodeOutlined />}
+            >
+              生成表格代码
+            </Button>
+          )}
         </Space>
       </Card>
+      <ModelCodeDrawer />
+
       <ApiDetailDrawer
         api={api}
         onClose={() => setIFrameVisible(false)}
         title={`${selectedTag.name} / ${api.summary}`}
         visible={iframeVisible}
       />
-      <ModelCodeDrawer />
     </Col>
   );
 };

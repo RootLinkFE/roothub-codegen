@@ -1,13 +1,17 @@
-import { Drawer, DrawerProps } from 'antd';
+import { Drawer, DrawerProps, Space, Button, message } from 'antd';
+import { CodeSandboxOutlined, CopyOutlined } from '@ant-design/icons';
 import React, { Suspense } from 'react';
 import { useModel } from 'umi';
 import generateModelClass from './code-generate/generate-model-class';
+import openOnCodeSandbox from '@/shared/codesanbox';
 // import { monaco } from 'react-monaco-editor';
 
 const MonacoEditor = React.lazy(() => import('react-monaco-editor'));
 
 const ModelCodeDrawer: React.FC<DrawerProps> = (props) => {
   const { definitionCodeDrawerProps } = useModel('useApiSwitchModel');
+
+  const code = definitionCodeDrawerProps.generateCode?.();
 
   return (
     <Drawer
@@ -17,6 +21,32 @@ const ModelCodeDrawer: React.FC<DrawerProps> = (props) => {
       bodyStyle={{ padding: 0, display: 'flex' }}
       {...props}
       {...definitionCodeDrawerProps}
+      zIndex={999}
+      extra={
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => {
+              openOnCodeSandbox({
+                componentCode: code,
+              });
+            }}
+            icon={<CodeSandboxOutlined />}
+          >
+            CodeSandbox
+          </Button>
+          <Button
+            ghost
+            type="primary"
+            onClick={() => {
+              message.info('todo');
+            }}
+            icon={<CopyOutlined />}
+          >
+            Copy
+          </Button>
+        </Space>
+      }
     >
       <div
         style={{
@@ -29,8 +59,8 @@ const ModelCodeDrawer: React.FC<DrawerProps> = (props) => {
         {definitionCodeDrawerProps.visible && (
           <Suspense fallback={<div style={{ margin: 'auto' }}>Loading...</div>}>
             <MonacoEditor
-              value={definitionCodeDrawerProps.generateCode?.()}
-              language={definitionCodeDrawerProps.language || 'javascript'}
+              value={code}
+              language={definitionCodeDrawerProps.language || 'typescript'}
               theme="vs-dark"
               width={'100%'}
             />
