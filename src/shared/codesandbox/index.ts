@@ -27,7 +27,7 @@ export default function openOnCodeSandbox({
       },
       'sandbox.config.json': {
         content: `{
-          "template": "create-react-app"
+          "template": "create-react-app-typescript"
         }`,
         isBinary: false,
       },
@@ -37,7 +37,7 @@ export default function openOnCodeSandbox({
   const parametersInput = document.createElement('input');
   form.method = 'POST';
   form.action =
-    'https://codesandbox.io/api/v1/sandboxes/define?module=/src/App.vue';
+    'https://codesandbox.io/api/v1/sandboxes/define?module=/App.tsx';
   form.target = '_blank';
   parametersInput.name = 'parameters';
   parametersInput.value = parameters;

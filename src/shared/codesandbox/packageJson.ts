@@ -5,16 +5,15 @@ const packageJson = {
     antd: '^4.14.0',
     react: '^17.0.0',
     'react-dom': '^17.0.0',
-    '@ant-design/pro-field': '1.24.1',
-    '@ant-design/pro-form': '1.46.0',
-    '@roothub/components': 'latest',
+    '@ant-design/icons': '4.7.0',
+    '@ant-design/pro-table': '2.60.0',
+    '@roothub/components': '0.2.15',
   },
   devDependencies: {
     typescript: '^4.2.2',
   },
-  browserslist: ['> 1%', 'last 2 versions', 'not ie <= 8'],
   keywords: ['react', 'antd'],
-  description: 'React.js example starter project',
+  description: 'React.js example codegen',
 };
 
 export default function genJson(dependencies = {}) {

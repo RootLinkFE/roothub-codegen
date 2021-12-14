@@ -24,12 +24,13 @@
   },
   "dependencies": {
     "@ant-design/pro-layout": "^6.5.0",
+    "@codemirror/lang-javascript": "^0.19.3",
+    "@uiw/react-codemirror": "^4.2.4",
     "ahooks": "^2.10.9",
     "codesandbox": "^2.2.3",
     "lodash": "^4.17.21",
     "react": "17.x",
     "react-dom": "17.x",
-    "react-monaco-editor": "^0.44.0",
     "umi": "^3.5.20"
   },
   "devDependencies": {

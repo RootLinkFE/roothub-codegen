@@ -1,6 +1,6 @@
 import getApiNameAsPageName from '@/shared/getApiNameAsPageName';
 import { defaultSwaggerUrl } from '@/shared/swaggerUrl';
-import { prettyCode } from '../utils';
+import { prettyCode } from '../../../shared/utils';
 import generateTableColumnsProps from './generate-table-columns-props';
 
 export default function generateRhTablePageCode(
@@ -18,7 +18,7 @@ export default function generateRhTablePageCode(
   const getListBlock = `
     const getList =  useCallback(
       async (params) => {
-        return fetch('${defaultSwaggerUrl}/${api.api}', {
+        return fetch('${defaultSwaggerUrl}${api.api}', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -45,9 +45,7 @@ export default function generateRhTablePageCode(
           ${getListBlock}
 
           return (
-            <>
             <RhTable columns={columns}  request={getList} />
-            </>
           );
         }
 

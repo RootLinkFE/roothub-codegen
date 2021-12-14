@@ -1,10 +1,19 @@
 export function cleanParameterDescription(s: string) {
-  const s1 = cleanEnumDesc(s);
+  let s1 = cleanEnumDesc(s);
+  s1 = cleanREF(s1);
   return s1.replace(/([\.@#*+?^=!:${}()|\[\]\/\\])/g, '');
 }
 
 function cleanEnumDesc(s: string) {
   const idx = s.indexOf('ENUM#');
+  if (idx !== -1) {
+    return s.substring(0, idx);
+  }
+  return s;
+}
+
+function cleanREF(s: string) {
+  const idx = s.indexOf('REF#');
   if (idx !== -1) {
     return s.substring(0, idx);
   }

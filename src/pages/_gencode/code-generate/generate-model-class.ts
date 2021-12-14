@@ -1,4 +1,4 @@
-import { cleanParameterDescription, prettyCode } from '../utils';
+import { cleanParameterDescription, prettyCode } from '../../../shared/utils';
 
 const FieldTypeMap: Record<string, string> = {
   integer: 'number',

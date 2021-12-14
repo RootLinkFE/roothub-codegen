@@ -1,17 +1,20 @@
 import { Drawer, DrawerProps, Space, Button, message } from 'antd';
 import { CodeSandboxOutlined, CopyOutlined } from '@ant-design/icons';
-import React, { Suspense } from 'react';
+import React, { Suspense, useMemo } from 'react';
 import { useModel } from 'umi';
 import { omit } from 'lodash';
 import openOnCodeSandbox from '@/shared/codesandbox';
-// import { monaco } from 'react-monaco-editor';
-
-const MonacoEditor = React.lazy(() => import('react-monaco-editor'));
+import CodeMirror from '@uiw/react-codemirror';
+import { javascript } from '@codemirror/lang-javascript';
 
 const ModelCodeDrawer: React.FC<DrawerProps> = (props) => {
   const { definitionCodeDrawerProps } = useModel('useApiSwitchModel');
 
   const code = definitionCodeDrawerProps.generateCode?.();
+
+  const editorHeight = useMemo(() => {
+    return window.innerHeight - 70;
+  }, [window.innerHeight]);
 
   return (
     <Drawer
@@ -58,11 +61,14 @@ const ModelCodeDrawer: React.FC<DrawerProps> = (props) => {
       >
         {definitionCodeDrawerProps.visible && (
           <Suspense fallback={<div style={{ margin: 'auto' }}>Loading...</div>}>
-            <MonacoEditor
+            <CodeMirror
               value={code}
-              language={definitionCodeDrawerProps.language || 'typescript'}
-              theme="vs-dark"
-              width={'100%'}
+              theme="light"
+              height={editorHeight + 'px'}
+              extensions={[javascript({ typescript: true })]}
+              onChange={(value, viewUpdate) => {
+                console.log('value:', value);
+              }}
             />
           </Suspense>
         )}
