@@ -1,5 +1,5 @@
 const packageJson = {
-  name: 'react-components-demo',
+  name: 'codegen-react-demo',
   main: 'index.tsx',
   dependencies: {
     antd: '^4.14.0',
@@ -13,7 +13,7 @@ const packageJson = {
     typescript: '^4.2.2',
   },
   keywords: ['react', 'antd'],
-  description: 'React.js example codegen',
+  description: 'React.js example by codegen',
 };
 
 export default function genJson(dependencies = {}) {

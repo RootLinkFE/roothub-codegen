@@ -31,8 +31,6 @@ const ApiDescription = (props: any) => {
   const [iframeVisible, setIFrameVisible] = useState(false);
   const { setDefinitionCodeDrawerProps } = useModel('useApiSwitchModel');
 
-  if (!api) return null;
-
   const showRhTablePageCode = useCallback(() => {
     setDefinitionCodeDrawerProps({
       title: api.description,
@@ -45,6 +43,8 @@ const ApiDescription = (props: any) => {
       },
     });
   }, [setDefinitionCodeDrawerProps, api]);
+
+  if (!api) return <></>;
 
   return (
     <Col flex="40%">

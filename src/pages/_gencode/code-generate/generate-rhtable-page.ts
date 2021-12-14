@@ -7,7 +7,7 @@ export default function generateRhTablePageCode(
   body: any,
   api: { api: string; description: string },
 ) {
-  const columnCode = generateTableColumnsProps(body);
+  const columnCode = generateTableColumnsProps(body, true);
 
   const componentName = getApiNameAsPageName(api.api);
 
