@@ -1,6 +1,7 @@
 import { defineConfig } from 'umi';
 const basePath = '/codegen/';
 export default defineConfig({
+  title: 'CodeGen',
   base: basePath,
   publicPath: basePath,
   qiankun: {

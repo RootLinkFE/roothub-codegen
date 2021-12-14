@@ -6,6 +6,7 @@ import { omit } from 'lodash';
 import openOnCodeSandbox from '@/shared/codesandbox';
 import CodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 const ModelCodeDrawer: React.FC<DrawerProps> = (props) => {
   const { definitionCodeDrawerProps } = useModel('useApiSwitchModel');
@@ -38,16 +39,16 @@ const ModelCodeDrawer: React.FC<DrawerProps> = (props) => {
           >
             CodeSandbox
           </Button>
-          <Button
-            ghost
-            type="primary"
-            onClick={() => {
-              message.info('todo');
+          <CopyToClipboard
+            text={code}
+            onCopy={() => {
+              message.success('代码已复制到剪贴板！');
             }}
-            icon={<CopyOutlined />}
           >
-            Copy
-          </Button>
+            <Button ghost type="primary" icon={<CopyOutlined />}>
+              Copy
+            </Button>
+          </CopyToClipboard>
         </Space>
       }
     >
