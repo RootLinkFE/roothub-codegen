@@ -18,8 +18,9 @@ export default function generateTableColumnsProps(
     const c = {
       dataIndex: row.name,
       title: cleanParameterDescription(row.description),
-      hideInSearch: index === 0 ? false : true, // 临时只显示第一个字段作为查询
+      hideInSearch: index === 0 || row.name === 'name' ? false : true, // 临时只显示第一个字段作为查询
     };
+
     columns.push(c);
   });
 

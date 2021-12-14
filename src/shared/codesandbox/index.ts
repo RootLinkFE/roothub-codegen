@@ -36,8 +36,7 @@ export default function openOnCodeSandbox({
   const form = document.createElement('form');
   const parametersInput = document.createElement('input');
   form.method = 'POST';
-  form.action =
-    'https://codesandbox.io/api/v1/sandboxes/define?module=/App.tsx';
+  form.action = 'https://codesandbox.io/api/v1/sandboxes/define?file=/App.tsx';
   form.target = '_blank';
   parametersInput.name = 'parameters';
   parametersInput.value = parameters;
