@@ -24,21 +24,23 @@ const ModelCodeDrawer: React.FC<DrawerProps> = (props) => {
       width="60%"
       bodyStyle={{ padding: 0, display: 'flex' }}
       {...props}
-      {...omit(definitionCodeDrawerProps, 'generateCode')}
+      {...omit(definitionCodeDrawerProps, ['generateCode', 'showCodeSandbox'])}
       zIndex={999}
       extra={
         <Space>
-          <Button
-            type="primary"
-            onClick={() => {
-              openOnCodeSandbox({
-                componentCode: code,
-              });
-            }}
-            icon={<CodeSandboxOutlined />}
-          >
-            CodeSandbox
-          </Button>
+          {definitionCodeDrawerProps.showCodeSandbox && (
+            <Button
+              type="primary"
+              onClick={() => {
+                openOnCodeSandbox({
+                  componentCode: code,
+                });
+              }}
+              icon={<CodeSandboxOutlined />}
+            >
+              CodeSandbox
+            </Button>
+          )}
           <CopyToClipboard
             text={code}
             onCopy={() => {

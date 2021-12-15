@@ -14,7 +14,7 @@ export default function getParameterObject(
     const refKey = $ref.replace('#/definitions/', '');
     definition = resourceDetail.definitions?.[refKey];
     if (definition) {
-      const { properties, required } = definition;
+      const { properties = {}, required } = definition;
       children = Object.entries(properties).map(
         ([propertyKey, property]: [string, any]) => {
           let result;

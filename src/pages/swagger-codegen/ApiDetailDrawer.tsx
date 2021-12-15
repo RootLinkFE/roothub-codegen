@@ -10,7 +10,7 @@ import {
   TableProps,
   Tag,
 } from 'antd';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useModel } from 'umi';
 import { MethodColors } from './ApiTreeForm';
 import generateModelFormItemsCode from './code-generate/generate-model-form-items-code';
@@ -70,6 +70,7 @@ function getRequestParams(api: any, resourceDetail: any) {
 
 const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
   const { api, ...drawerProps } = props;
+  const [requestParamsData, setRequestParamsData] = useState<any>([]);
   const {
     resourceDetail,
     setSelectedDefinition,
@@ -82,7 +83,6 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
     selectedRequestRowRef.current = [];
     selectedResponseRowRef.current = [];
   }, [api]);
-  console.log('api: ', api);
 
   const showTableColumnsProps = useCallback(() => {
     if (selectedResponseRowRef.current.length < 1) {
@@ -98,17 +98,26 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
   }, [setDefinitionCodeDrawerProps, selectedResponseRowRef]);
 
   const showModelFormItemsCode = useCallback(() => {
-    if (selectedRequestRowRef.current.length < 1) {
+    /* if (selectedRequestRowRef.current.length < 1) {
       return message.error('请先【请求参数】选择需要生成的字段');
-    }
+    } */
+    const rows =
+      selectedRequestRowRef.current.length < 1
+        ? requestParamsData[0]?.children
+        : selectedRequestRowRef.current;
+
     setDefinitionCodeDrawerProps({
-      title: `Model Form Items`,
+      title: `Model Form Items（${api.description}）`,
       visible: true,
       language: 'typescript',
-      generateCode: () =>
-        generateModelFormItemsCode(selectedRequestRowRef.current),
+      generateCode: () => generateModelFormItemsCode(rows || [], api),
     });
   }, [setDefinitionCodeDrawerProps, selectedRequestRowRef]);
+
+  useEffect(() => {
+    const data = getRequestParams(api, resourceDetail);
+    setRequestParamsData(data);
+  }, [getRequestParams, api, resourceDetail]);
 
   return (
     <Drawer
@@ -155,7 +164,7 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
           pagination={false}
           columns={RequestParamsColumns}
           rowKey="key"
-          dataSource={getRequestParams(api, resourceDetail)}
+          dataSource={requestParamsData}
         />
         <h2 className={styles.h2Title}>200 响应参数</h2>
         <Table

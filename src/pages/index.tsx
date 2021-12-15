@@ -1,4 +1,4 @@
-import GenCode from './_gencode';
+import GenCode from './swagger-codegen';
 
 export default function IndexPage() {
   return <GenCode />;

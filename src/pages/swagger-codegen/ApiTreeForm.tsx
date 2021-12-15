@@ -33,9 +33,10 @@ const ApiDescription = (props: any) => {
 
   const showRhTablePageCode = useCallback(() => {
     setDefinitionCodeDrawerProps({
-      title: api.description,
+      title: `RhTable Code（${api.description}）`,
       visible: true,
       language: 'typescript',
+      showCodeSandbox: true,
       generateCode: () => {
         const body = getResponseParams(api, resourceDetail);
         const code = generateRhTablePageCode(body[1]?.children, api);
