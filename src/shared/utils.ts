@@ -5,6 +5,9 @@ export function cleanParameterDescription(s: string) {
 }
 
 function cleanEnumDesc(s: string) {
+  if (!s) {
+    return '';
+  }
   const idx = s.indexOf('ENUM#');
   if (idx !== -1) {
     return s.substring(0, idx);
