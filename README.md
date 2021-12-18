@@ -23,3 +23,4 @@ http://codegen.leekhub.com/codegen/
 ## TODO List
 
 - 枚举代码生成
+- 考虑结合 https://github.com/alibaba/formily 
