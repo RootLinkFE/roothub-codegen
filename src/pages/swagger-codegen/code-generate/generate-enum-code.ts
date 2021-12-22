@@ -33,6 +33,6 @@ export default function generateEnumCode(rows: any[], api: any = {}) {
         ${getEnumCode(row)}
       `,
       )
-      .join('')})`,
+      .join('')}`,
   );
 }
