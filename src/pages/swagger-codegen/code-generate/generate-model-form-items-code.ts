@@ -6,11 +6,16 @@ const FieldTypeMap: Record<string, string> = {
 
 function getFieldInputCode(prop: any): string {
   const { type, format, $ref, name, description, required } = prop;
+  const descReg = /^#([^(#|ENUM)]+)(#|ENUM#)/g;
+  const result = descReg.exec(description);
+
+  const desc = result && result[1];
+
   if ($ref) {
     return `
       <ProFormSelect
         name={"${name}"}
-        label={"${description}"}
+        label={"${desc}"}
         required={${required}}
       />
     `;
@@ -19,7 +24,7 @@ function getFieldInputCode(prop: any): string {
     return `
       <ProFormDatePicker
         name={"${name}"}
-        label={"${description}"}
+        label={"${desc}"}
         required={${required}}
       />
     `;
@@ -30,7 +35,7 @@ function getFieldInputCode(prop: any): string {
       return `
         <ProFormDigit
           name={"${name}"}
-          label={"${description}"}
+          label={"${desc}"}
           required={${required}}
         />
       `;
@@ -38,7 +43,7 @@ function getFieldInputCode(prop: any): string {
       return `
         <ProFormText
           name={"${name}"}
-          label={"${description}"}
+          label={"${desc}"}
           required={${required}}
         />
       `;

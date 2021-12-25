@@ -14,6 +14,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useModel } from 'umi';
 import { MethodColors } from './ApiTreeForm';
 import generateModelFormItemsCode from './code-generate/generate-model-form-items-code';
+import generateEnumCode from './code-generate/generate-enum-code';
 import generateTableColumnsProps from './code-generate/generate-table-columns-props';
 import styles from './index.module.less';
 import ParameterTableDefinition from './ParameterTableDefinition';
@@ -114,6 +115,20 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
     });
   }, [setDefinitionCodeDrawerProps, selectedRequestRowRef]);
 
+  const showModelEnumCode = useCallback(() => {
+    const rows =
+      selectedRequestRowRef.current.length < 1
+        ? requestParamsData[0]?.children
+        : selectedRequestRowRef.current;
+
+    setDefinitionCodeDrawerProps({
+      title: `Model Form Items（${api.description}）`,
+      visible: true,
+      language: 'typescript',
+      generateCode: () => generateEnumCode(rows || [], api),
+    });
+  }, [setDefinitionCodeDrawerProps, selectedRequestRowRef]);
+
   useEffect(() => {
     const data = getRequestParams(api, resourceDetail);
     setRequestParamsData(data);
@@ -130,6 +145,7 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
         <Space>
           <Button onClick={showTableColumnsProps}>生成 Table 列配置</Button>
           <Button onClick={showModelFormItemsCode}>生成 Form 表单元素</Button>
+          <Button onClick={showModelEnumCode}>生成 枚举</Button>
         </Space>
       }
     >
