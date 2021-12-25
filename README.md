@@ -1,7 +1,16 @@
 # roothub-codegen
 
-
 http://codegen.leekhub.com/codegen/
+
+
+## TODO List
+
+- 枚举代码生成
+- 考虑结合 https://github.com/alibaba/formily 
+- 参考antd pro 模板的api，或者工程[ts-codegen](https://github.com/reeli/ts-codegen)改进
+  - 改进方式：rh api init 配置文件`rhapi-codegen.config.json`，后续更新接口代码都不需要手动重复的执行 `rh api 「url」`
+
+
 ## Screenshots
 
 ![](./screenshots/image3.png)
@@ -19,8 +28,3 @@ http://codegen.leekhub.com/codegen/
 
 ![](./screenshots/image4.png)
 
-
-## TODO List
-
-- 枚举代码生成
-- 考虑结合 https://github.com/alibaba/formily 
