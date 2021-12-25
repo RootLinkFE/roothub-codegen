@@ -8,7 +8,36 @@ http://codegen.leekhub.com/codegen/
 - 枚举代码生成
 - 考虑结合 https://github.com/alibaba/formily 
 - 参考antd pro 模板的api，或者工程[ts-codegen](https://github.com/reeli/ts-codegen)改进
-  - 改进方式：rh api init 配置文件`rhapi-codegen.config.json`，后续更新接口代码都不需要手动重复的执行 `rh api 「url」`
+  - 改进方式：rh api init 配置文件`rhapi-codegen.config.json`到项目根目录，后续更新接口代码都不需要手动重复的执行 `rh api 「url」`
+
+配置举例eg:
+
+```json
+{
+  "outputFolder": "clients",
+  "requestCreateLib": "../utils/createRequest",
+  "requestCreateMethod": "createRequest",
+  "apiSpecsPaths": [
+    {
+      "path": "https://petstore.swagger.io/v2/swagger.json",
+      "name": "RemoteSwaggerService"
+    },
+    {
+      "path": "./data/swagger.json",
+      "name": "LocalSwaggerService"
+    },
+    {
+      "path": "./data/openapi.json",
+      "name": "LocalOpenAPIService"
+    }
+  ],
+  "options": {
+    "withComments": true,
+    "typeWithPrefix": false,
+    "backwardCompatible": false
+  }
+}
+```
 
 
 ## Screenshots
