@@ -12,7 +12,7 @@ function getEnumCode(prop: any): string {
   const enumStr = result && result[1];
   const obj: Record<string, any> = {};
   if (enumStr) {
-    const enumReg = /\d:([^:]+):([^:,]+)/g;
+    const enumReg = /\d:([^:]+):([^:,;]+)/g;
     let match;
     while ((match = enumReg.exec(enumStr)) !== null) {
       obj[match[1]] = match[2];

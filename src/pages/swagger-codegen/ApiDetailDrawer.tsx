@@ -10,7 +10,7 @@ import {
   TableProps,
   Tag,
 } from 'antd';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useModel } from 'umi';
 import { MethodColors } from './ApiTreeForm';
 import generateModelFormItemsCode from './code-generate/generate-model-form-items-code';
@@ -18,40 +18,6 @@ import generateEnumCode from './code-generate/generate-enum-code';
 import generateTableColumnsProps from './code-generate/generate-table-columns-props';
 import styles from './index.module.less';
 import ParameterTableDefinition from './ParameterTableDefinition';
-
-const HeaderParamsColumns: TableProps<any>['columns'] = [
-  { title: '参数名称', dataIndex: 'name' },
-  { title: '参数说明', dataIndex: 'description' },
-  {
-    title: '必须',
-    dataIndex: 'required',
-    width: '60px',
-    render: (v) => (v ? <span style={{ color: '#f50' }}>是</span> : '否'),
-  },
-  { title: '数据类型', dataIndex: 'type' },
-];
-
-const RequestParamsColumns = HeaderParamsColumns.slice(0);
-RequestParamsColumns.push({
-  title: '模型',
-  dataIndex: 'schema',
-  render: (definition: any) =>
-    definition ? <ParameterTableDefinition definition={definition} /> : null,
-});
-RequestParamsColumns.splice(1, 0, {
-  title: '请求类型',
-  dataIndex: 'in',
-  width: '80px',
-});
-
-const ResponseParamsColumns = HeaderParamsColumns.slice(0);
-ResponseParamsColumns.slice(2, 1);
-ResponseParamsColumns.push({
-  title: '模型',
-  dataIndex: 'schema',
-  render: (definition: any) =>
-    definition ? <ParameterTableDefinition definition={definition} /> : null,
-});
 
 function getHeaderParams(api: any) {
   return api.parameters.filter((parameter: any) => {
@@ -108,31 +74,95 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
         : selectedRequestRowRef.current;
 
     setDefinitionCodeDrawerProps({
-      title: `Model Form Items（${api.description}）`,
+      title: `Form Items（${api.description}）`,
       visible: true,
       language: 'typescript',
       generateCode: () => generateModelFormItemsCode(rows || [], api),
     });
-  }, [setDefinitionCodeDrawerProps, selectedRequestRowRef]);
+  }, [setDefinitionCodeDrawerProps, selectedRequestRowRef, requestParamsData]);
 
-  const showModelEnumCode = useCallback(() => {
-    const rows =
-      selectedRequestRowRef.current.length < 1
-        ? requestParamsData[0]?.children
-        : selectedRequestRowRef.current;
-
-    setDefinitionCodeDrawerProps({
-      title: `Model Form Items（${api.description}）`,
-      visible: true,
-      language: 'typescript',
-      generateCode: () => generateEnumCode(rows || [], api),
-    });
-  }, [setDefinitionCodeDrawerProps, selectedRequestRowRef]);
+  const showModelEnumCode = useCallback(
+    (record) => {
+      let rows: any;
+      if (record && record.description) {
+        rows = [record];
+      } else {
+        const data =
+          selectedRequestRowRef.current.length < 1
+            ? requestParamsData[0]?.children
+            : selectedRequestRowRef.current;
+        rows = data.filter((item: { description: string | string[] }) => {
+          if (item && item.description && item.description.indexOf) {
+            return item.description.indexOf('#ENUM#') !== -1;
+          }
+          return false;
+        });
+      }
+      setDefinitionCodeDrawerProps({
+        title: `枚举（${api.description}）`,
+        visible: true,
+        language: 'typescript',
+        generateCode: () => generateEnumCode(rows || [], api),
+      });
+    },
+    [setDefinitionCodeDrawerProps, requestParamsData],
+  );
 
   useEffect(() => {
     const data = getRequestParams(api, resourceDetail);
     setRequestParamsData(data);
   }, [getRequestParams, api, resourceDetail]);
+
+  const HeaderParamsColumns: TableProps<any>['columns'] = useMemo(
+    () => [
+      { title: '参数名称', dataIndex: 'name' },
+      { title: '参数说明', dataIndex: 'description' },
+      {
+        title: '必须',
+        dataIndex: 'required',
+        width: '60px',
+        render: (v) => (v ? <span style={{ color: '#f50' }}>是</span> : '否'),
+      },
+      { title: '数据类型', dataIndex: 'type' },
+    ],
+    [],
+  );
+
+  const RequestParamsColumns = useMemo(() => {
+    const list = HeaderParamsColumns.slice(0);
+    list.push({
+      title: '模型',
+      dataIndex: 'schema',
+      render: (definition: any, record) => {
+        if (definition) {
+          return <ParameterTableDefinition definition={definition} />;
+        }
+        if (record.description.indexOf('#ENUM#') !== -1) {
+          return <a onClick={() => showModelEnumCode(record)}>生成枚举</a>;
+        }
+      },
+    });
+    list.splice(1, 0, {
+      title: '请求类型',
+      dataIndex: 'in',
+      width: '80px',
+    });
+    return list;
+  }, []);
+
+  const ResponseParamsColumns = useMemo(() => {
+    const list = HeaderParamsColumns.slice(0);
+    list.slice(2, 1);
+    list.push({
+      title: '模型',
+      dataIndex: 'schema',
+      render: (definition: any) =>
+        definition ? (
+          <ParameterTableDefinition definition={definition} />
+        ) : null,
+    });
+    return list;
+  }, []);
 
   return (
     <Drawer

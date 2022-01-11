@@ -14,8 +14,8 @@ function getFieldInputCode(prop: any): string {
   if ($ref) {
     return `
       <ProFormSelect
-        name={"${name}"}
-        label={"${desc}"}
+        name="${name}"
+        label="${desc}"
         required={${required}}
       />
     `;
@@ -23,8 +23,8 @@ function getFieldInputCode(prop: any): string {
   if (type === 'string' && format === 'date-time') {
     return `
       <ProFormDatePicker
-        name={"${name}"}
-        label={"${desc}"}
+        name="${name}"
+        label="${desc}"
         required={${required}}
       />
     `;
@@ -34,16 +34,16 @@ function getFieldInputCode(prop: any): string {
     case 'integer':
       return `
         <ProFormDigit
-          name={"${name}"}
-          label={"${desc}"}
+          name="${name}"
+          label="${desc}"
           required={${required}}
         />
       `;
     default:
       return `
         <ProFormText
-          name={"${name}"}
-          label={"${desc}"}
+          name="${name}"
+          label="${desc}"
           required={${required}}
         />
       `;
