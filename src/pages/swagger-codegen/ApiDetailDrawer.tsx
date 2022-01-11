@@ -99,14 +99,16 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
           selectedRequestRowRef.current.length < 1
             ? requestParamsData[0]?.children
             : selectedRequestRowRef.current;
+        rows = [...data, ...resData].filter(
+          (item: { description: string | string[] }) => {
+            if (item && item.description && item.description.indexOf) {
+              return item.description.indexOf('#ENUM#') !== -1;
+            }
+            return false;
+          },
+        );
         // 去掉重复的枚举
-        const unionList = unionBy([...data, ...resData], 'name');
-        rows = unionList.filter((item: { description: string | string[] }) => {
-          if (item && item.description && item.description.indexOf) {
-            return item.description.indexOf('#ENUM#') !== -1;
-          }
-          return false;
-        });
+        rows = unionBy(rows, 'name');
       }
 
       setDefinitionCodeDrawerProps({
