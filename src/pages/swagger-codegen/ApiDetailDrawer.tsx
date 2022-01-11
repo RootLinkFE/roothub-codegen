@@ -10,6 +10,7 @@ import {
   TableProps,
   Tag,
 } from 'antd';
+import { unionBy } from 'lodash';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useModel } from 'umi';
 import { MethodColors } from './ApiTreeForm';
@@ -87,17 +88,27 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
       if (record && record.description) {
         rows = [record];
       } else {
+        const resList = getResponseParams(api, resourceDetail);
+        let resData;
+        if (resList && resList.length) {
+          resData = resList.find(
+            (item: { name: string }) => item.name === 'data',
+          ).children;
+        }
         const data =
           selectedRequestRowRef.current.length < 1
             ? requestParamsData[0]?.children
             : selectedRequestRowRef.current;
-        rows = data.filter((item: { description: string | string[] }) => {
+        // 去掉重复的枚举
+        const unionList = unionBy([...data, ...resData], 'name');
+        rows = unionList.filter((item: { description: string | string[] }) => {
           if (item && item.description && item.description.indexOf) {
             return item.description.indexOf('#ENUM#') !== -1;
           }
           return false;
         });
       }
+
       setDefinitionCodeDrawerProps({
         title: `枚举（${api.description}）`,
         visible: true,
@@ -137,9 +148,10 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
         if (definition) {
           return <ParameterTableDefinition definition={definition} />;
         }
-        if (record.description.indexOf('#ENUM#') !== -1) {
+        if (record.description && record.description.indexOf('#ENUM#') !== -1) {
           return <a onClick={() => showModelEnumCode(record)}>生成枚举</a>;
         }
+        return null;
       },
     });
     list.splice(1, 0, {
@@ -156,10 +168,15 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
     list.push({
       title: '模型',
       dataIndex: 'schema',
-      render: (definition: any) =>
-        definition ? (
-          <ParameterTableDefinition definition={definition} />
-        ) : null,
+      render: (definition: any, record) => {
+        if (definition) {
+          return <ParameterTableDefinition definition={definition} />;
+        }
+        if (record.description && record.description.indexOf('#ENUM#') !== -1) {
+          return <a onClick={() => showModelEnumCode(record)}>生成枚举</a>;
+        }
+        return null;
+      },
     });
     return list;
   }, []);
