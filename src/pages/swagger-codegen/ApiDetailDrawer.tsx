@@ -95,10 +95,7 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
             (item: { name: string }) => item.name === 'data',
           ).children;
         }
-        const data =
-          selectedRequestRowRef.current.length < 1
-            ? requestParamsData[0]?.children
-            : selectedRequestRowRef.current;
+        const data = requestParamsData[0]?.children;
         rows = [...data, ...resData].filter(
           (item: { description: string | string[] }) => {
             if (item && item.description && item.description.indexOf) {
