@@ -5,28 +5,31 @@ const FieldTypeMap: Record<string, string> = {
 };
 
 function getEnumCode(prop: any): string {
-  const { type, format, $ref, name, description, required } = prop;
-  const enumStrReg = /ENUM#(.+)#$/g;
+  console.log(prop);
+
+  const { name, description } = prop;
+  const enumStrReg = /([^ENUM]+)ENUM#(.+)#$/g;
   const result = enumStrReg.exec(description);
 
-  const enumStr = result && result[1];
+  const nameStr = result && result[1] && result[1].replace(/#/g, '');
+  const enumStr = result && result[2];
   const obj: Record<string, any> = {};
   if (enumStr) {
     const enumReg = /\d:([^:]+):([^:,;]+)/g;
     let match;
     while ((match = enumReg.exec(enumStr)) !== null) {
-      obj[match[1]] = match[2];
+      obj[match[2]] = match[1];
     }
   }
-  return `const ${name} = ${JSON.stringify(obj, null)}`;
+  return `
+    // ${nameStr}
+    const ${name} = ${JSON.stringify(obj, null)}
+  `;
 }
 
 export default function generateEnumCode(rows: any[], api: any = {}) {
   return prettyCode(
     `
-    /**
-     * ${api.description} 枚举
-     */
     ${rows
       .map(
         (row) => `

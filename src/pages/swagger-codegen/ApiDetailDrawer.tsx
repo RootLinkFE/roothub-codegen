@@ -90,20 +90,33 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
       } else {
         const resList = getResponseParams(api, resourceDetail);
         let resData;
+        let resDataAll: any[] = [];
         if (resList && resList.length) {
           resData = resList.find(
             (item: { name: string }) => item.name === 'data',
           ).children;
         }
+
+        function recursionReduce(list: any[]) {
+          list.forEach((item: { children: Record<string, any>[] }) => {
+            if (item && item.children && item.children.length) {
+              recursionReduce(item.children);
+            } else {
+              resDataAll.push(item);
+            }
+          });
+        }
+        recursionReduce(resData);
         const data = requestParamsData[0]?.children;
-        rows = [...data, ...resData].filter(
+        rows = [...data, ...resDataAll].filter(
           (item: { description: string | string[] }) => {
             if (item && item.description && item.description.indexOf) {
-              return item.description.indexOf('#ENUM#') !== -1;
+              return item.description.indexOf('ENUM#') !== -1;
             }
             return false;
           },
         );
+
         // 去掉重复的枚举
         rows = unionBy(rows, 'name');
       }
@@ -147,7 +160,7 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
         if (definition) {
           return <ParameterTableDefinition definition={definition} />;
         }
-        if (record.description && record.description.indexOf('#ENUM#') !== -1) {
+        if (record.description && record.description.indexOf('ENUM#') !== -1) {
           return <a onClick={() => showModelEnumCode(record)}>生成枚举</a>;
         }
         return null;
@@ -171,7 +184,7 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
         if (definition) {
           return <ParameterTableDefinition definition={definition} />;
         }
-        if (record.description && record.description.indexOf('#ENUM#') !== -1) {
+        if (record.description && record.description.indexOf('ENUM#') !== -1) {
           return <a onClick={() => showModelEnumCode(record)}>生成枚举</a>;
         }
         return null;
@@ -191,7 +204,7 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
         <Space>
           <Button onClick={showTableColumnsProps}>生成 Table 列配置</Button>
           <Button onClick={showModelFormItemsCode}>生成 Form 表单元素</Button>
-          <Button onClick={showModelEnumCode}>生成 枚举</Button>
+          <Button onClick={showModelEnumCode}>生成全部枚举</Button>
         </Space>
       }
     >
