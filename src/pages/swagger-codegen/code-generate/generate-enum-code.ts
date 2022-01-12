@@ -5,8 +5,6 @@ const FieldTypeMap: Record<string, string> = {
 };
 
 function getEnumCode(prop: any): string {
-  console.log(prop);
-
   const { name, description } = prop;
   const enumStrReg = /([^ENUM]+)ENUM#(.+)#$/g;
   const result = enumStrReg.exec(description);
