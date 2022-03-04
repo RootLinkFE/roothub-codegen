@@ -89,6 +89,8 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
         rows = [record];
       } else {
         const resList = getResponseParams(api, resourceDetail);
+        const reqList = getRequestParams(api, resourceDetail);
+
         let resData;
         let resDataAll: any[] = [];
         if (resList && resList.length) {
@@ -106,7 +108,7 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
             }
           });
         }
-        recursionReduce(resData);
+        recursionReduce(resData || []);
         const data = requestParamsData[0]?.children;
         rows = [...data, ...resDataAll].filter(
           (item: { description: string | string[] }) => {
