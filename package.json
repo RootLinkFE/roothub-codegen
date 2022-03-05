@@ -3,7 +3,6 @@
   "name": "roothub-codegen",
   "scripts": {
     "start": "umi dev",
-    "prebuild": "yarn --frozen-lockfile",
     "build": "umi build",
     "postinstall": "umi generate tmp",
     "prettier": "prettier --write '**/*.{js,jsx,tsx,ts,less,md,json}'",
