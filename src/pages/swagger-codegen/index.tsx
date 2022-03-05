@@ -96,9 +96,29 @@ export default function ApiSwitch() {
 
   // console.log('resourceDetail: ', resourceDetail);
 
-  /*  const blockContent = useMemo(
+  const blockContent = useMemo(
     () => (
-      <Popover title="使用说明" placement="topLeft" content={null}>
+      <Popover
+        title="使用说明"
+        placement="topLeft"
+        content={
+          <Typography.Paragraph>
+            <blockquote>
+              通过Swagger文档地址获取api列表，只需要填写
+              <Typography.Text keyboard>doc.html</Typography.Text>
+              前一部分地址。 <br />
+              比如
+              <Typography.Text keyboard>
+                http://xxx-dev.leekhub.com/order-server/doc.html
+              </Typography.Text>
+              地址，就输入
+              <Typography.Text keyboard>
+                http://xxx-dev.leekhub.com/order-server
+              </Typography.Text>
+            </blockquote>
+          </Typography.Paragraph>
+        }
+      >
         <div style={{ marginLeft: '20px', width: '120px', marginTop: '10px' }}>
           使用说明
           <InfoCircleOutlined style={{ marginLeft: '8px' }} />
@@ -106,10 +126,11 @@ export default function ApiSwitch() {
       </Popover>
     ),
     [],
-  ); */
+  );
 
   return (
     <Card bodyStyle={{ padding: 0 }} title="CodeGen">
+      {blockContent}
       {headerRender}
       <TDivider />
       <div>

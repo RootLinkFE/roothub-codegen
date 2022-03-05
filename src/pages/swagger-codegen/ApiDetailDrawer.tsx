@@ -109,7 +109,7 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
           });
         }
         recursionReduce(resData || []);
-        const data = requestParamsData[0]?.children;
+        const data = requestParamsData[0]?.children || [];
         rows = [...data, ...resDataAll].filter(
           (item: { description: string | string[] }) => {
             if (item && item.description && item.description.indexOf) {
@@ -204,9 +204,15 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
       destroyOnClose={true}
       footer={
         <Space>
-          <Button onClick={showTableColumnsProps}>生成 Table 列配置</Button>
-          <Button onClick={showModelFormItemsCode}>生成 Form 表单元素</Button>
-          <Button onClick={showModelEnumCode}>生成全部枚举</Button>
+          <Button type="primary" onClick={showTableColumnsProps}>
+            生成 Table 列配置
+          </Button>
+          <Button type="primary" onClick={showModelFormItemsCode}>
+            生成 Form 表单元素
+          </Button>
+          <Button type="primary" onClick={showModelEnumCode}>
+            生成全部枚举
+          </Button>
         </Space>
       }
     >

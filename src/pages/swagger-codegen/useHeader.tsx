@@ -41,6 +41,7 @@ export default function useApiSwitchHeader() {
       </Col>
       <Col flex="none">
         <Radio.Group
+          disabled
           onChange={(e) => setType(e.target.value)}
           options={[{ label: '接口', value: 'api' }]}
           optionType="button"
