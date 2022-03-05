@@ -7,7 +7,6 @@
     "postinstall": "umi generate tmp",
     "prettier": "prettier --write '**/*.{js,jsx,tsx,ts,less,md,json}'",
     "test": "umi-test",
-    "postbuild": "node ./scripts/site/spa-gh-pages.js",
     "deploy": "node ./scripts/site/gh-pages-publish.js",
     "test:coverage": "umi-test --coverage"
   },
@@ -39,7 +38,6 @@
     "@types/react": "^17.0.0",
     "@types/react-copy-to-clipboard": "^5.0.2",
     "@types/react-dom": "^17.0.0",
-    "@umijs/plugin-qiankun": "^2.35.2",
     "@umijs/preset-react": "1.x",
     "@umijs/test": "^3.5.20",
     "fs-extra": "^10.0.0",

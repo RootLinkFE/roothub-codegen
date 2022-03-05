@@ -17,6 +17,7 @@
     "allowSyntheticDefaultImports": true
   },
   "include": [
+    "types",
     "mock/**/*",
     "src/**/*",
     "config/**/*",

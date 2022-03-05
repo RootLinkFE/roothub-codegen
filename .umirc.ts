@@ -1,15 +1,21 @@
 import { defineConfig } from 'umi';
-const basePath = '/codegen/';
+// const basePath = '/';
 export default defineConfig({
-  title: 'CodeGen',
-  base: basePath,
-  publicPath: basePath,
-  qiankun: {
-    slave: {},
+  favicon: 'https://avatars.githubusercontent.com/u/76474279?s=200&v=4',
+  devServer: {
+    port: 3031,
   },
+  title: 'CodeGen',
+  // base: basePath,
+  // publicPath: basePath,
   nodeModulesTransform: {
     type: 'none',
   },
+  history: {
+    // 默认的类型是 `browser`，但是由于 vscode webview 环境不存在浏览器路由，改成 `memory` 和 `hash` 都可以（这里坑了好久）
+    type: 'memory',
+  },
+  outputPath: '../../templates/codegen',
   routes: [{ path: '/', component: '@/pages/index' }],
   fastRefresh: {},
 });

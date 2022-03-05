@@ -1,48 +1,57 @@
 # roothub-codegen
 
-http://codegen.leekhub.com/codegen/
+安装 [RootHub VSCode](https://marketplace.visualstudio.com/items?itemName=giscafer.roothub) 插件，使用 CodeGen 生成代码
+## 开发说明文档
 
+### 页面开发说明
 
-## TODO List
+本项目基于 Umi3.x，本地开发和 Umi开发没区别
+### RootHub VSCode插件开发说明
 
-- 枚举代码生成
-- 考虑结合 https://github.com/alibaba/formily 
-- 参考antd pro 模板的api，或者工程[ts-codegen](https://github.com/reeli/ts-codegen)改进
-  - 改进方式：rh api init 配置文件`rhapi-codegen.config.json`到项目根目录，后续更新接口代码都不需要手动重复的执行 `rh api 「url」`
+在 vscode-roothub 工程下，git submodule update 代码后，cd 进入 codegen 工程
 
-配置举例eg:
+然后 `yarn start` 启动项目（端口默认 3031）
+
+`.vscode/launch.json`，运行 `vscode extension` 时添加启动环境变量 ，打开 CodeGen 会自动获取 http://localhost:3031 的地址内容。
 
 ```json
 {
-  "outputFolder": "clients",
-  "requestCreateLib": "../utils/createRequest",
-  "requestCreateMethod": "createRequest",
-  "apiSpecsPaths": [
+  "version": "0.2.0",
+  "configurations": [
     {
-      "path": "https://petstore.swagger.io/v2/swagger.json",
-      "name": "RemoteSwaggerService"
+      "name": "Run Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "preLaunchTask": "${defaultBuildTask}",
+      // 启动环境变量
+      "env": {
+        "NODE_ENV": "development"
+      }
     },
     {
-      "path": "./data/swagger.json",
-      "name": "LocalSwaggerService"
-    },
-    {
-      "path": "./data/openapi.json",
-      "name": "LocalOpenAPIService"
+      "name": "Extension Tests",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--extensionTestsPath=${workspaceFolder}/out/test/suite/index"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/out/**/*.js",
+        "${workspaceFolder}/dist/**/*.js"
+      ],
+      "preLaunchTask": "tasks: watch-tests"
     }
-  ],
-  "options": {
-    "withComments": true,
-    "typeWithPrefix": false,
-    "backwardCompatible": false
-  }
+  ]
 }
 ```
-
 
 ## Screenshots
 
 ![](./screenshots/image3.png)
+
 ### 分页列表页代码生成
 
 1、分页接口会高亮字体提示
@@ -53,7 +62,6 @@ http://codegen.leekhub.com/codegen/
 
 ![](./screenshots/image2.png)
 
-3、支持codesandbox 打开预览效果
+3、支持 codesandbox 打开预览效果
 
 ![](./screenshots/image4.png)
-
