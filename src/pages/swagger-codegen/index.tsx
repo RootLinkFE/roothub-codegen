@@ -103,19 +103,17 @@ export default function ApiSwitch() {
         placement="topLeft"
         content={
           <Typography.Paragraph>
-            <blockquote>
-              通过Swagger文档地址获取api列表，只需要填写
-              <Typography.Text keyboard>doc.html</Typography.Text>
-              前一部分地址。 <br />
-              比如
-              <Typography.Text keyboard>
-                http://xxx-dev.leekhub.com/order-server/doc.html
-              </Typography.Text>
-              地址，就输入
-              <Typography.Text keyboard>
-                http://xxx-dev.leekhub.com/order-server
-              </Typography.Text>
-            </blockquote>
+            通过Swagger文档地址获取api列表，只需要填写
+            <Typography.Text keyboard>doc.html</Typography.Text>
+            前一部分地址。 <br />
+            比如
+            <Typography.Text keyboard>
+              http://xxx-dev.leekhub.com/order-server/doc.html
+            </Typography.Text>
+            地址，就输入
+            <Typography.Text keyboard>
+              http://xxx-dev.leekhub.com/order-server
+            </Typography.Text>
           </Typography.Paragraph>
         }
       >
