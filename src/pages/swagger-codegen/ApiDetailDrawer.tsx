@@ -122,7 +122,10 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
         // 去掉重复的枚举
         rows = unionBy(rows, 'name');
       }
-
+      if (rows.length === 0) {
+        message.warn('没有找到枚举');
+        return;
+      }
       setDefinitionCodeDrawerProps({
         title: `枚举（${api.description}）`,
         visible: true,

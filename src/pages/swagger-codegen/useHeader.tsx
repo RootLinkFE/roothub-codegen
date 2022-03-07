@@ -32,9 +32,9 @@ export default function useApiSwitchHeader() {
       </Col>
       <Col flex={1}>
         <Input
-          onChange={(e) =>
-            (urlRef.current = (e.nativeEvent.target as any).value)
-          }
+          onChange={(e) => {
+            urlRef.current = (e.nativeEvent.target as any).value;
+          }}
           placeholder="swagger 文档地址"
           defaultValue={urlRef.current}
         />

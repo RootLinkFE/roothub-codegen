@@ -36,7 +36,11 @@ export default function useApiSwitchModel() {
     loading: resourcesLoading,
   } = useRequest(
     async () => {
-      const res = await requestToBody(urlRef.current + '/swagger-resources');
+      const swaggerUrl =
+        urlRef.current.lastIndexOf('/') === urlRef.current.length - 1
+          ? urlRef.current.slice(0, -1)
+          : urlRef.current;
+      const res = await requestToBody(swaggerUrl + '/swagger-resources');
       return res;
     },
     {
