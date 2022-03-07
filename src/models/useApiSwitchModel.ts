@@ -1,8 +1,7 @@
+import { requestToBody } from '@/shared/fetch/requestToBody';
 import { defaultSwaggerUrl } from '@/shared/swaggerUrl';
 import { useRequest } from 'ahooks';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-
-const requestToBody = require('../../scripts/tool/generate-api/requestToBody.js');
 
 function classifyPathsToTags(tags: any[], pathObj: object) {
   const tagMap = new Map();

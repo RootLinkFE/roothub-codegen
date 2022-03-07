@@ -1,9 +1,6 @@
-import React, { useCallback, useRef, useState } from 'react';
-import { Card, Row, Col, Input, Button, Radio } from 'antd';
-import { useRequest } from 'ahooks';
+import { Button, Col, Input, Radio, Row } from 'antd';
+import React from 'react';
 import { useModel } from 'umi';
-
-const requestToBody = require('../../../scripts/tool/generate-api/requestToBody.js');
 
 export default function useApiSwitchHeader() {
   const { urlRef, type, setType, fetchResources, resources, resourcesLoading } =
