@@ -1,17 +1,24 @@
-const request = require('request');
+import { fetchInVSCode, isInVSCode } from '@/shared/vscode';
+import axios from 'axios';
 
-export function requestToBody(url = ''): Promise<Record<string, any>> {
-  return new Promise((resolve, reject) => {
-    request.get(
-      url.toString(),
-      (err: any, res: { statusCode: number }, body: string) => {
-        if (err || res.statusCode !== 200) {
-          reject(err);
-          return;
-        } else {
-          resolve(JSON.parse(body));
-        }
-      },
-    );
-  });
+export async function requestToBody(
+  endpoint = '',
+): Promise<Record<string, any>> {
+  const url = endpoint.toString();
+
+  if (isInVSCode) {
+    return fetchInVSCode({ url });
+  }
+
+  try {
+    const res = await axios.get(url);
+    if (res.status !== 200) {
+      return [];
+    } else {
+      return res.data;
+    }
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
 }

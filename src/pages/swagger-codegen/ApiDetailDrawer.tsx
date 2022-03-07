@@ -21,19 +21,25 @@ import styles from './index.module.less';
 import ParameterTableDefinition from './ParameterTableDefinition';
 
 function getHeaderParams(api: any) {
-  return api.parameters.filter((parameter: any) => {
-    return parameter.in === 'header';
-  });
+  if (api.parameters?.length > 0) {
+    return api.parameters?.filter((parameter: any) => {
+      return parameter.in === 'header';
+    });
+  }
+  return [];
 }
 
 function getRequestParams(api: any, resourceDetail: any) {
-  return api.parameters
-    .filter((parameter: any) => {
-      return parameter.in !== 'header';
-    })
-    .map((parameter: any) => {
-      return getParameterObject(resourceDetail, parameter);
-    });
+  if (api.parameters?.length > 0) {
+    return api.parameters
+      .filter((parameter: any) => {
+        return parameter.in !== 'header';
+      })
+      .map((parameter: any) => {
+        return getParameterObject(resourceDetail, parameter);
+      });
+  }
+  return [];
 }
 
 const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
