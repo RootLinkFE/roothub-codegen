@@ -1,9 +1,7 @@
 import { fetchInVSCode, isInVSCode } from '@/shared/vscode';
 import axios from 'axios';
 
-export async function requestToBody(
-  endpoint = '',
-): Promise<Record<string, any>> {
+export async function requestToBody(endpoint = ''): Promise<any> {
   const url = endpoint.toString();
 
   if (isInVSCode) {

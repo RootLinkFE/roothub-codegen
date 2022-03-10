@@ -39,10 +39,9 @@ export default function useApiSwitchModel() {
         urlRef.current.lastIndexOf('/') === urlRef.current.length - 1
           ? urlRef.current.slice(0, -1)
           : urlRef.current;
-      console.log(1111, swaggerUrl);
 
       const res = await requestToBody(swaggerUrl + '/swagger-resources');
-      console.log('res=', res);
+      // console.log('res=', res);
 
       return res;
     },

@@ -31,7 +31,7 @@ function getVscode() {
 }
 getVscode();
 
-export function postMessage(command: string, data: any = {}) {
+export function postVSCodeMessage(command: string, data: any = {}) {
   // console.log('post command: ', command, data);
   getVscode()?.postMessage({
     command,
@@ -42,6 +42,9 @@ export function postMessage(command: string, data: any = {}) {
 const CommandHandler: Record<string, (data: any) => any> = {
   fetchResponse(data) {
     const [resolve, reject] = fetchResponsePromiseMap[data.sessionId];
+    console.log('====================================');
+    console.log(data.success);
+    console.log('====================================');
     if (data.success) {
       resolve(data.response);
     } else {
@@ -67,6 +70,7 @@ export function setupBackgroundManagement() {
 
 export function fetch(
   option: AxiosRequestConfig & { sessionId?: string },
+  commandName = 'fetch',
 ): AxiosPromise<any> {
   option.headers = option.headers || {};
 
@@ -79,11 +83,14 @@ export function fetch(
   const promise = new Promise((resolve, reject) => {
     fetchResponsePromiseMap[sessionId] = [resolve, reject];
   });
-  postMessage('fetch', option);
+  postVSCodeMessage(commandName, option);
   return promise as AxiosPromise;
 }
 
-export function fetchInVSCode(option: AxiosRequestConfig) {
+export function fetchInVSCode(
+  option: AxiosRequestConfig,
+  commandName = 'fetch',
+) {
   option.headers = option.headers || {};
-  return fetch(option);
+  return fetch(option, commandName);
 }

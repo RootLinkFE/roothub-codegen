@@ -1,4 +1,6 @@
 import { getParameters } from 'codesandbox/lib/api/define';
+import { message } from 'antd';
+import { isInVSCode } from '../vscode';
 import indexHtml from './indexHtml';
 import MainJs from './mainJs';
 import genJson from './packageJson';
@@ -33,10 +35,24 @@ export default function openOnCodeSandbox({
       },
     },
   });
+
+  const actionUrl =
+    'https://codesandbox.io/api/v1/sandboxes/define?file=/App.tsx';
+
+  if (isInVSCode) {
+    /*   fetchInVSCode(
+      { url: actionUrl, data: { parameters } },
+      'openInCodeSandBox',
+    ); */
+    message.warning(
+      'VSCode环境下暂不支持CodeSandbox跳转预览，如需使用，请使用网页版 http://codegen.leekhub.com',
+    );
+    return;
+  }
   const form = document.createElement('form');
   const parametersInput = document.createElement('input');
   form.method = 'POST';
-  form.action = 'https://codesandbox.io/api/v1/sandboxes/define?file=/App.tsx';
+  form.action = actionUrl;
   form.target = '_blank';
   parametersInput.name = 'parameters';
   parametersInput.value = parameters;

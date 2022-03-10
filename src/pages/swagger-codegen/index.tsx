@@ -1,19 +1,19 @@
-import React, { useCallback, useMemo } from 'react';
+import { isInVSCode } from '@/shared/vscode';
+import { InfoCircleOutlined } from '@ant-design/icons';
 import {
   Card,
-  Row,
   Col,
-  Input,
-  Typography,
   Divider,
   Menu,
   MenuProps,
   Popover,
+  Row,
+  Typography,
 } from 'antd';
-import useApiSwitchHeader from './useHeader';
-import ApiTreeForm from './ApiTreeForm';
+import React, { useCallback, useMemo } from 'react';
 import { useModel } from 'umi';
-import { InfoCircleOutlined } from '@ant-design/icons';
+import ApiTreeForm from './ApiTreeForm';
+import useApiSwitchHeader from './useHeader';
 
 const ColMenuStyle = {
   height: '500px',
@@ -89,7 +89,7 @@ export const ResourcesTree: React.FC<
 };
 
 export default function ApiSwitch() {
-  const { headerRender, resources, urlRef, type } = useApiSwitchHeader();
+  const { headerRender, resources = [], urlRef, type } = useApiSwitchHeader();
 
   const { setSelectedResourceIndex, resourceDetail } =
     useModel('useApiSwitchModel');
@@ -114,10 +114,22 @@ export default function ApiSwitch() {
             <Typography.Text keyboard>
               http://xxx-dev.leekhub.com/order-server
             </Typography.Text>
+            {!isInVSCode && (
+              <div style={{ marginTop: '20px' }}>
+                Web网页存在跨域问题，推荐使用VSCode插件：
+                <a
+                  href="https://marketplace.visualstudio.com/items?itemName=giscafer.roothub"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  点击安装
+                </a>
+              </div>
+            )}
           </Typography.Paragraph>
         }
       >
-        <div style={{ marginLeft: '20px', width: '120px', marginTop: '10px' }}>
+        <div style={{ marginLeft: '20px', width: '460px', marginTop: '10px' }}>
           使用说明
           <InfoCircleOutlined style={{ marginLeft: '8px' }} />
         </div>
