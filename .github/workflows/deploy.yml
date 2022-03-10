@@ -46,7 +46,7 @@ jobs:
         run: yarn
 
       - name: Build ⛏️
-        run: yarn build
+        run: yarn build:web
       - name: Deploy 🚀
         run: yarn deploy
         env:

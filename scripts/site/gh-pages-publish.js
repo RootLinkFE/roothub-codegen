@@ -1,6 +1,6 @@
 const { cd, exec, echo, touch, mv, mkdir } = require('shelljs');
 const url = require('url');
-
+require('./spa-gh-pages');
 /*
 const { readFileSync } = require('fs');
 const { execSync } = require('child_process');
@@ -29,9 +29,9 @@ let npmEmail = process.env.NPM_EMAIL;
 cd('dist');
 touch('.nojekyll');
 // 配合微前端basePath
-mkdir('codegen');
-mv('-f', '*', 'codegen/');
-mv('-f', 'codegen/CNAME', '../dist/');
+// mkdir('codegen');
+// mv('-f', '*', 'codegen/');
+// mv('-f', 'codegen/CNAME', '../dist/');
 exec('git init');
 exec('git add .');
 exec(`git config user.name "${npmUser}"`);
