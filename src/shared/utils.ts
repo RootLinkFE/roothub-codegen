@@ -40,3 +40,10 @@ export function prettyCode(code: string) {
 export function prettyJSON(json: object) {
   return JSON.stringify(json, null, 2);
 }
+
+export function formatUrlChar(url: string) {
+  const formatUrl =
+    url.lastIndexOf('/') === url.length - 1 ? url.slice(0, -1) : url;
+
+  return formatUrl;
+}

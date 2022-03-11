@@ -1,5 +1,6 @@
 import { requestToBody } from '@/shared/fetch/requestToBody';
 import { defaultSwaggerUrl } from '@/shared/swaggerUrl';
+import { formatUrlChar } from '@/shared/utils';
 import { useRequest } from 'ahooks';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -35,10 +36,7 @@ export default function useApiSwitchModel() {
     loading: resourcesLoading,
   } = useRequest(
     async () => {
-      const swaggerUrl =
-        urlRef.current.lastIndexOf('/') === urlRef.current.length - 1
-          ? urlRef.current.slice(0, -1)
-          : urlRef.current;
+      const swaggerUrl = formatUrlChar(urlRef.current);
 
       const res = await requestToBody(swaggerUrl + '/swagger-resources');
       // console.log('res=', res);
@@ -70,7 +68,8 @@ export default function useApiSwitchModel() {
   const { data: resourceDetail } = useRequest(
     async () => {
       if (selectedResourceIndex) {
-        const res = await requestToBody(url + selectedResource.url);
+        const formatUrl = formatUrlChar(url);
+        const res = await requestToBody(formatUrl + selectedResource.url);
         classifyPathsToTags(res.tags, res.paths);
         return res;
       }
