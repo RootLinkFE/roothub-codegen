@@ -25,7 +25,7 @@ export const MethodColors: any = {
 
 const ApiDescription = (props: any) => {
   const { api } = props;
-  const { resourceDetail, urlRef, selectedResource, selectedTag } =
+  const { resourceDetail, selectedResource, selectedTag } =
     useModel('useApiSwitchModel');
 
   const [iframeVisible, setIFrameVisible] = useState(false);

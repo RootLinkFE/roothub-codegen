@@ -3,6 +3,8 @@ import { defaultSwaggerUrl } from '@/shared/swaggerUrl';
 import { formatUrlChar } from '@/shared/utils';
 import { useRequest } from 'ahooks';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import storage from '../shared/storage';
+import { uniq } from 'lodash';
 
 function classifyPathsToTags(tags: any[], pathObj: object) {
   const tagMap = new Map();
@@ -25,9 +27,20 @@ function classifyPathsToTags(tags: any[], pathObj: object) {
 }
 
 export default function useApiSwitchModel() {
+  // 类型
+  const [type, setType] = useState('api');
+
+  // url历史记录获取
+  const storageUrls: any[] = storage.get('storageUrls');
+
+  // api历史列表
+  const [apiUrls, setapiUrls] = useState<any[string]>(storageUrls || []);
+
   // 接口地址的ref
-  const urlRef = useRef(defaultSwaggerUrl);
-  const url = urlRef.current;
+  const [urlValue, setUrlValue] = useState<any[string]>(
+    storageUrls && storageUrls.length > 0 ? storageUrls[0] : defaultSwaggerUrl,
+  );
+  const url = urlValue;
 
   // 通过当前资源地址获取资源
   const {
@@ -36,11 +49,16 @@ export default function useApiSwitchModel() {
     loading: resourcesLoading,
   } = useRequest(
     async () => {
-      const swaggerUrl = formatUrlChar(urlRef.current);
+      const swaggerUrl = formatUrlChar(urlValue);
 
       const res = await requestToBody(swaggerUrl + '/swagger-resources');
       // console.log('res=', res);
 
+      if (res) {
+        handleStorageUrl();
+        // url成功，重置选中的key，兼容处理刷新
+        setSelectedResourceIndex('');
+      }
       return res;
     },
     {
@@ -48,8 +66,22 @@ export default function useApiSwitchModel() {
     },
   );
 
-  // 类型
-  const [type, setType] = useState('api');
+  /**
+   * 处理url结合历史url存储到storage
+   */
+  const handleStorageUrl = () => {
+    const current = urlValue;
+    const storageUrls: any[] = storage.get('storageUrls');
+    let newStorageUrls: any[] = [current];
+    if (storageUrls) {
+      const item = storageUrls.find((v: string) => v === current);
+      newStorageUrls = (
+        item ? uniq([current, ...storageUrls]) : [current, ...storageUrls]
+      ).slice(0, 10);
+    }
+    storage.set('storageUrls', newStorageUrls);
+    setapiUrls(newStorageUrls);
+  };
 
   // 当前选择的资源key
   const [selectedResourceIndex, setSelectedResourceIndex] =
@@ -58,11 +90,6 @@ export default function useApiSwitchModel() {
     () => resources?.[selectedResourceIndex],
     [selectedResourceIndex, resources],
   );
-
-  // 如果当前url改变，重置选中的key
-  useEffect(() => {
-    setSelectedResourceIndex('');
-  }, [url]);
 
   // 当前选中的资源 Key 获取详情
   const { data: resourceDetail } = useRequest(
@@ -125,9 +152,12 @@ export default function useApiSwitchModel() {
   }, [selectedTagIndex]);
 
   return {
-    urlRef,
+    urlValue,
+    setUrlValue,
     type,
     setType,
+    apiUrls,
+    setapiUrls,
     selectedResourceIndex,
     setSelectedResourceIndex,
     selectedResource,

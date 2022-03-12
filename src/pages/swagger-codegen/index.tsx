@@ -89,7 +89,7 @@ export const ResourcesTree: React.FC<
 };
 
 export default function ApiSwitch() {
-  const { headerRender, resources = [], urlRef, type } = useApiSwitchHeader();
+  const { headerRender, resources = [], type } = useApiSwitchHeader();
 
   const { setSelectedResourceIndex, resourceDetail } =
     useModel('useApiSwitchModel');
