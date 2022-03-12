@@ -2,9 +2,9 @@ import { requestToBody } from '@/shared/fetch/requestToBody';
 import { defaultSwaggerUrl } from '@/shared/swaggerUrl';
 import { formatUrlChar } from '@/shared/utils';
 import { useRequest } from 'ahooks';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import storage from '../shared/storage';
 import { uniq } from 'lodash';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import storage from '../shared/storage';
 
 function classifyPathsToTags(tags: any[], pathObj: object) {
   const tagMap = new Map();
@@ -34,7 +34,7 @@ export default function useApiSwitchModel() {
   const storageUrls: any[] = storage.get('storageUrls');
 
   // api历史列表
-  const [apiUrls, setapiUrls] = useState<any[string]>(storageUrls || []);
+  const [apiUrls, setApiUrls] = useState<any[string]>(storageUrls || []);
 
   // 接口地址的ref
   const [urlValue, setUrlValue] = useState<any[string]>(
@@ -80,7 +80,7 @@ export default function useApiSwitchModel() {
       ).slice(0, 10);
     }
     storage.set('storageUrls', newStorageUrls);
-    setapiUrls(newStorageUrls);
+    setApiUrls(newStorageUrls);
   };
 
   // 当前选择的资源key
@@ -157,7 +157,7 @@ export default function useApiSwitchModel() {
     type,
     setType,
     apiUrls,
-    setapiUrls,
+    setApiUrls,
     selectedResourceIndex,
     setSelectedResourceIndex,
     selectedResource,

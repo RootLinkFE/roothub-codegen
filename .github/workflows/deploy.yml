@@ -44,7 +44,8 @@ jobs:
 
       - name: Install Dependencies
         run: yarn
-
+      - name: Test ⛏️
+        run: npm run test
       - name: Build ⛏️
         run: yarn build:web
       - name: Deploy 🚀
