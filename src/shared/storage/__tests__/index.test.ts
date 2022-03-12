@@ -64,8 +64,8 @@ describe('numberFormat', () => {
       const result = s.get('c');
       expect(result).toEqual('ccc');
       setTimeout(() => {
-        const result = storage.get('c');
-        expect(result).toBeNull();
+        const result1 = storage.get('c');
+        expect(result1).toBeNull();
       }, 2000);
     });
   });

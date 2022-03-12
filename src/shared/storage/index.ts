@@ -1,3 +1,10 @@
+/**
+ * @author giscafer
+ * @homepage http://giscafer.com
+ * @created 2022-03-12 14:11:54
+ * @description LocalStorage和SessionStorage的统一使用和管理、解决微前端下，同域缓存覆盖问题
+ */
+
 import { IStorage } from './interface';
 import { StorageOptions, StoreDataType, StoreType, ValueType } from './types';
 
