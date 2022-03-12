@@ -70,7 +70,7 @@ export default function useApiSwitchModel() {
    * 处理url结合历史url存储到storage
    */
   const handleStorageUrl = () => {
-    const current = urlValue;
+    const current = formatUrlChar(urlValue);
     const storageUrls: any[] = storage.get('storageUrls');
     let newStorageUrls: any[] = [current];
     if (storageUrls) {

@@ -77,7 +77,6 @@ export default function useApiSwitchHeader() {
           placeholder="swagger 文档地址"
           defaultValue={urlValue}
           value={urlValue}
-          key={urlValue}
         />
       </Col>
       <Col flex="none">
