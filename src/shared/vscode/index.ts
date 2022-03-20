@@ -1,5 +1,8 @@
 import { AxiosPromise, AxiosRequestConfig } from 'axios';
 import { noop, uniqueId } from 'lodash';
+import storage from '../storage';
+import state from '@/stores/index';
+import { message } from 'antd';
 
 export const fetchResponsePromiseMap: Record<string, ((r: any) => void)[]> = {};
 
@@ -48,9 +51,21 @@ const CommandHandler: Record<string, (data: any) => any> = {
     if (data.success) {
       resolve(data.response);
     } else {
+      message.error('获取失败！');
       reject(data.response);
     }
     delete fetchResponsePromiseMap[data.sessionId];
+  },
+  updateGlobalStorage(data) {
+    const arr = data ? Object.keys(data) : [];
+    if (arr.length > 0) {
+      for (let key in data) {
+        storage.set(key, data[key]);
+        if (key === 'storageUrls' && data[key]) {
+          state.swagger.setApiUrlsOrInitUrlValue(data[key]);
+        }
+      }
+    }
   },
 };
 
