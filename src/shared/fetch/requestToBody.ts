@@ -11,12 +11,12 @@ export async function requestToBody(endpoint = ''): Promise<any> {
   try {
     const res = await axios.get(url);
     if (res.status !== 200) {
-      return [];
+      return null;
     } else {
       return res.data;
     }
   } catch (err) {
     console.error(err);
-    return [];
+    return null;
   }
 }

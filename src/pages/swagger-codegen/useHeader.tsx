@@ -1,31 +1,16 @@
-import { Button, Col, Input, Radio, Row, Menu, Dropdown } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
+import { Button, Col, Dropdown, Input, Menu, Row } from 'antd';
+import { observer } from 'mobx-react';
 import React from 'react';
 import { useModel } from 'umi';
-import { CloseOutlined } from '@ant-design/icons';
+import state from '@/stores/index';
 import storage from '../../shared/storage';
 
-export default function useApiSwitchHeader() {
-  const {
-    urlValue,
-    setUrlValue,
-    type,
-    setType,
-    apiUrls,
-    setapiUrls,
-    fetchResources,
-    resources,
-    resourcesLoading,
-  } = useModel('useApiSwitchModel');
+const ApiSwitchHeader: React.FC = () => {
+  const { fetchResources, resourcesLoading } = useModel('useApiSwitchModel');
 
-  // const { run: fetchBlocks, data: resources, loading } = useRequest(
-  //   async () => {
-  //     const res = await requestToBody(urlValue + '/swagger-resources')
-  //     return res
-  //   },
-  //   {
-  //     manual: true,
-  //   }
-  // )
+  const swaggerStore = state.swagger;
+  const { urlValue, apiUrls } = state.swagger;
 
   const menu = (
     <Menu>
@@ -35,7 +20,7 @@ export default function useApiSwitchHeader() {
             title={apiUrl}
             key={apiUrl}
             onClick={(event) => {
-              setUrlValue(event.key);
+              swaggerStore.setUrlValue(event.key);
             }}
           >
             <Row justify="space-between" align="middle">
@@ -47,7 +32,7 @@ export default function useApiSwitchHeader() {
                   e.stopPropagation();
                   const urls = [...apiUrls];
                   urls.splice(i, 1);
-                  setapiUrls(urls);
+                  swaggerStore.setApiUrls(urls);
                   storage.set('storageUrls', urls);
                 }}
               />
@@ -58,7 +43,7 @@ export default function useApiSwitchHeader() {
     </Menu>
   );
 
-  const headerRender = (
+  return (
     <Row style={{ margin: '10px 10px 0' }} gutter={16}>
       <Col flex="none">
         <Button
@@ -72,12 +57,11 @@ export default function useApiSwitchHeader() {
       <Col flex={1}>
         <Input
           onChange={(e) => {
-            setUrlValue((e.nativeEvent.target as any).value);
+            swaggerStore.setUrlValue((e.nativeEvent.target as any).value);
           }}
           placeholder="swagger 文档地址"
           defaultValue={urlValue}
           value={urlValue}
-          key={urlValue}
         />
       </Col>
       <Col flex="none">
@@ -85,16 +69,15 @@ export default function useApiSwitchHeader() {
           历史接口
         </Dropdown.Button>
         {/* <Radio.Group
-          disabled
-          onChange={(e) => setType(e.target.value)}
-          options={[{ label: '接口', value: 'api' }]}
-          optionType="button"
-          buttonStyle="solid"
-          value={type}
-        /> */}
+        disabled
+        onChange={(e) => setType(e.target.value)}
+        options={[{ label: '接口', value: 'api' }]}
+        optionType="button"
+        buttonStyle="solid"
+        value={type}
+      /> */}
       </Col>
     </Row>
   );
-
-  return { headerRender, resources, urlValue, type };
-}
+};
+export default observer(ApiSwitchHeader);

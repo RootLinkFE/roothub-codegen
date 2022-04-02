@@ -5,6 +5,9 @@ import { useRequest } from 'ahooks';
 import { uniq } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import storage from '../shared/storage';
+import { postVSCodeMessage } from '../shared/vscode';
+import state from '@/stores/index';
+import { message } from 'antd';
 
 function classifyPathsToTags(tags: any[], pathObj: object) {
   const tagMap = new Map();
@@ -30,18 +33,6 @@ export default function useApiSwitchModel() {
   // 类型
   const [type, setType] = useState('api');
 
-  // url历史记录获取
-  const storageUrls: any[] = storage.get('storageUrls');
-
-  // api历史列表
-  const [apiUrls, setApiUrls] = useState<any[string]>(storageUrls || []);
-
-  // 接口地址的ref
-  const [urlValue, setUrlValue] = useState<any[string]>(
-    storageUrls && storageUrls.length > 0 ? storageUrls[0] : defaultSwaggerUrl,
-  );
-  const url = urlValue;
-
   // 通过当前资源地址获取资源
   const {
     run: fetchResources,
@@ -49,17 +40,19 @@ export default function useApiSwitchModel() {
     loading: resourcesLoading,
   } = useRequest(
     async () => {
-      const swaggerUrl = formatUrlChar(urlValue);
+      const swaggerUrl = formatUrlChar(state.swagger.urlValue);
 
       const res = await requestToBody(swaggerUrl + '/swagger-resources');
-      // console.log('res=', res);
+      console.log('res=', res, !!res);
 
       if (res) {
         handleStorageUrl();
         // url成功，重置选中的key，兼容处理刷新
         setSelectedResourceIndex('');
+      } else {
+        message.error('获取swagger-resources失败！');
       }
-      return res;
+      return res || [];
     },
     {
       manual: true,
@@ -70,32 +63,38 @@ export default function useApiSwitchModel() {
    * 处理url结合历史url存储到storage
    */
   const handleStorageUrl = () => {
-    const current = urlValue;
+    const current = formatUrlChar(state.swagger.urlValue);
     const storageUrls: any[] = storage.get('storageUrls');
     let newStorageUrls: any[] = [current];
     if (storageUrls) {
       const item = storageUrls.find((v: string) => v === current);
-      newStorageUrls = (
-        item ? uniq([current, ...storageUrls]) : [current, ...storageUrls]
+      newStorageUrls = (item
+        ? uniq([current, ...storageUrls])
+        : [current, ...storageUrls]
       ).slice(0, 10);
     }
-    storage.set('storageUrls', newStorageUrls);
-    setApiUrls(newStorageUrls);
+
+    postVSCodeMessage('pushStorage', {
+      key: 'storage',
+      data: { ['storageUrls']: newStorageUrls },
+    });
+    state.swagger.setApiUrls(newStorageUrls);
   };
 
   // 当前选择的资源key
-  const [selectedResourceIndex, setSelectedResourceIndex] =
-    useState<string>('');
-  const selectedResource = useMemo(
-    () => resources?.[selectedResourceIndex],
-    [selectedResourceIndex, resources],
+  const [selectedResourceIndex, setSelectedResourceIndex] = useState<string>(
+    '',
   );
+  const selectedResource = useMemo(() => resources?.[selectedResourceIndex], [
+    selectedResourceIndex,
+    resources,
+  ]);
 
   // 当前选中的资源 Key 获取详情
   const { data: resourceDetail } = useRequest(
     async () => {
       if (selectedResourceIndex) {
-        const formatUrl = formatUrlChar(url);
+        const formatUrl = formatUrlChar(state.swagger.urlValue);
         const res = await requestToBody(formatUrl + selectedResource.url);
         classifyPathsToTags(res.tags, res.paths);
         return res;
@@ -103,7 +102,7 @@ export default function useApiSwitchModel() {
       return null;
     },
     {
-      refreshDeps: [selectedResource, url],
+      refreshDeps: [selectedResource, state.swagger.urlValue],
     },
   );
 
@@ -126,8 +125,10 @@ export default function useApiSwitchModel() {
   // 选择的模型
   const [selectedDefinition, setSelectedDefinition] = useState<any>();
   // 模型编码设置
-  const [definitionCodeDrawerProps, originSetDefinitionCodeDrawerProps] =
-    useState<any>({});
+  const [
+    definitionCodeDrawerProps,
+    originSetDefinitionCodeDrawerProps,
+  ] = useState<any>({});
   const setDefinitionCodeDrawerProps = useCallback(
     (props) => {
       originSetDefinitionCodeDrawerProps({
@@ -152,12 +153,8 @@ export default function useApiSwitchModel() {
   }, [selectedTagIndex]);
 
   return {
-    urlValue,
-    setUrlValue,
     type,
     setType,
-    apiUrls,
-    setApiUrls,
     selectedResourceIndex,
     setSelectedResourceIndex,
     selectedResource,

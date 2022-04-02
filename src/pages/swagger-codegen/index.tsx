@@ -13,7 +13,7 @@ import {
 import React, { useCallback, useMemo } from 'react';
 import { useModel } from 'umi';
 import ApiTreeForm from './ApiTreeForm';
-import useApiSwitchHeader from './useHeader';
+import ApiSwitchHeader from './useHeader';
 
 const ColMenuStyle = {
   height: '500px',
@@ -89,12 +89,12 @@ export const ResourcesTree: React.FC<
 };
 
 export default function ApiSwitch() {
-  const { headerRender, resources = [], type } = useApiSwitchHeader();
-
-  const { setSelectedResourceIndex, resourceDetail } =
-    useModel('useApiSwitchModel');
-
-  // console.log('resourceDetail: ', resourceDetail);
+  const {
+    setSelectedResourceIndex,
+    resourceDetail,
+    resources = [],
+    type,
+  } = useModel('useApiSwitchModel');
 
   const blockContent = useMemo(
     () => (
@@ -141,7 +141,7 @@ export default function ApiSwitch() {
   return (
     <Card bodyStyle={{ padding: 0 }} title="CodeGen">
       {blockContent}
-      {headerRender}
+      <ApiSwitchHeader />
       <TDivider />
       <div>
         <Row>
