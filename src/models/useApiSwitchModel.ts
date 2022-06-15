@@ -68,9 +68,8 @@ export default function useApiSwitchModel() {
     let newStorageUrls: any[] = [current];
     if (storageUrls) {
       const item = storageUrls.find((v: string) => v === current);
-      newStorageUrls = (item
-        ? uniq([current, ...storageUrls])
-        : [current, ...storageUrls]
+      newStorageUrls = (
+        item ? uniq([current, ...storageUrls]) : [current, ...storageUrls]
       ).slice(0, 10);
     }
 
@@ -82,20 +81,22 @@ export default function useApiSwitchModel() {
   };
 
   // 当前选择的资源key
-  const [selectedResourceIndex, setSelectedResourceIndex] = useState<string>(
-    '',
+  const [selectedResourceIndex, setSelectedResourceIndex] =
+    useState<string>('');
+  const selectedResource = useMemo(
+    () => resources?.[selectedResourceIndex],
+    [selectedResourceIndex, resources],
   );
-  const selectedResource = useMemo(() => resources?.[selectedResourceIndex], [
-    selectedResourceIndex,
-    resources,
-  ]);
 
   // 当前选中的资源 Key 获取详情
   const { data: resourceDetail } = useRequest(
     async () => {
       if (selectedResourceIndex) {
         const formatUrl = formatUrlChar(state.swagger.urlValue);
-        const res = await requestToBody(formatUrl + selectedResource.url);
+        const res = await requestToBody(
+          formatUrl + (selectedResource.location || selectedResource.url),
+          selectedResource.header,
+        );
         classifyPathsToTags(res.tags, res.paths);
         return res;
       }
@@ -125,10 +126,8 @@ export default function useApiSwitchModel() {
   // 选择的模型
   const [selectedDefinition, setSelectedDefinition] = useState<any>();
   // 模型编码设置
-  const [
-    definitionCodeDrawerProps,
-    originSetDefinitionCodeDrawerProps,
-  ] = useState<any>({});
+  const [definitionCodeDrawerProps, originSetDefinitionCodeDrawerProps] =
+    useState<any>({});
   const setDefinitionCodeDrawerProps = useCallback(
     (props) => {
       originSetDefinitionCodeDrawerProps({
