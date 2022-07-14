@@ -4,7 +4,7 @@ import { observer } from 'mobx-react';
 import React from 'react';
 import { useModel } from 'umi';
 import state from '@/stores/index';
-import storage from '../../shared/storage';
+import storage from '@/shared/storage';
 
 const ApiSwitchHeader: React.FC = () => {
   const { fetchResources, resourcesLoading } = useModel('useApiSwitchModel');
@@ -12,45 +12,43 @@ const ApiSwitchHeader: React.FC = () => {
   const swaggerStore = state.swagger;
   const { urlValue, apiUrls } = state.swagger;
 
+  const handleApiUrlDelete = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>, i: number) => {
+    e.stopPropagation();
+    const urls = [...swaggerStore.apiUrls];
+    urls.splice(i, 1);
+    swaggerStore.setApiUrls(urls);
+    storage.set('storageUrls', urls);
+  };
+
   const menu = (
-    <Menu>
-      {apiUrls.map((apiUrl: string, i: number) => {
-        return (
-          <Menu.Item
-            title={apiUrl}
-            key={apiUrl}
-            onClick={(event) => {
-              swaggerStore.setUrlValue(event.key);
-            }}
-          >
+    <Menu
+      items={apiUrls.map((apiUrl: string, i: number) => {
+        return {
+          label: (
             <Row justify="space-between" align="middle">
               <span>{apiUrl}</span>
               <CloseOutlined
                 className="dropdown-menu-item-icon"
                 title="删除"
                 onClick={(e) => {
-                  e.stopPropagation();
-                  const urls = [...apiUrls];
-                  urls.splice(i, 1);
-                  swaggerStore.setApiUrls(urls);
-                  storage.set('storageUrls', urls);
+                  handleApiUrlDelete(e, i);
                 }}
               />
             </Row>
-          </Menu.Item>
-        );
+          ),
+          key: apiUrl,
+        };
       })}
-    </Menu>
+      onClick={(event) => {
+        swaggerStore.setUrlValue(event.key);
+      }}
+    ></Menu>
   );
 
   return (
     <Row style={{ margin: '10px 10px 0' }} gutter={16}>
       <Col flex="none">
-        <Button
-          type="primary"
-          loading={resourcesLoading}
-          onClick={fetchResources}
-        >
+        <Button type="primary" loading={resourcesLoading} onClick={fetchResources}>
           获取
         </Button>
       </Col>

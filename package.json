@@ -29,6 +29,7 @@
     "ahooks": "^2.10.9",
     "axios": "^0.26.0",
     "codesandbox": "^2.2.3",
+    "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "react": "17.x",
     "react-copy-to-clipboard": "^5.0.4",

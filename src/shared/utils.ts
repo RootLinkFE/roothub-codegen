@@ -1,3 +1,10 @@
+/*
+ * @Author: ZtrainWilliams ztrain1224@163.com
+ * @Date: 2022-06-14 17:11:40
+ * @Description:
+ */
+import { tagsItem, pathsItem } from '@/shared/ts/api-interface';
+
 export function cleanParameterDescription(s: string) {
   let s1 = cleanEnumDesc(s);
   s1 = cleanREF(s1);
@@ -42,8 +49,33 @@ export function prettyJSON(json: object) {
 }
 
 export function formatUrlChar(url: string) {
-  const formatUrl =
-    url.lastIndexOf('/') === url.length - 1 ? url.slice(0, -1) : url;
+  const formatUrl = url.lastIndexOf('/') === url.length - 1 ? url.slice(0, -1) : url;
 
   return formatUrl;
 }
+
+// 将tags与paths关联
+export function classifyPathsToTags(tags: any[], pathObj: object) {
+  const tagMap = new Map();
+  tags.forEach((tag) => {
+    tagMap.set(tag.name, tag);
+  });
+  Object.entries(pathObj).forEach(([api, apiDetail]) => {
+    Object.entries(apiDetail).forEach(([method, methodDetail]: [string, any]) => {
+      // console.log(api, method, methodDetail)
+      methodDetail.tags.forEach((tagKey: string) => {
+        const tag = tagMap.get(tagKey);
+        tag.paths = tag.paths || [];
+        methodDetail.api = api;
+        methodDetail.method = method;
+        methodDetail.methodUpper = method.toLocaleUpperCase();
+        methodDetail.uuid = method + '$' + api; // 添加唯一key
+        tag.paths.push(methodDetail);
+      });
+    });
+  });
+}
+
+export const getStringToFn = (val: string) => {
+  return Function('"use strict";return (' + val + ')')();
+};

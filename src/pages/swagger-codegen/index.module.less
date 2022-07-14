@@ -1,4 +1,19 @@
 .h2Title {
   font-size: 20px;
-  margin: 15px 0 8px;
+  margin: 12px;
+}
+
+.h2BorderTitle {
+  font-size: 20px;
+  margin: 12px;
+  position: relative;
+  &::before {
+    position: absolute;
+    content: '';
+    top: 0;
+    left: -12px;
+    width: 4px;
+    height: 32px;
+    background: var(--antd-wave-shadow-color) 100%;
+  }
 }

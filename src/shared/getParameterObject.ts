@@ -1,12 +1,13 @@
+/*
+ * @Author: ZtrainWilliams ztrain1224@163.com
+ * @Date: 2022-06-14 17:11:40
+ * @Description:
+ */
 function getSwaggerRef(obj: any) {
-  return obj.schema?.$ref || obj.$ref || obj.items?.$ref;
+  return obj?.originalRef || obj.schema?.$ref || obj.$ref || obj.items?.$ref;
 }
 
-export default function getParameterObject(
-  resourceDetail: any,
-  parameter: any,
-  parent: string = '',
-): any {
+export default function getParameterObject(resourceDetail: any, parameter: any, parent: string = ''): any {
   const $ref = getSwaggerRef(parameter);
   let definition: any;
   let children;
@@ -15,42 +16,36 @@ export default function getParameterObject(
     definition = resourceDetail.definitions?.[refKey];
     if (definition) {
       const { properties = {}, required } = definition;
-      children = Object.entries(properties).map(
-        ([propertyKey, property]: [string, any]) => {
-          let result;
-          const hasRef = getSwaggerRef(property);
-          if (hasRef) {
-            if (hasRef !== $ref) {
-              result = {
-                name: propertyKey,
-                ...getParameterObject(
-                  resourceDetail,
-                  property,
-                  `${parent}${propertyKey}#`,
-                ),
-              };
-            } else {
-              result = {
-                name: propertyKey,
-                type: refKey,
-                description: definition.title,
-              };
-            }
-
-            if (hasRef && property.type === 'array') {
-              result.type = result.type + '[]';
-            }
+      children = Object.entries(properties).map(([propertyKey, property]: [string, any]) => {
+        let result;
+        const hasRef = getSwaggerRef(property);
+        if (hasRef) {
+          if (hasRef !== $ref) {
+            result = {
+              name: propertyKey,
+              ...getParameterObject(resourceDetail, property, `${parent}${propertyKey}#`),
+            };
           } else {
             result = {
               name: propertyKey,
-              ...property,
+              type: refKey,
+              description: definition.title,
             };
           }
-          result.key = parent + propertyKey;
-          result.required = required?.includes(propertyKey) ?? false;
-          return result;
-        },
-      );
+
+          if (hasRef && property.type === 'array') {
+            result.type = result.type + '[]';
+          }
+        } else {
+          result = {
+            name: propertyKey,
+            ...property,
+          };
+        }
+        result.key = parent + propertyKey;
+        result.required = required?.includes(propertyKey) ?? false;
+        return result;
+      });
     }
   }
   const result = { ...parameter, children, key: parent + parameter.name };

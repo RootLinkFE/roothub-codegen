@@ -1,105 +1,31 @@
+/*
+ * @Author: ZtrainWilliams ztrain1224@163.com
+ * @Date: 2022-06-14 17:11:40
+ * @Description: 主页
+ */
 import { isInVSCode } from '@/shared/vscode';
-import { InfoCircleOutlined } from '@ant-design/icons';
-import {
-  Card,
-  Col,
-  Divider,
-  Menu,
-  MenuProps,
-  Popover,
-  Row,
-  Typography,
-} from 'antd';
-import React, { useCallback, useMemo } from 'react';
+import { InfoCircleOutlined, SettingOutlined } from '@ant-design/icons';
+import { Col, Button, Popover, Row, Typography, Tabs, Dropdown, Menu } from 'antd';
+import React, { useCallback, useState, useMemo } from 'react';
 import { useModel } from 'umi';
-import ApiTreeForm from './ApiTreeForm';
+import ApiDetail from './ApiDetail';
 import ApiSwitchHeader from './useHeader';
+import ResourcesTree from './ResourcesTree';
+import { pathsItem } from '@/shared/ts/api-interface';
+import CustomMethodsDrawer from './CustomMethodsDrawer';
 
-const ColMenuStyle = {
-  height: '500px',
-  overflow: 'auto',
-};
-
-const TDivider = () => (
-  <Divider
-    style={{
-      marginTop: '10px',
-      marginRight: '-12px',
-      marginLeft: '-12px',
-      marginBottom: '0',
-    }}
-  />
-);
-
-export const ResourcesTree: React.FC<
-  { data: any[]; dataKey?: string; labelKey: string } & MenuProps
-> = (props) => {
-  const { data, dataKey, onSelect, labelKey } = props;
-  if (!data) {
-    return null;
-  }
-
-  const highlightMenuName: any = useCallback(
-    (menuName = '', labelKey = 'summary') => {
-      const flag = /列表|分页/.test(menuName);
-      if (!flag) {
-        return menuName;
-      }
-      if (labelKey === 'summary') {
-        const matchResult = menuName.match(/列表|分页/);
-        if (!matchResult) {
-          return menuName;
-        }
-        const arr = [
-          menuName.substring(0, matchResult.index),
-          menuName.substring((matchResult.index as number) + 2),
-        ];
-
-        return (
-          <>
-            {arr[0]}
-            <span style={{ color: 'rgb(255, 85, 0)' }}>{matchResult[0]}</span>
-            {arr[1]}
-          </>
-        );
-      }
-      return menuName;
-    },
-    [],
-  );
-
-  return (
-    <Col style={ColMenuStyle} flex="20%">
-      <Menu style={{ minHeight: '500px' }} onSelect={onSelect}>
-        {data.map((item: any, index: number) => {
-          let menuName = item[labelKey];
-
-          return (
-            <Menu.Item
-              title={item[labelKey]}
-              key={dataKey ? item[dataKey] : index}
-            >
-              {highlightMenuName(menuName, labelKey)}
-            </Menu.Item>
-          );
-        })}
-      </Menu>
-    </Col>
-  );
-};
+const { TabPane } = Tabs;
 
 export default function ApiSwitch() {
-  const {
-    setSelectedResourceIndex,
-    resourceDetail,
-    resources = [],
-    type,
-  } = useModel('useApiSwitchModel');
+  const { resources, selectedApi, setSelectedApi, selectedApiMaps, selectedApiRows, setSelectedApiRows } =
+    useModel('useApiSwitchModel');
+
+  const [customMethodsVisible, setCustomMethodsVisible] = useState<boolean | undefined>(false);
 
   const blockContent = useMemo(
     () => (
       <Popover
-        title="使用说明"
+        title="CodeGen使用说明"
         placement="topLeft"
         content={
           <Typography.Paragraph>
@@ -107,13 +33,10 @@ export default function ApiSwitch() {
             <Typography.Text keyboard>doc.html</Typography.Text>
             前一部分地址。 <br />
             比如
-            <Typography.Text keyboard>
-              http://xxx-dev.leekhub.com/order-server/doc.html
-            </Typography.Text>
+            <Typography.Text keyboard>http://xxx-dev.leekhub.com/order-server/doc.html</Typography.Text>
             地址，就输入
-            <Typography.Text keyboard>
-              http://xxx-dev.leekhub.com/order-server
-            </Typography.Text>
+            <Typography.Text keyboard>http://xxx-dev.leekhub.com/order-server</Typography.Text>
+            <Typography.Text keyboard>也支持openApi内容格式的json、yaml文件</Typography.Text>
             {!isInVSCode && (
               <div style={{ marginTop: '20px' }}>
                 Web网页存在跨域问题，推荐使用VSCode插件：
@@ -129,45 +52,107 @@ export default function ApiSwitch() {
           </Typography.Paragraph>
         }
       >
-        <div style={{ marginLeft: '20px', width: '460px', marginTop: '10px' }}>
-          使用说明
+        <Row align="middle" style={{ marginLeft: '20px', width: '460px', paddingTop: '10px' }}>
+          <h2>CodeGen</h2>
           <InfoCircleOutlined style={{ marginLeft: '8px' }} />
-        </div>
+        </Row>
       </Popover>
     ),
     [],
   );
 
+  const settingDropdownMenuClick = useCallback(
+    ({ key }) => {
+      switch (key) {
+        case 'customMethods':
+          setCustomMethodsVisible(!customMethodsVisible);
+      }
+    },
+    [customMethodsVisible],
+  );
+
+  const settingDropdownMenu = useMemo(() => {
+    return (
+      <Menu
+        onClick={settingDropdownMenuClick}
+        items={[
+          {
+            label: '设置自定义方法',
+            key: 'customMethods',
+            children: undefined,
+          },
+        ]}
+      />
+    );
+  }, []);
+
+  const tabActiveKey = useMemo(() => selectedApi?.uuid ?? '', [selectedApi]);
+  const tabChange = (v: string) => {
+    const item = selectedApiMaps.get(v);
+    if (item) {
+      setSelectedApi(item);
+    }
+  };
+  const tabEdit = (
+    key: string | React.MouseEvent<Element, MouseEvent> | React.KeyboardEvent<Element>,
+    action: string,
+  ) => {
+    if (action === 'remove') {
+      let index = selectedApiRows.findIndex((v: pathsItem) => v.uuid === key);
+      if (index !== -1) {
+        selectedApiRows.splice(index, 1);
+      }
+      setSelectedApi(selectedApiRows.length > 0 ? selectedApiRows[selectedApiRows.length - 1] : null);
+      setSelectedApiRows([...selectedApiRows]);
+      selectedApiMaps.delete(key as string);
+    }
+  };
+
   return (
-    <Card bodyStyle={{ padding: 0 }} title="CodeGen">
-      {blockContent}
-      <ApiSwitchHeader />
-      <TDivider />
-      <div>
-        <Row>
-          {/* 资源列表 */}
-          <ResourcesTree
-            onSelect={({ key }) => setSelectedResourceIndex(key)}
-            data={resources}
-            labelKey="name"
-          />
-          {/* 资源分类列表或模型列表 */}
-          {/* {resourceDetail && (
-            <Col style={ColMenuStyle} flex="20%">
-              {type === 'api' ? (
-                <ResourcesTree data={resourceDetail.tags} labelKey="name" />
-              ) : (
-                <ResourcesTree
-                  data={Object.values(resourceDetail.definitions)}
-                  dataKey="title"
-                  labelKey="title"
-                />
-              )}
-            </Col>
-          )} */}
-          {type === 'api' && <ApiTreeForm resourceDetail={resourceDetail} />}
+    <Row className="codegen-main defaultColor" wrap={false}>
+      <div style={{ margin: 0 }}>
+        <Row justify="space-between">
+          {blockContent}
+          {/* <Button
+            type="link"
+            onClick={() => {
+              console.log('change');
+              const finalColor = themeType === 'default' ? 'dark' : 'default';
+              setThemeType(finalColor);
+              setThemeColor(finalColor);
+            }}
+          >
+            {themeType === 'default' ? '暗黑' : '默认'}
+          </Button> */}
+          <Col style={{ padding: '10px' }}>
+            <Dropdown overlay={settingDropdownMenu} trigger={['hover']}>
+              <Button type="text" icon={<SettingOutlined />} title="设置"></Button>
+            </Dropdown>
+          </Col>
         </Row>
+        <ApiSwitchHeader />
       </div>
-    </Card>
+      <Row wrap={false} style={{ paddingTop: '10px', flex: 1 }}>
+        {/* 资源列表 */}
+        {resources && <ResourcesTree labelKey="name" />}
+        <Col flex="80%">
+          <Tabs activeKey={tabActiveKey} type="editable-card" onChange={tabChange} onEdit={tabEdit}>
+            {selectedApiRows.map((item: pathsItem) => {
+              return (
+                <TabPane tab={item.summary} key={item.uuid}>
+                  <ApiDetail api={item} />
+                </TabPane>
+              );
+            })}
+          </Tabs>
+        </Col>
+        <CustomMethodsDrawer
+          visible={customMethodsVisible}
+          onClose={() => {
+            setCustomMethodsVisible(false);
+          }}
+        />
+      </Row>
+    </Row>
   );
 }

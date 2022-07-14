@@ -1,8 +1,49 @@
+// @import '~antd/dist/antd.dark.less'; // 引入官方提供的暗色 less 样式入口文件
+// @import 'antd/dist/antd.variable.min.css';
 .title {
   background: rgb(121, 242, 157);
 }
 body {
   padding: 0;
+}
+
+#root,
+.codegen-main {
+  height: 100%;
+}
+
+.codegen-main {
+  flex-direction: column;
+  overflow: hidden;
+  .ant-tabs {
+    .ant-tabs-nav {
+      margin-bottom: 0;
+    }
+    .ant-tabs-nav-add {
+      display: none;
+    }
+  }
+}
+
+.codegen-header {
+  padding: 10px 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.resources-tree {
+  padding: 0 6px;
+  height: calc(100vh - 105px);
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  .ant-menu-root {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .docs-select {
+    padding: 4px 0;
+    width: 100%;
+  }
 }
 
 .ant-typography kbd {

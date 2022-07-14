@@ -1,19 +1,10 @@
 import getParameterObject from '@/shared/getParameterObject';
 import getResponseParams from '@/shared/getResponseParams';
-import {
-  Button,
-  Drawer,
-  DrawerProps,
-  message,
-  Space,
-  Table,
-  TableProps,
-  Tag,
-} from 'antd';
+import { Button, Drawer, DrawerProps, message, Space, Table, TableProps, Tag } from 'antd';
 import { unionBy } from 'lodash';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useModel } from 'umi';
-import { MethodColors } from './ApiTreeForm';
+import { MethodColors } from '@/shared/common';
 import generateModelFormItemsCode from './code-generate/generate-model-form-items-code';
 import generateEnumCode from './code-generate/generate-enum-code';
 import generateTableColumnsProps from './code-generate/generate-table-columns-props';
@@ -45,11 +36,7 @@ function getRequestParams(api: any, resourceDetail: any) {
 const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
   const { api, ...drawerProps } = props;
   const [requestParamsData, setRequestParamsData] = useState<any>([]);
-  const {
-    resourceDetail,
-    setSelectedDefinition,
-    setDefinitionCodeDrawerProps,
-  } = useModel('useApiSwitchModel');
+  const { resourceDetail, setSelectedDefinition, setDefinitionCodeDrawerProps } = useModel('useApiSwitchModel');
 
   const selectedRequestRowRef = useRef<any[]>([]);
   const selectedResponseRowRef = useRef<any[]>([]);
@@ -66,8 +53,7 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
       title: `表单列表配置`,
       visible: true,
       language: 'json',
-      generateCode: () =>
-        generateTableColumnsProps(selectedResponseRowRef.current),
+      generateCode: () => generateTableColumnsProps(selectedResponseRowRef.current),
     });
   }, [setDefinitionCodeDrawerProps, selectedResponseRowRef]);
 
@@ -76,9 +62,7 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
       return message.error('请先【请求参数】选择需要生成的字段');
     } */
     const rows =
-      selectedRequestRowRef.current.length < 1
-        ? requestParamsData[0]?.children
-        : selectedRequestRowRef.current;
+      selectedRequestRowRef.current.length < 1 ? requestParamsData[0]?.children : selectedRequestRowRef.current;
 
     setDefinitionCodeDrawerProps({
       title: `Form Items（${api.description}）`,
@@ -100,9 +84,7 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
         let resData;
         let resDataAll: any[] = [];
         if (resList && resList.length) {
-          resData = resList.find(
-            (item: { name: string }) => item.name === 'data',
-          ).children;
+          resData = resList.find((item: { name: string }) => item.name === 'data').children;
         }
 
         function recursionReduce(list: any[]) {
@@ -116,14 +98,12 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
         }
         recursionReduce(resData || []);
         const data = requestParamsData[0]?.children || [];
-        rows = [...data, ...resDataAll].filter(
-          (item: { description: string | string[] }) => {
-            if (item && item.description && item.description.indexOf) {
-              return item.description.indexOf('ENUM#') !== -1;
-            }
-            return false;
-          },
-        );
+        rows = [...data, ...resDataAll].filter((item: { description: string | string[] }) => {
+          if (item && item.description && item.description.indexOf) {
+            return item.description.indexOf('ENUM#') !== -1;
+          }
+          return false;
+        });
 
         // 去掉重复的枚举
         rows = unionBy(rows, 'name');
@@ -227,10 +207,7 @@ const ApiDetailDrawer: React.FC<{ api: any } & DrawerProps> = (props) => {
     >
       <div style={{ padding: '16px' }}>
         <p>
-          <Tag color={MethodColors[api.method] || '#87d068'}>
-            {api.method.toUpperCase()}
-          </Tag>{' '}
-          {api.api}
+          <Tag color={MethodColors[api.method] || '#87d068'}>{api.method.toUpperCase()}</Tag> {api.api}
         </p>
         <p>接口描述：{api.description}</p>
         <h2 className={styles.h2Title}>请求头参数</h2>

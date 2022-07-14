@@ -6,8 +6,7 @@ import storage from '../shared/storage';
 const storageUrls: any[] = storage.get('storageUrls') ?? [];
 
 class SwaggerStore {
-  urlValue: string =
-    storageUrls?.length > 0 ? storageUrls[0] : defaultSwaggerUrl;
+  urlValue: string = storageUrls?.length > 0 ? storageUrls[0] : defaultSwaggerUrl;
   apiUrls: any[] = storageUrls; // api历史列表
 
   constructor() {
@@ -15,13 +14,11 @@ class SwaggerStore {
   }
 
   setApiUrlsOrInitUrlValue(urls: any) {
-    console.log('setApiUrlsOrInitUrlValue: ', urls);
     this.apiUrls = urls;
     this.urlValue = urls[0] || this.urlValue;
   }
 
   setApiUrls(urls: any) {
-    console.log('setApiUrls: ', urls);
     this.apiUrls = urls;
     storage.set('storageUrls', urls);
   }

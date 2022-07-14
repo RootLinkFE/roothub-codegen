@@ -67,6 +67,10 @@ const CommandHandler: Record<string, (data: any) => any> = {
       }
     }
   },
+  updateCodeGenCustomMethods(data) {
+    console.log('updateCodeGenCustomMethods: ', data);
+    state.custom.setCustomMethods(data || []);
+  },
 };
 
 const messageListener = (event: any) => {
@@ -83,10 +87,7 @@ export function setupBackgroundManagement() {
   window.addEventListener('message', messageListener);
 }
 
-export function fetch(
-  option: AxiosRequestConfig & { sessionId?: string },
-  commandName = 'fetch',
-): AxiosPromise<any> {
+export function fetch(option: AxiosRequestConfig & { sessionId?: string }, commandName = 'fetch'): AxiosPromise<any> {
   option.headers = option.headers || {};
 
   option.headers['User-Agent'] =
@@ -102,10 +103,7 @@ export function fetch(
   return promise as AxiosPromise;
 }
 
-export function fetchInVSCode(
-  option: AxiosRequestConfig,
-  commandName = 'fetch',
-) {
+export function fetchInVSCode(option: AxiosRequestConfig, commandName = 'fetch') {
   option.headers = option.headers || {};
   return fetch(option, commandName);
 }
