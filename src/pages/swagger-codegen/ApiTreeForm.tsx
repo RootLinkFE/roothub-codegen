@@ -1,32 +1,17 @@
-import {
-  Button,
-  Card,
-  Col,
-  Descriptions,
-  Divider,
-  Modal,
-  Tag,
-  Space,
-  Drawer,
-} from 'antd';
+import { Button, Card, Col, Descriptions, Divider, Modal, Tag, Space, Drawer } from 'antd';
 import { useEffect, useState, useCallback } from 'react';
-import { ResourcesTree } from '.';
+import ResourcesTree from './ResourcesTree';
 import { useModel } from 'umi';
 import { CodeOutlined } from '@ant-design/icons';
 import ApiDetailDrawer from './ApiDetailDrawer';
 import ModelCodeDrawer from './ModelCodeDrawer';
 import generateRhTablePageCode from './code-generate/generate-rhtable-page';
 import getResponseParams from '@/shared/getResponseParams';
-
-export const MethodColors: any = {
-  post: '#f50',
-  get: '#87d068',
-};
+import { MethodColors } from '@/shared/common';
 
 const ApiDescription = (props: any) => {
   const { api } = props;
-  const { resourceDetail, selectedResource, selectedTag } =
-    useModel('useApiSwitchModel');
+  const { resourceDetail, selectedResource, selectedTag } = useModel('useApiSwitchModel');
 
   const [iframeVisible, setIFrameVisible] = useState(false);
   const { setDefinitionCodeDrawerProps } = useModel('useApiSwitchModel');
@@ -51,10 +36,7 @@ const ApiDescription = (props: any) => {
     <Col flex="40%">
       <Card bordered={false} style={{ height: '500px' }}>
         <p>
-          <Tag color={MethodColors[api.method] || '#87d068'}>
-            {api.method.toUpperCase()}
-          </Tag>{' '}
-          {api.api}
+          <Tag color={MethodColors[api.method] || '#87d068'}>{api.method.toUpperCase()}</Tag> {api.api}
         </p>
         <Divider />
         <Space>
@@ -62,12 +44,7 @@ const ApiDescription = (props: any) => {
             查看接口文档
           </Button>
           {/分页/.test(api.summary) && (
-            <Button
-              ghost
-              onClick={() => showRhTablePageCode()}
-              type="primary"
-              icon={<CodeOutlined />}
-            >
+            <Button ghost onClick={() => showRhTablePageCode()} type="primary" icon={<CodeOutlined />}>
               生成表格代码
             </Button>
           )}
@@ -92,14 +69,8 @@ const ApiTreeForm: React.FC<{
 
   /*   const [selectedTagIndex, setSelectedTagIndex] = useState<string>('')
   const [selectedApiIndex, setSelectedApiIndex] = useState<string>('') */
-  const {
-    selectedTagIndex,
-    setSelectedTagIndex,
-    selectedApiIndex,
-    setSelectedApiIndex,
-    selectedTag,
-    selectedApi,
-  } = useModel('useApiSwitchModel');
+  const { selectedTagIndex, setSelectedTagIndex, selectedApiIndex, setSelectedApiIndex, selectedTag, selectedApi } =
+    useModel('useApiSwitchModel');
 
   useEffect(() => {
     setSelectedTagIndex('');
@@ -110,11 +81,7 @@ const ApiTreeForm: React.FC<{
 
   return (
     <>
-      <ResourcesTree
-        data={resourceDetail.tags}
-        onSelect={({ key }) => setSelectedTagIndex(key)}
-        labelKey="name"
-      />
+      <ResourcesTree data={resourceDetail.tags} onSelect={({ key }) => setSelectedTagIndex(key)} labelKey="name" />
       {selectedTagIndex && (
         <ResourcesTree
           key={selectedTag.name}

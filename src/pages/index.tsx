@@ -1,6 +1,5 @@
 import GenCode from './swagger-codegen';
 import { isInVSCode, setupBackgroundManagement, postVSCodeMessage } from '@/shared/vscode';
-import '../styles/color.less';
 import './index.less';
 import utilsFn from './swagger-codegen/code-generate/generate-assemblies-utils-fn';
 // vscode
