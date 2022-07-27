@@ -36,7 +36,9 @@ export default function ApiSwitch() {
             <Typography.Text keyboard>http://xxx-dev.leekhub.com/order-server/doc.html</Typography.Text>
             地址，就输入
             <Typography.Text keyboard>http://xxx-dev.leekhub.com/order-server</Typography.Text>
-            <Typography.Text keyboard>也支持openApi内容格式的json、yaml文件</Typography.Text>
+            <br />
+            也支持openApi内容格式的
+            <Typography.Text keyboard>json、yaml文件</Typography.Text>
             {!isInVSCode && (
               <div style={{ marginTop: '20px' }}>
                 Web网页存在跨域问题，推荐使用VSCode插件：

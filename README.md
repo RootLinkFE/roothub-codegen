@@ -1,3 +1,8 @@
+<!--
+ * @Author: ZtrainWilliams ztrain1224@163.com
+ * @Date: 2022-06-14 17:11:39
+ * @Description: 
+-->
 # roothub-codegen
 
 安装 [RootHub VSCode](https://marketplace.visualstudio.com/items?itemName=giscafer.roothub) 插件，使用 CodeGen 生成代码
@@ -50,18 +55,22 @@
 
 ## Screenshots
 
-![](./screenshots/image3.png)
+![](./screenshots/image3.jpg)
 
 ### 分页列表页代码生成
 
-1、分页接口会高亮字体提示
+1、类swagger-ui2.0模式查看接口文档，支持当前菜单搜索
 
-![](./screenshots/image1.png)
+![](./screenshots/image1.jpg)
 
 2、分页接口可以预览生成的列表页面代码
 
-![](./screenshots/image2.png)
+![](./screenshots/image2.jpg)
 
 3、支持 codesandbox 打开预览效果
 
 ![](./screenshots/image4.png)
+
+4、自定义代码生成方法-在线编辑
+
+![](./screenshots/image5.png)
