@@ -4,7 +4,6 @@
  * @Description: defaultSwaggerUrl
  */
 export const defaultSwaggerUrl = 'https://petstore.swagger.io/v2/swagger.json';
-// 'http://protocol-model-server.nc-qa.rootcloudapp.com/frame-pmt';
 
 const apiUrlList = [defaultSwaggerUrl];
 
