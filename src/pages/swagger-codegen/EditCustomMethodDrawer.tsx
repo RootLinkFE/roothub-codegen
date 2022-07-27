@@ -11,6 +11,7 @@ import CodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
 import { MethodTypes } from '@/shared/common';
 import { getStringToFn } from '@/shared/utils';
+import { codeGenerateMethods } from './code-generate/index';
 import { CodeMirrorTypes } from '@/shared/common';
 const { Option } = Select;
 
@@ -19,8 +20,15 @@ const EditCustomMethodDrawer: React.FC<
 > = (props) => {
   const { data, type, onClose, ...drawerProps } = props;
   const [form] = Form.useForm();
-
-  const { CustomMethods } = state.custom;
+  const rootDataSource = codeGenerateMethods.map((v) => {
+    return {
+      ...v,
+      function: v.function.toString(),
+    };
+  });
+  const methodList = useMemo(() => {
+    return [...state.custom.CustomMethods, ...rootDataSource];
+  }, [state.custom.CustomMethods]);
 
   const [currentState, setCurrentState] = useState({
     title: '自定义方法',
@@ -37,13 +45,25 @@ const EditCustomMethodDrawer: React.FC<
         form.setFieldsValue({ ...data });
       }
     }
-    // console.log('drawerProps.visible', data, currentState, drawerProps.visible);
   }, [drawerProps.visible, type]);
 
   const editorHeight = useMemo(() => {
     const height = window.innerHeight - 430;
     return height < 300 ? 300 : height;
   }, [window.innerHeight]);
+
+  const validateKey = (rule: any, value: any, callback: any) => {
+    if (value) {
+      const index = methodList.findIndex((v: CustomMethodsItem) => {
+        return value === v.key;
+      });
+      if (index !== -1) {
+        callback(new Error('键值已被使用，请修改'));
+      } else {
+        callback();
+      }
+    }
+  };
 
   const filterFunction = (fn: any) => {
     try {
@@ -59,16 +79,12 @@ const EditCustomMethodDrawer: React.FC<
         message.error('方法-校验是否函数未通过！');
         return false;
       }
-      const list = [...CustomMethods];
+      const list = [...state.custom.CustomMethods];
       let text = '';
       const index = list.findIndex((v: CustomMethodsItem) => {
         return values.key === v.key;
       });
       if (currentState.type === 'ADD' || currentState.type === 'COPY') {
-        if (index !== -1) {
-          message.error('key值已被使用，请修改');
-          return false;
-        }
         text = '新增';
         list.push({ ...values, source: 'custom' });
       } else if (currentState.type === 'EDIT') {
@@ -80,7 +96,7 @@ const EditCustomMethodDrawer: React.FC<
       onClose(true);
       message.success(`${text}成功！`);
     },
-    [currentState, CustomMethods],
+    [currentState],
   );
 
   const clearFormData = () => {
@@ -117,7 +133,11 @@ const EditCustomMethodDrawer: React.FC<
         onFinishFailed={() => {}}
         autoComplete="off"
       >
-        <Form.Item label="键值" name="key" rules={[{ required: true, message: '请输入键值，输入英文，不可重复使用' }]}>
+        <Form.Item
+          label="键值"
+          name="key"
+          rules={[{ required: true, message: '请输入键值，输入英文，不可重复使用' }, { validator: validateKey }]}
+        >
           <Input disabled={currentState.type === 'EDIT'} max-length="20" />
         </Form.Item>
 
