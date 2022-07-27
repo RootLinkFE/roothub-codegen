@@ -7,6 +7,7 @@
 import generateApiDefineition from './generate-api-defineition';
 import generateModelClass from './generate-model-class';
 import generateTypeScriptType from './generate-typescript-type';
+import generateRhTablePageCode from './generate-rhtable-page';
 
 import generateAvueTableColumns from './generate-avue-table-columns';
 import generateAvueTablePageCode from './generate-avue-table';
@@ -39,6 +40,14 @@ export const codeGenerateMethods = [
     function: generateTypeScriptType,
   },
   {
+    key: 'RhTablePage',
+    label: 'RhTablePage 定义',
+    type: 'response',
+    source: 'root',
+    language: 'typescript',
+    function: generateRhTablePageCode,
+  },
+  {
     key: 'avue-table-columns',
     label: 'avue-table-columns',
     type: 'model',
@@ -55,7 +64,7 @@ export const codeGenerateMethods = [
     function: generateAvueTablePageCode,
   },
   {
-    key: 'avue-form',
+    key: 'avue-form-model',
     label: 'avue-form',
     type: 'model',
     source: 'root',
@@ -63,7 +72,7 @@ export const codeGenerateMethods = [
     function: generateAvueFormColumns,
   },
   {
-    key: 'avue-form',
+    key: 'avue-form-request',
     label: 'avue-form',
     type: 'request',
     source: 'root',

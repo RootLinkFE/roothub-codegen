@@ -54,7 +54,7 @@ export default function generateModelFormItemsCode(rows: any[], api: any = {}) {
   return prettyCode(
     `
     /**
-     * ${api.description} Form Items
+     * ${api.description ?? api.summary} Form Items
      */
     import React from "react";
     const renderFormItems = () =>(<>${rows

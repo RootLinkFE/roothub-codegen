@@ -1,12 +1,19 @@
+/*
+ * @Author: ZtrainWilliams ztrain1224@163.com
+ * @Date: 2022-06-14 17:11:40
+ * @Description:
+ */
 import getApiNameAsPageName from '@/shared/getApiNameAsPageName';
 import { defaultSwaggerUrl } from '@/shared/swaggerUrl';
 import { prettyCode } from '../../../shared/utils';
 import generateTableColumnsProps from './generate-table-columns-props';
 
 export default function generateRhTablePageCode(
-  body: any,
-  api: { api: string; description: string },
+  selectedData: any,
+  api: { api: string; description: string; summary: string },
 ) {
+  const { responseSelectedData: body } = selectedData;
+
   const columnCode = generateTableColumnsProps(body, true);
 
   const componentName = getApiNameAsPageName(api.api);
@@ -33,7 +40,7 @@ export default function generateRhTablePageCode(
 
   return prettyCode(`
   /**
-   * ${api.description}
+   * ${api.description ?? api.summary}
    */
     import React, { useCallback } from 'react';
      import { RhTable } from '@roothub/components';

@@ -6,8 +6,6 @@
 import getParameterObject from '@/shared/getParameterObject';
 import getResponseParams from '@/shared/getResponseParams';
 import { Button, Col, message, Space, Table, TableProps, Tag, Row } from 'antd';
-import type { MenuProps } from 'antd';
-import CodeGenDropdown from './CodeGenDropdown';
 import { unionBy } from 'lodash';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useModel } from 'umi';
@@ -21,11 +19,8 @@ import { pathsItem } from '@/shared/ts/api-interface';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import copy from 'copy-to-clipboard';
 import { MethodColors } from '@/shared/common';
-import generateRhTablePageCode from './code-generate/generate-rhtable-page';
 import { getStringToFn } from '@/shared/utils';
 import ApiDefinitionDropdown from './ApiDefinitionDropdown';
-
-import utilsFn from './code-generate/generate-assemblies-utils-fn';
 import { CustomMethodsItem } from '@/shared/ts/custom';
 
 function getHeaderParams(api: any) {

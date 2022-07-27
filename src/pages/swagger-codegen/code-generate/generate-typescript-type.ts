@@ -24,7 +24,7 @@ export default function generateTypeScriptType(definition: any) {
       result += " }"; */
     let result = `
       /**
-       * ${cleanParameterDescription(prop.description)}
+       * ${cleanParameterDescription(prop.description ?? prop.summary)}
        */
       ${propKey}: ${getFieldType(prop)};`;
     return result;
