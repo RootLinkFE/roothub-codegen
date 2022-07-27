@@ -4,15 +4,18 @@
  * @Description:
  */
 function getSwaggerRef(obj: any) {
-  return obj?.originalRef || obj.schema?.$ref || obj.$ref || obj.items?.$ref;
+  return obj.schema?.$ref || obj.$ref || obj.items?.$ref || obj?.originalRef;
 }
 
 export default function getParameterObject(resourceDetail: any, parameter: any, parent: string = ''): any {
   const $ref = getSwaggerRef(parameter);
   let definition: any;
   let children;
-  if ($ref && /#\/definitions\//.test($ref)) {
-    const refKey = $ref.replace('#/definitions/', '');
+  if ($ref) {
+    let refKey = $ref; // originalRef 可直接获取
+    if (/#\/definitions\//.test($ref)) {
+      refKey = $ref.replace('#/definitions/', '');
+    }
     definition = resourceDetail.definitions?.[refKey];
     if (definition) {
       const { properties = {}, required } = definition;

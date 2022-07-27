@@ -9,9 +9,11 @@ export type types = ['api', 'model', 'request', 'response'];
 export interface CustomMethodsItem {
   key: string;
   label: string;
-  description: string;
+  language?: string; // CodeMirror.language
+  description?: string;
   type: string; // types
-  function: string;
+  source: string; // root、soucre
+  function: string | void;
 }
 
 export interface CustomTypeMethods {

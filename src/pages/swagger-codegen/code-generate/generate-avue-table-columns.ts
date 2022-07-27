@@ -6,15 +6,36 @@
 import generateTableColumnsProps from './generate-table-columns-props';
 import { cleanParameterDescription } from '@/shared/utils';
 
-export default function generateAvueTableColumns(body: any, record?: any) {
+export default function generateAvueTableColumns(body: any, record?: any, api?: any) {
+  const parametersSet = new Set();
+  (api?.parameters ?? []).forEach((param: { name: string }) => {
+    parametersSet.add(param.name);
+  });
   const rows = Array.isArray(body) ? body : record?.children || [];
   return generateTableColumnsProps(rows, true, (row, index) => {
-    return {
+    let result: any = {
       prop: row.name,
       label: cleanParameterDescription(row.description),
       minWidth: 150,
       overHidden: true,
-      search: index === 0 || row.name === 'name' ? false : true, // 临时只显示第一个字段作为查询
     };
+    const item = parametersSet.has(row.name);
+    if (item) {
+      result.search = true;
+
+      if (
+        row.name.indexOf('状态') !== -1 ||
+        (row.description && row.description.indexOf('ENUM#') !== -1) ||
+        (row.enum && row.enum.length > 0)
+      ) {
+        result.searchType = 'select';
+      }
+      if (['date', 'time'].includes(row.name)) {
+        result.searchType = 'datetime';
+        result.format = 'YYYY-MM-DD HH:mm:ss';
+        result.valueFormat = 'YYYY-MM-DD HH:mm:ss';
+      }
+    }
+    return result;
   });
 }

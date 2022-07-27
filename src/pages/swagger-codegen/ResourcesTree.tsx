@@ -3,11 +3,11 @@
  * @Date: 2022-07-04 15:39:44
  * @Description: 侧边菜单
  */
-import { Col, Select, Menu, MenuProps, Input } from 'antd';
-import React, { useCallback, useEffect, useState, useRef } from 'react';
+import { Col, Select, Menu, MenuProps, Input, Row, Spin } from 'antd';
+import React, { useCallback, useState } from 'react';
 import { useMemo } from 'react';
 import { useModel } from 'umi';
-import { resourceItems, pathsItem, tagsItem } from '@/shared/ts/api-interface';
+import { pathsItem, tagsItem } from '@/shared/ts/api-interface';
 import { MethodColors } from '@/shared/common';
 
 const { Search } = Input;
@@ -36,6 +36,7 @@ const ResourcesTree: React.FC<{ labelKey: string } & MenuProps> = ({ labelKey })
     setSelectedResourceIndex,
     resources,
     resourceDetail,
+    resourceDetailLoading,
     type,
     selectedApi,
     setItemSelectedApi,
@@ -162,29 +163,13 @@ const ResourcesTree: React.FC<{ labelKey: string } & MenuProps> = ({ labelKey })
             ></Select>
           )}
         </div>
-        <Menu mode="inline" items={menuItems} defaultSelectedKeys={defaultSelectedKeys} onClick={onItemSelect}>
-          {/* {currentResourceTags.map((item: any, idx: number) => {
-            let { name, paths = [] } = item;
-            return (
-              <Menu.SubMenu title={name} key={name}>
-                {paths.map((row: pathsItem, index: number) => {
-                  return (
-                    <Menu.Item
-                      title={row.summary}
-                      key={row.uuid}
-                      onClick={() => {
-                        onItemSelect(row, idx, index);
-                      }}
-                    >
-                      <span style={{ paddingRight: '10px' }}>{row.methodUpper}</span>
-                      {highlightMenuName(row.summary, labelKey)}
-                    </Menu.Item>
-                  );
-                })}
-              </Menu.SubMenu>
-            );
-          })} */}
-        </Menu>
+        {resourceDetailLoading ? (
+          <Row align="middle" justify="center" style={{ width: '100%', height: '100px' }}>
+            <Spin />
+          </Row>
+        ) : (
+          <Menu mode="inline" items={menuItems} defaultSelectedKeys={defaultSelectedKeys} onClick={onItemSelect}></Menu>
+        )}
       </Col>
     );
   }

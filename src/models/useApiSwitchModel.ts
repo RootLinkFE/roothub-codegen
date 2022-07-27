@@ -106,7 +106,7 @@ export default function useApiSwitchModel() {
   }, [selectedResourceIndex, resourcesMap]);
 
   // 当前选中的资源 Key 获取详情
-  const { data: requestResourceDetail } = useRequest(
+  const { data: requestResourceDetail, loading: resourceDetailLoading } = useRequest(
     async () => {
       if (selectedResourceIndex) {
         const formatUrl = formatUrlChar(state.swagger.urlValue);
@@ -185,6 +185,7 @@ export default function useApiSwitchModel() {
     resources,
     resourcesLoading,
     resourceDetail,
+    resourceDetailLoading,
     selectedApi,
     setSelectedApi,
     selectedApiRows,

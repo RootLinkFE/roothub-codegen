@@ -1,9 +1,9 @@
 /*
  * @Author: ZtrainWilliams ztrain1224@163.com
  * @Date: 2022-07-14 13:50:44
- * @Description: api下拉生成
+ * @Description: 方法下拉生成
  */
-import { Dropdown, Menu } from 'antd';
+import { Dropdown, Menu, Button } from 'antd';
 import DownOutlined from '@ant-design/icons/lib/icons/DownOutlined';
 import { useModel } from 'umi';
 import { useCallback, useMemo } from 'react';
@@ -13,63 +13,81 @@ import { CustomMethodsItem } from '@/shared/ts/custom';
 import { pathsItem } from '@/shared/ts/api-interface';
 import { codeGenerateMethods } from './code-generate/index';
 
-const ApiDefinitionDropdown: React.FC<{ api: pathsItem }> = function (props) {
-  const { api } = props;
+const ApiDefinitionDropdown: React.FC<{
+  api: pathsItem;
+  methodType?: string;
+  dropdownTitle?: string;
+  buttonType?: 'link' | 'text' | 'dashed' | 'default' | 'ghost' | 'primary' | undefined;
+  onChange?: (key: string, item?: CustomMethodsItem | undefined) => void;
+}> = function (props) {
+  const { api, dropdownTitle = '复制api', methodType = 'api', buttonType = 'link', onChange } = props;
 
-  const apiGenerateMethods = codeGenerateMethods.filter((v) => v.type === 'api');
-
+  const generateMethods = codeGenerateMethods.filter((v) => v.type === methodType);
   const { setDefinitionCodeDrawerProps } = useModel('useApiSwitchModel');
 
-  const CustomMethods = useMemo(() => state.custom.CustomMethods, [state.custom.CustomMethods]);
+  const CustomMethods = useMemo(() => Array.from(state.custom.CustomMethods), [state.custom.CustomMethods]);
 
   const items = useMemo(() => {
-    let apiCustomMethods = state.custom.CustomMethods.filter((v: CustomMethodsItem) => v.type === 'api');
+    let currentCustomMethods = CustomMethods.filter((v: CustomMethodsItem) => v.type === methodType);
     return [
       {
         key: 'root',
         label: 'root',
         type: 'group',
-        children: apiGenerateMethods.map((v) => {
+        children: generateMethods.map((v) => {
           return {
             key: v.key,
             label: v.label,
           };
         }),
       },
-      apiCustomMethods.length > 0
+      currentCustomMethods.length > 0
         ? {
             key: 'custom',
             label: 'custom',
             type: 'group',
-            children: apiCustomMethods,
+            children: currentCustomMethods,
           }
         : null,
     ];
-  }, [state.custom.CustomMethods]);
+  }, [CustomMethods]);
 
   const handleMenuItemClick = ({ key }: any) => {
-    const generateMethod: any = apiGenerateMethods.find((v) => v.key === key);
-    let drawerProps = {
-      title: api.summary,
-      visible: true,
-      language: 'javascript',
-      generateCode: () => {},
-    };
-    if (generateMethod) {
-      drawerProps.generateCode = () => generateMethod.function(api);
+    if (methodType === 'api') {
+      const generateMethod: any = generateMethods.find((v) => v.key === key);
+      let drawerProps = {
+        title: '',
+        visible: true,
+        language: 'javascript',
+        generateCode: () => {},
+      };
+      drawerProps.title = api.summary;
+      if (generateMethod) {
+        drawerProps.generateCode = () => generateMethod.function(api);
+      } else {
+        let item: any = CustomMethods.find((v) => v.key === key) ?? {};
+        const cutomCodeFn = item?.function ? getStringToFn(item.function) : () => {};
+        drawerProps.generateCode = () => cutomCodeFn(api);
+      }
+      setDefinitionCodeDrawerProps(drawerProps);
     } else {
-      let item: any = CustomMethods.find((v) => v.key === key) ?? {};
-      const cutomCodeFn = item?.function ? getStringToFn(item.function) : () => {};
-      drawerProps.generateCode = () => cutomCodeFn(api);
+      if (onChange) {
+        let item: any = generateMethods.find((v) => v.key === key);
+        if (item) {
+          onChange(key, { ...item });
+        } else {
+          item = CustomMethods.find((v) => v.key === key);
+          onChange(key, { ...item });
+        }
+      }
     }
-    setDefinitionCodeDrawerProps(drawerProps);
   };
 
   return (
     <Dropdown overlay={<Menu onClick={handleMenuItemClick} items={items} />} trigger={['hover']}>
-      <a className="ant-dropdown-link" onClick={(e) => e.preventDefault()}>
-        复制api <DownOutlined />
-      </a>
+      <Button type={buttonType}>
+        {dropdownTitle} <DownOutlined />
+      </Button>
     </Dropdown>
   );
 };

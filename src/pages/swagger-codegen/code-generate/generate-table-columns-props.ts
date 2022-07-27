@@ -3,7 +3,7 @@
  * @Date: 2022-06-14 17:11:40
  * @Description: 表格code生成
  */
-import { cleanParameterDescription, prettyJSON } from '../../../shared/utils';
+import { cleanParameterDescription, prettyJSON } from '@/shared/utils';
 
 type filterItemFn = (row: any, index: number, rows: any[]) => any | null;
 

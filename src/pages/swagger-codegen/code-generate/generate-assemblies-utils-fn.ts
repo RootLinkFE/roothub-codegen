@@ -7,10 +7,12 @@ import getApiNameAsPageName from '@/shared/getApiNameAsPageName';
 import { prettyCode } from '@/shared/utils';
 import generateTableColumnsProps from './generate-table-columns-props';
 import { cleanParameterDescription } from '@/shared/utils';
+import generateAvueTableColumns from './generate-avue-table-columns';
 
 export default {
   getApiNameAsPageName,
   prettyCode,
   generateTableColumnsProps,
   cleanParameterDescription,
+  generateAvueTableColumns,
 };

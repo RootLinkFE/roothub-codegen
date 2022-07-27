@@ -10,56 +10,70 @@ import { CustomMethodsItem } from '@/shared/ts/custom';
 import CodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
 import { MethodTypes } from '@/shared/common';
+import { getStringToFn } from '@/shared/utils';
+import { CodeMirrorTypes } from '@/shared/common';
 const { Option } = Select;
 
 const EditCustomMethodDrawer: React.FC<
-  { data: CustomMethodsItem | undefined; onClose: (event?: boolean) => void } & DrawerProps
+  { data: CustomMethodsItem | undefined; type: string; onClose: (event?: boolean) => void } & DrawerProps
 > = (props) => {
-  const { data, onClose, ...drawerProps } = props;
+  const { data, type, onClose, ...drawerProps } = props;
   const [form] = Form.useForm();
 
   const { CustomMethods } = state.custom;
 
   const [currentState, setCurrentState] = useState({
     title: '自定义方法',
-    type: '',
+    type: type,
   });
 
   useEffect(() => {
     if (drawerProps.visible) {
       setCurrentState({
         title: `${data ? '编辑' : '新增'}自定义方法`,
-        type: data ? 'EDIT' : 'ADD',
+        type: type,
       });
       if (data) {
         form.setFieldsValue({ ...data });
       }
     }
     // console.log('drawerProps.visible', data, currentState, drawerProps.visible);
-  }, [drawerProps.visible]);
+  }, [drawerProps.visible, type]);
 
   const editorHeight = useMemo(() => {
-    const height = window.innerHeight - 400;
+    const height = window.innerHeight - 430;
     return height < 300 ? 300 : height;
   }, [window.innerHeight]);
 
+  const filterFunction = (fn: any) => {
+    try {
+      return Object.prototype.toString.call(getStringToFn(fn)) === '[object Function]';
+    } catch (error) {
+      return false;
+    }
+  };
+
   const submit = useCallback(
     (values: any) => {
+      if (!filterFunction(values.function)) {
+        message.error('方法-校验是否函数未通过！');
+        return false;
+      }
       const list = [...CustomMethods];
       let text = '';
       const index = list.findIndex((v: CustomMethodsItem) => {
         return values.key === v.key;
       });
-      if (currentState.type === 'ADD') {
+      if (currentState.type === 'ADD' || currentState.type === 'COPY') {
         if (index !== -1) {
           message.error('key值已被使用，请修改');
           return false;
         }
         text = '新增';
-        list.push(values);
+        list.push({ ...values, source: 'custom' });
       } else if (currentState.type === 'EDIT') {
         text = '编辑';
-        list[index] = values;
+        list[index] = { ...values, source: 'custom' };
       }
       state.custom.setCustomMethods(list);
       clearFormData();
@@ -96,8 +110,8 @@ const EditCustomMethodDrawer: React.FC<
       <Form
         name="basic"
         form={form}
-        labelCol={{ span: 3 }}
-        wrapperCol={{ span: 21 }}
+        labelCol={{ span: 4 }}
+        wrapperCol={{ span: 20 }}
         initialValues={{ remember: true }}
         onFinish={submit}
         onFinishFailed={() => {}}
@@ -114,6 +128,18 @@ const EditCustomMethodDrawer: React.FC<
         <Form.Item label="类型" name="type" rules={[{ required: true, message: '请选择类型' }]}>
           <Select>
             {MethodTypes.map((v: string) => {
+              return (
+                <Option value={v} key={v}>
+                  {v}
+                </Option>
+              );
+            })}
+          </Select>
+        </Form.Item>
+
+        <Form.Item label="语言" name="language" rules={[{ required: true, message: '请选择语言' }]}>
+          <Select defaultValue={'javascript'}>
+            {CodeMirrorTypes.map((v: string) => {
               return (
                 <Option value={v} key={v}>
                   {v}

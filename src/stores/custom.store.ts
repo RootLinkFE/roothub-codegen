@@ -54,6 +54,16 @@ class CustomStore {
     }
   }
 
+  updateCustomMethods(arr: CustomMethodsItem[]) {
+    this.CustomMethods = arr;
+    this.setFilterCustomMethods(arr);
+    if (!isInVSCode) {
+      storage.set('customMethods', arr);
+    } else {
+      postVSCodeMessage('updateCodeGenCustomMethods', JSON.parse(JSON.stringify(arr)));
+    }
+  }
+
   setFilterCustomMethods(arr: CustomMethodsItem[]) {
     this.CustomTypeMethods = filterCustomMethods(arr);
   }

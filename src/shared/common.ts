@@ -16,3 +16,27 @@ export const MethodColors: any = {
 
 // 方法类型
 export const MethodTypes: string[] = ['api', 'model', 'request', 'response'];
+
+// CodeMirror-language-types
+export const CodeMirrorTypes: string[] = [
+  'javascript',
+  'javascriptreact',
+  'typescript',
+  'typescriptreact',
+  'vue',
+  'vue-postcss',
+  'vue-sugarss',
+  'vue-html',
+  'json',
+  'jsonc',
+  'graphql',
+  'dart',
+  'sql',
+  'go',
+  'java',
+  'php',
+  'jade',
+  'python',
+  'swift',
+  'markdown',
+];

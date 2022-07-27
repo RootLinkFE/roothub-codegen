@@ -69,7 +69,7 @@ const CommandHandler: Record<string, (data: any) => any> = {
   },
   updateCodeGenCustomMethods(data) {
     console.log('updateCodeGenCustomMethods: ', data);
-    state.custom.setCustomMethods(data || []);
+    state.custom.updateCustomMethods(data || []);
   },
 };
 

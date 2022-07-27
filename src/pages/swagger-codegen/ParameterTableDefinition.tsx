@@ -60,7 +60,7 @@ const ParameterTableDefinition: React.FC<{ definition: any; record: any; api: pa
       generateCode: () => {},
     };
     if (generateMethod) {
-      drawerProps.generateCode = () => generateMethod.function(definition, record);
+      drawerProps.generateCode = () => generateMethod.function(definition, record, api);
     } else {
       let item: any = CustomMethods.find((v) => v.key === key) ?? {};
       const cutomCodeFn = item?.function ? getStringToFn(item.function) : () => {};

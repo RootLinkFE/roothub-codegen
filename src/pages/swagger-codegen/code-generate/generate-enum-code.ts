@@ -1,4 +1,4 @@
-import { prettyCode } from '../../../shared/utils';
+import { prettyCode } from '@/shared/utils';
 
 const FieldTypeMap: Record<string, string> = {
   integer: 'number',

@@ -7,15 +7,18 @@ import getApiNameAsPageName from '@/shared/getApiNameAsPageName';
 import { prettyCode } from '@/shared/utils';
 import generateAvueTableColumns from './generate-avue-table-columns';
 
-export default function generateAvueTablePageCode(body: any, api: { api: string; description: string }) {
+export default function generateAvueTablePageCode(
+  selectedData: any,
+  api: { api: string; description: string; summary: string },
+) {
+  const { responseSelectedData: body } = selectedData;
   const columnCode = generateAvueTableColumns(body);
-
   const componentName = getApiNameAsPageName(api.api);
   const matchApiName: any[] | null = api?.api.match(/^\/api\/[a-zA-Z]+/);
   const apiName = matchApiName && matchApiName?.length > 0 ? matchApiName[0].replace('/api/', '') : '';
 
   return prettyCode(`
-/**  * ${api?.description} */
+/**  * ${api?.description ?? api.summary} */
   <template>
   <avue-crud
     :data="records"
@@ -25,7 +28,7 @@ export default function generateAvueTablePageCode(body: any, api: { api: string;
     :option="option"
     v-enter="handleSearch"
     @on-load="handleSearch"
-    @search-reset="handleReset"
+    @search-reset="handleSearch"
     @refresh-change="handleSearch"
     @search-change="handleSearch"
     @size-change="handleSearch"

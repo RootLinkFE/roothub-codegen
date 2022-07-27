@@ -5,7 +5,7 @@
  */
 import getParameterObject from '@/shared/getParameterObject';
 import getResponseParams from '@/shared/getResponseParams';
-import { Button, Col, message, Space, Table, TableProps, Tag, Menu } from 'antd';
+import { Button, Col, message, Space, Table, TableProps, Tag, Row } from 'antd';
 import type { MenuProps } from 'antd';
 import CodeGenDropdown from './CodeGenDropdown';
 import { unionBy } from 'lodash';
@@ -155,7 +155,7 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
             <span
               onClick={() => {
                 copy(v);
-                message.info({ content: '已复制', duration: 1 });
+                message.info({ content: '已复制', duration: 1, key: 'copy-value' });
               }}
             >
               {v}
@@ -171,7 +171,7 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
             <span
               onClick={() => {
                 copy(v.replace(/#/g, ''));
-                message.info({ content: '已复制', duration: 1 });
+                message.info({ content: '已复制', duration: 1, key: 'copy-value' });
               }}
             >
               {v}
@@ -229,25 +229,34 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
 
   const handleDropdownChange = useCallback(
     (key: string, item: CustomMethodsItem | undefined) => {
-      if (selectedResponseRowRef.current.length < 1) {
-        return message.error('请先【响应参数】选择需要生成的字段');
+      if (item?.type === 'response') {
+        if (selectedResponseRowRef.current.length < 1) {
+          return message.error('请先【响应参数】选择需要生成的字段');
+        }
+      } else if (item?.type === 'request') {
+        if (selectedRequestRowRef.current.length < 1) {
+          return message.error('请先【请求参数】选择需要生成的字段');
+        }
       }
-      if (key === 'RhTable') {
-        setDefinitionCodeDrawerProps({
-          title: `表格列表配置`,
-          visible: true,
-          language: 'json',
-          generateCode: () => generateRhTablePageCode(selectedResponseRowRef.current, selectedApi),
-        });
-      } else if (key === 'avueTable') {
-        const cutomCodeFn = item?.function ? getStringToFn(item.function) : () => {};
-        setDefinitionCodeDrawerProps({
-          title: `表格列表配置`,
-          visible: true,
-          language: 'json',
-          generateCode: () => cutomCodeFn(selectedResponseRowRef.current, selectedApi, utilsFn),
-        });
+      console.log(key, item);
+      let cutomCodeFn: any = item?.function;
+      if (item?.source === 'custom') {
+        cutomCodeFn = item?.function ? getStringToFn(item.function) : () => {};
       }
+      setDefinitionCodeDrawerProps({
+        title: item?.label || `代码生成方法-${item?.type}`,
+        visible: true,
+        language: item?.language || 'javascript',
+        generateCode: () =>
+          cutomCodeFn(
+            {
+              requestSelectedData: selectedRequestRowRef.current,
+              responseSelectedData: selectedResponseRowRef.current,
+              resourceDetail,
+            },
+            selectedApi,
+          ),
+      });
     },
     [selectedResponseRowRef, selectedApi],
   );
@@ -296,7 +305,15 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
             rowKey="name"
             dataSource={getHeaderParams(selectedApi)}
           />
-          <h2 className={styles.h2BorderTitle}>请求参数</h2>
+          <Row align="middle" justify="space-between">
+            <h2 className={styles.h2BorderTitle}>请求参数</h2>
+            <ApiDefinitionDropdown
+              api={selectedApi}
+              methodType="request"
+              dropdownTitle="request"
+              onChange={handleDropdownChange}
+            />
+          </Row>
           <Table
             bordered
             sticky
@@ -312,7 +329,15 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
             rowKey="key"
             dataSource={requestParamsData}
           />
-          <h2 className={styles.h2BorderTitle}>响应参数</h2>
+          <Row align="middle" justify="space-between">
+            <h2 className={styles.h2BorderTitle}>响应参数</h2>
+            <ApiDefinitionDropdown
+              api={selectedApi}
+              methodType="response"
+              dropdownTitle="response"
+              onChange={handleDropdownChange}
+            />
+          </Row>
           <Table
             rowSelection={{
               onChange: (keys, rows) => {
@@ -330,7 +355,6 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
           />
         </div>
         <Space style={{ background: '#fff', padding: '10px' }}>
-          <CodeGenDropdown onChange={handleDropdownChange} />
           <Button type="primary" onClick={showTableColumnsProps}>
             生成 Table 列配置
           </Button>
