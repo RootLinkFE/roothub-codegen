@@ -24,8 +24,8 @@
   },
   "dependencies": {
     "@ant-design/pro-layout": "^6.5.0",
-    "@codemirror/lang-javascript": "^0.19.3",
-    "@uiw/react-codemirror": "^4.2.4",
+    "@codemirror/lang-javascript": "0.19.3",
+    "@uiw/react-codemirror": "4.2.4",
     "ahooks": "^2.10.9",
     "axios": "^0.26.0",
     "codesandbox": "^2.2.3",
