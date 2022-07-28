@@ -13,6 +13,8 @@ export interface CustomMethodsItem {
   description?: string;
   type: string; // types
   source: string; // root、soucre
+  status: number; // 0 #未启用 1#启用;
+  sort: number;
   function: string | void;
 }
 

@@ -22,10 +22,12 @@ const ApiDefinitionDropdown: React.FC<{
 }> = function (props) {
   const { api, dropdownTitle = '复制api', methodType = 'api', buttonType = 'link', onChange } = props;
 
-  const generateMethods = codeGenerateMethods.filter((v) => v.type === methodType);
+  const generateMethods = codeGenerateMethods.filter((v) => v.type === methodType && v.status);
   const { setDefinitionCodeDrawerProps } = useModel('useApiSwitchModel');
 
-  const CustomMethods = useMemo(() => Array.from(state.custom.CustomMethods), [state.custom.CustomMethods]);
+  const CustomMethods = useMemo(() => Array.from(state.custom.EnabledCustomMethods), [
+    state.custom.EnabledCustomMethods,
+  ]);
 
   const items = useMemo(() => {
     let currentCustomMethods = CustomMethods.filter((v: CustomMethodsItem) => v.type === methodType);

@@ -37,6 +37,8 @@ const filterCustomMethods = (arr: CustomMethodsItem[]) => {
 
 class CustomStore {
   CustomMethods: CustomMethodsItem[] = !isInVSCode && rhCustomMethods.length > 0 ? rhCustomMethods : [];
+  EnabledCustomMethods: CustomMethodsItem[] =
+    !isInVSCode && rhCustomMethods.length > 0 ? rhCustomMethods.filter((v) => v.status) : [];
   // 将自定义方法分类，且dropdownMenu可直接使用
   CustomTypeMethods: any[] = !isInVSCode && rhCustomMethods.length > 0 ? filterCustomMethods(rhCustomMethods) : [];
 
@@ -46,6 +48,7 @@ class CustomStore {
 
   setCustomMethods(arr: CustomMethodsItem[]) {
     this.CustomMethods = arr;
+    this.EnabledCustomMethods = arr.filter((v) => v.status);
     this.setFilterCustomMethods(arr);
     if (!isInVSCode) {
       storage.set('customMethods', arr);
@@ -56,6 +59,7 @@ class CustomStore {
 
   updateCustomMethods(arr: CustomMethodsItem[]) {
     this.CustomMethods = arr;
+    this.EnabledCustomMethods = arr.filter((v) => v.status);
     this.setFilterCustomMethods(arr);
     if (!isInVSCode) {
       storage.set('customMethods', arr);

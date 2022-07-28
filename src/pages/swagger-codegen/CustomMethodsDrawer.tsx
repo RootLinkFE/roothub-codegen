@@ -19,14 +19,16 @@ const CustomMethodsDrawer: React.FC<DrawerProps> = (props) => {
   const [drawerType, setDrawerType] = useState<string>('add');
   const [row, setRow] = useState<CustomMethodsItem | undefined>(undefined);
   const dataSource = useMemo(() => {
-    return state.custom.CustomMethods;
-  }, [state.custom.CustomMethods]);
-  const rootDataSource = codeGenerateMethods.map((v) => {
-    return {
-      ...v,
-      function: v.function.toString(),
-    };
-  });
+    return state.custom.EnabledCustomMethods;
+  }, [state.custom.EnabledCustomMethods]);
+  const rootDataSource = codeGenerateMethods
+    .filter((v) => v.status)
+    .map((v) => {
+      return {
+        ...v,
+        function: v.function.toString(),
+      };
+    });
 
   const [activeKey, setActiveKey] = useState<string>('custom');
 
@@ -75,7 +77,7 @@ const CustomMethodsDrawer: React.FC<DrawerProps> = (props) => {
       dataIndex: 'language',
       key: 'language',
       title: '语言',
-      width: 120,
+      width: 100,
     },
     {
       dataIndex: 'function',
@@ -87,6 +89,21 @@ const CustomMethodsDrawer: React.FC<DrawerProps> = (props) => {
 
   const columns: TableColumnsType<CustomMethodsItem> | undefined = [
     ...basColumns,
+    {
+      dataIndex: 'sort',
+      key: 'sort',
+      title: '排序',
+      width: 80,
+    },
+    {
+      dataIndex: 'status',
+      key: 'status',
+      title: '状态',
+      render: (v: number) => {
+        return v === 1 ? '启用' : '禁用';
+      },
+      width: 80,
+    },
     {
       dataIndex: 'action',
       key: 'action',
@@ -138,6 +155,8 @@ const CustomMethodsDrawer: React.FC<DrawerProps> = (props) => {
         type: string;
         source: string;
         language: string;
+        status: number;
+        sort: number;
         function: any;
       }>
     | undefined = [
@@ -147,6 +166,7 @@ const CustomMethodsDrawer: React.FC<DrawerProps> = (props) => {
       key: 'action',
       title: '操作',
       width: 80,
+      fixed: 'right',
       render: (key, r) => {
         return (
           <>

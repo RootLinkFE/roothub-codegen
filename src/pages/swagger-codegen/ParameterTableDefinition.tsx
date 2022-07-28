@@ -17,13 +17,13 @@ const ParameterTableDefinition: React.FC<{ definition: any; record: any; api: pa
   const { definition, record, api } = props;
 
   const { setSelectedDefinition, setDefinitionCodeDrawerProps } = useModel('useApiSwitchModel');
-  const modelGenerateMethods = codeGenerateMethods.filter((v) => v.type === 'model');
+  const modelGenerateMethods = codeGenerateMethods.filter((v) => v.type === 'model' && v.status);
 
   const title = useMemo(() => {
     return definition.title || definition?.xml?.name || (record?.$ref && record?.$ref.replace('#/definitions/', ''));
   }, [definition, record]);
 
-  const CustomMethods = useMemo(() => state.custom.CustomMethods, [state.custom.CustomMethods]);
+  const CustomMethods = useMemo(() => state.custom.EnabledCustomMethods, [state.custom.EnabledCustomMethods]);
 
   const items = useMemo(() => {
     return [
@@ -42,10 +42,10 @@ const ParameterTableDefinition: React.FC<{ definition: any; record: any; api: pa
         key: 'custom',
         label: 'custom',
         type: 'group',
-        children: state.custom.CustomMethods.filter((v: CustomMethodsItem) => v.type === 'model'),
+        children: state.custom.EnabledCustomMethods.filter((v: CustomMethodsItem) => v.type === 'model'),
       },
     ];
-  }, [state.custom.CustomMethods]);
+  }, [state.custom.EnabledCustomMethods]);
 
   const handleMenuItemClick = ({ key }: any) => {
     const params = {

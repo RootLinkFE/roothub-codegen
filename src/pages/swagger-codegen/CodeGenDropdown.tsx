@@ -17,7 +17,7 @@ const CodeGenDropdown: React.FC<{ onChange: (key: string, item?: CustomMethodsIt
   const { onChange } = props;
 
   const CustomTypeMethods = useMemo(() => state.custom.CustomTypeMethods, [state.custom.CustomTypeMethods]);
-  const CustomMethods = useMemo(() => state.custom.CustomMethods, [state.custom.CustomMethods]);
+  const CustomMethods = useMemo(() => state.custom.EnabledCustomMethods, [state.custom.EnabledCustomMethods]);
 
   const dropdownMenuClick: MenuProps['onClick'] = ({ key }) => {
     onChange(
