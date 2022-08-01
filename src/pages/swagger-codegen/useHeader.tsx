@@ -1,3 +1,8 @@
+/*
+ * @Author: ZtrainWilliams ztrain1224@163.com
+ * @Date: 2022-07-27 17:16:27
+ * @Description:
+ */
 import { CloseOutlined } from '@ant-design/icons';
 import { Button, Col, Dropdown, Input, Menu, Row } from 'antd';
 import { observer } from 'mobx-react';
@@ -18,6 +23,12 @@ const ApiSwitchHeader: React.FC = () => {
     urls.splice(i, 1);
     swaggerStore.setApiUrls(urls);
     storage.set('storageUrls', urls);
+  };
+
+  const inputKeyDown = (e: any) => {
+    if (e.keyCode === 13) {
+      fetchResources();
+    }
   };
 
   const menu = (
@@ -57,6 +68,7 @@ const ApiSwitchHeader: React.FC = () => {
           onChange={(e) => {
             swaggerStore.setUrlValue((e.nativeEvent.target as any).value);
           }}
+          onKeyDown={inputKeyDown}
           placeholder="swagger 文档地址"
           defaultValue={urlValue}
           value={urlValue}
