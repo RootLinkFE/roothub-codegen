@@ -148,6 +148,7 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
         render: (v) => {
           return (
             <span
+              className="copy-link"
               onClick={() => {
                 copy(v);
                 message.info({ content: '已复制', duration: 1, key: 'copy-value' });
@@ -164,6 +165,7 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
         render: (v) => {
           return (
             <span
+              className="copy-link"
               onClick={() => {
                 copy(v.replace(/#/g, ''));
                 message.info({ content: '已复制', duration: 1, key: 'copy-value' });
