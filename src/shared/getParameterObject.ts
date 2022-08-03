@@ -4,7 +4,7 @@
  * @Description:
  */
 function getSwaggerRef(obj: any) {
-  return obj.schema?.$ref || obj.$ref || obj.items?.$ref || obj?.originalRef;
+  return obj.schema?.$ref || obj.$ref || obj.items?.$ref || obj.schema?.items?.$ref || obj?.originalRef;
 }
 
 export default function getParameterObject(resourceDetail: any, parameter: any, parent: string = ''): any {

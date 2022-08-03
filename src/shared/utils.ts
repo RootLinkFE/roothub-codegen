@@ -4,6 +4,7 @@
  * @Description:
  */
 import { tagsItem, pathsItem } from '@/shared/ts/api-interface';
+import getParameterObject from './getParameterObject';
 
 export function cleanParameterDescription(s: string) {
   let s1 = cleanEnumDesc(s);
@@ -76,6 +77,50 @@ export function classifyPathsToTags(tags: any[], pathObj: object) {
   });
 }
 
+/**
+ * @description: 字符串函数转换成js函数
+ * @param {string} val
+ * @return {*}
+ */
 export const getStringToFn = (val: string) => {
   return Function('"use strict";return (' + val + ')')();
 };
+
+/**
+ * @description: 扁平化子数组
+ * @param {any} list
+ * @param {any} result
+ * @param {string} type
+ * @return {*}
+ */
+export function flatChildren(list: any, result: any = [], type: string = 'children') {
+  list.forEach((item: any) => {
+    result.push(item);
+    if (item[type]) {
+      flatChildren(item[type], result);
+    }
+  });
+  return result;
+}
+
+export function getHeaderParams(api: any) {
+  if (api.parameters?.length > 0) {
+    return api.parameters?.filter((parameter: any) => {
+      return parameter.in === 'header';
+    });
+  }
+  return [];
+}
+
+export function getRequestParams(api: any, resourceDetail: any) {
+  if (api.parameters?.length > 0) {
+    return api.parameters
+      .filter((parameter: any) => {
+        return parameter.in !== 'header';
+      })
+      .map((parameter: any) => {
+        return getParameterObject(resourceDetail, parameter);
+      });
+  }
+  return [];
+}

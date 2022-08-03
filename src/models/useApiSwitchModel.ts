@@ -21,11 +21,7 @@ export default function useApiSwitchModel() {
   const [type, setType] = useState('api');
 
   // 通过当前资源地址获取资源
-  const {
-    run: fetchResources,
-    data: resources,
-    loading: resourcesLoading,
-  } = useRequest(
+  const { run: fetchResources, data: resources, loading: resourcesLoading } = useRequest(
     async () => {
       // 重置选择
       setSelectedApiRows([]);
@@ -63,7 +59,6 @@ export default function useApiSwitchModel() {
       } else {
         message.error('获取swagger-resources失败！');
       }
-      console.log('res=', res, urlType);
       setType(urlType);
       return type === 'api' ? res || [] : res;
     },
@@ -114,7 +109,7 @@ export default function useApiSwitchModel() {
           formatUrl + (selectedResource.location || selectedResource.url),
           selectedResource.header,
         );
-        classifyPathsToTags(res.tags, res.paths);
+        classifyPathsToTags(res.tags ?? [], res.paths ?? []);
         return res;
       }
       return null;

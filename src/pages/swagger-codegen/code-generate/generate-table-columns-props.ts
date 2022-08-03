@@ -13,7 +13,22 @@ type filterItemFn = (row: any, index: number, rows: any[]) => any | null;
  * @param filter 是否过滤表格不需要字段
  * @returns
  */
-export default function generateTableColumnsProps(rows: any[], filter: boolean = true, filterItem?: filterItemFn) {
+export default function generateTableColumnsProps(
+  selectedData:
+    | {
+        requestSelectedData: any[];
+        responseSelectedData: any[];
+      }
+    | any[],
+  filter: boolean = true,
+  filterItem?: filterItemFn,
+) {
+  let rows: any[] = [];
+  if (Array.isArray(selectedData)) {
+    rows = selectedData;
+  } else {
+    rows = selectedData.responseSelectedData;
+  }
   const columns: any[] = [];
   rows.forEach((row, index) => {
     if (filter) {

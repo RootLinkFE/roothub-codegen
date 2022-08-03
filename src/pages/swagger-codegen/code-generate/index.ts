@@ -14,6 +14,10 @@ import generateAvueTablePageCode from './generate-avue-table';
 import generateAvueFormColumns from './generate-avue-form-columns';
 import generateAvueFormCode from './generate-avue-form';
 
+import generateTableColumnsProps from './generate-table-columns-props';
+import generateModelFormItemsCode from './generate-model-form-items-code';
+import generateEnumCode from './generate-enum-code';
+
 export const codeGenerateMethods = [
   {
     key: 'copy-api',
@@ -75,16 +79,16 @@ export const codeGenerateMethods = [
     language: 'vue',
     function: generateAvueTablePageCode,
   },
-  {
-    key: 'avue-form-model',
-    label: 'avue-form',
-    type: 'model',
-    source: 'root',
-    status: 1,
-    sort: 94,
-    language: 'vue',
-    function: generateAvueFormColumns,
-  },
+  // {
+  //   key: 'avue-form-model',
+  //   label: 'avue-form',
+  //   type: 'model',
+  //   source: 'root',
+  //   status: 1,
+  //   sort: 94,
+  //   language: 'vue',
+  //   function: generateAvueFormColumns,
+  // },
   {
     key: 'avue-form-request',
     label: 'avue-form',
@@ -94,5 +98,45 @@ export const codeGenerateMethods = [
     sort: 94,
     language: 'vue',
     function: generateAvueFormCode,
+  },
+  {
+    key: 'react-table-columns',
+    label: '生成 ReactTable 列配置',
+    type: 'response',
+    source: 'root',
+    status: 1,
+    sort: 93,
+    language: 'javascript',
+    function: generateTableColumnsProps,
+  },
+  {
+    key: 'react-form',
+    label: '生成 ReactForm 配置',
+    type: 'request',
+    source: 'root',
+    status: 1,
+    sort: 93,
+    language: 'javascript',
+    function: generateModelFormItemsCode,
+  },
+  {
+    key: 'generate-request-enum-code',
+    label: '生成枚举',
+    type: 'request',
+    source: 'root',
+    status: 1,
+    sort: 92,
+    language: 'javascript',
+    function: generateEnumCode,
+  },
+  {
+    key: 'generate-response-enum-code',
+    label: '生成枚举',
+    type: 'response',
+    source: 'root',
+    status: 1,
+    sort: 92,
+    language: 'javascript',
+    function: generateEnumCode,
   },
 ];

@@ -4,7 +4,8 @@
  * @Description:
  */
 import { CloseOutlined } from '@ant-design/icons';
-import { Button, Col, Dropdown, Input, Menu, Row } from 'antd';
+import { isInVSCode } from '@/shared/vscode';
+import { Button, Col, Dropdown, Input, Menu, Row, Popover, Typography } from 'antd';
 import { observer } from 'mobx-react';
 import React from 'react';
 import { useModel } from 'umi';
@@ -64,28 +65,51 @@ const ApiSwitchHeader: React.FC = () => {
         </Button>
       </Col>
       <Col flex={1}>
-        <Input
-          onChange={(e) => {
-            swaggerStore.setUrlValue((e.nativeEvent.target as any).value);
-          }}
-          onKeyDown={inputKeyDown}
-          placeholder="swagger 文档地址"
-          defaultValue={urlValue}
-          value={urlValue}
-        />
+        <Popover
+          placement="topLeft"
+          trigger="click"
+          content={
+            <Typography.Paragraph>
+              通过Swagger文档地址获取api列表，只需要填写
+              <Typography.Text keyboard>doc.html</Typography.Text>
+              前一部分地址。 <br />
+              比如
+              <Typography.Text keyboard>http://xxx-dev.leekhub.com/order-server/doc.html</Typography.Text>
+              地址，就输入
+              <Typography.Text keyboard>http://xxx-dev.leekhub.com/order-server</Typography.Text>
+              <br />
+              也支持openApi内容格式的
+              <Typography.Text keyboard>json、yaml文件</Typography.Text>
+              {!isInVSCode && (
+                <div style={{ marginTop: '20px' }}>
+                  Web网页存在跨域问题，推荐使用VSCode插件：
+                  <a
+                    href="https://marketplace.visualstudio.com/items?itemName=giscafer.roothub"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    点击安装
+                  </a>
+                </div>
+              )}
+            </Typography.Paragraph>
+          }
+        >
+          <Input
+            onChange={(e) => {
+              swaggerStore.setUrlValue((e.nativeEvent.target as any).value);
+            }}
+            onKeyDown={inputKeyDown}
+            placeholder="输入接口文档url，如swagger"
+            defaultValue={urlValue}
+            value={urlValue}
+          />
+        </Popover>
       </Col>
       <Col flex="none">
         <Dropdown.Button overlay={menu} disabled={apiUrls.length <= 0}>
           历史接口
         </Dropdown.Button>
-        {/* <Radio.Group
-        disabled
-        onChange={(e) => setType(e.target.value)}
-        options={[{ label: '接口', value: 'api' }]}
-        optionType="button"
-        buttonStyle="solid"
-        value={type}
-      /> */}
       </Col>
     </Row>
   );

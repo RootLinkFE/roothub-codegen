@@ -4,7 +4,7 @@
  * @Description: 方法下拉生成
  */
 import { Dropdown, Menu, Button } from 'antd';
-import DownOutlined from '@ant-design/icons/lib/icons/DownOutlined';
+import CodeOutlined from '@ant-design/icons/lib/icons/CodeOutlined';
 import { useModel } from 'umi';
 import { useCallback, useMemo } from 'react';
 import state from '@/stores/index';
@@ -20,7 +20,7 @@ const ApiDefinitionDropdown: React.FC<{
   buttonType?: 'link' | 'text' | 'dashed' | 'default' | 'ghost' | 'primary' | undefined;
   onChange?: (key: string, item?: CustomMethodsItem | undefined) => void;
 }> = function (props) {
-  const { api, dropdownTitle = '复制api', methodType = 'api', buttonType = 'link', onChange } = props;
+  const { api, dropdownTitle = '代码生成', methodType = 'api', buttonType = 'link', onChange } = props;
 
   const generateMethods = codeGenerateMethods.filter((v) => v.type === methodType && v.status);
   const { setDefinitionCodeDrawerProps } = useModel('useApiSwitchModel');
@@ -88,7 +88,7 @@ const ApiDefinitionDropdown: React.FC<{
   return (
     <Dropdown overlay={<Menu onClick={handleMenuItemClick} items={items} />} trigger={['hover']}>
       <Button type={buttonType}>
-        {dropdownTitle} <DownOutlined />
+        <CodeOutlined /> {dropdownTitle}
       </Button>
     </Dropdown>
   );

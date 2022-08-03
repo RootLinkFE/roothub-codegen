@@ -4,7 +4,7 @@
  * @Description:
  */
 import { Dropdown, Menu } from 'antd';
-import DownOutlined from '@ant-design/icons/lib/icons/DownOutlined';
+import CodeOutlined from '@ant-design/icons/lib/icons/CodeOutlined';
 import { useModel } from 'umi';
 import { useCallback, useMemo } from 'react';
 import state from '@/stores/index';
@@ -73,7 +73,7 @@ const ParameterTableDefinition: React.FC<{ definition: any; record: any; api: pa
   return (
     <Dropdown overlay={<Menu items={items} onClick={handleMenuItemClick}></Menu>} trigger={['hover']}>
       <a className="ant-dropdown-link" onClick={(e) => e.preventDefault()}>
-        {title} <DownOutlined />
+        <CodeOutlined /> {title}
       </a>
     </Dropdown>
   );

@@ -6,7 +6,7 @@ import { omit } from 'lodash';
 import openOnCodeSandbox from '@/shared/codesandbox';
 import CodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import copy from 'copy-to-clipboard';
 
 const ModelCodeDrawer: React.FC<DrawerProps> = (props) => {
   const { definitionCodeDrawerProps } = useModel('useApiSwitchModel');
@@ -17,10 +17,13 @@ const ModelCodeDrawer: React.FC<DrawerProps> = (props) => {
     return window.innerHeight - 70;
   }, [window.innerHeight]);
 
+  const handleCopy = () => {
+    copy(code);
+    message.success('代码已复制到剪贴板！');
+  };
+
   return (
     <Drawer
-      // title={`${selectedDefinition?.title} 模型配置`}
-      // onClose={() => setDefinitionCodeDrawerVisible(false)}
       width="60%"
       bodyStyle={{ padding: 0, display: 'flex' }}
       {...props}
@@ -41,16 +44,9 @@ const ModelCodeDrawer: React.FC<DrawerProps> = (props) => {
               CodeSandbox
             </Button>
           )}
-          <CopyToClipboard
-            text={code}
-            onCopy={() => {
-              message.success('代码已复制到剪贴板！');
-            }}
-          >
-            <Button ghost type="primary" icon={<CopyOutlined />}>
-              Copy
-            </Button>
-          </CopyToClipboard>
+          <Button ghost type="primary" icon={<CopyOutlined />} onClick={handleCopy}>
+            Copy
+          </Button>
         </Space>
       }
     >

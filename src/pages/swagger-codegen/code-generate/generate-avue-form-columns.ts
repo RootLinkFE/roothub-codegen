@@ -7,7 +7,6 @@ import generateTableColumnsProps from './generate-table-columns-props';
 import { cleanParameterDescription } from '@/shared/utils';
 
 export default function generateAvueFormColumns(body: any, record?: any, api?: any) {
-  console.log('generateAvueFormColumns', body, record);
   const rows = Array.isArray(body) ? body : record?.children || [];
   return generateTableColumnsProps(rows, true, (row, index) => {
     let result: any = {

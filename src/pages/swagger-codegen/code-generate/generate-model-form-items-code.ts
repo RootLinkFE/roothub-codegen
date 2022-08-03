@@ -50,7 +50,15 @@ function getFieldInputCode(prop: any): string {
   }
 }
 
-export default function generateModelFormItemsCode(rows: any[], api: any = {}) {
+export default function generateModelFormItemsCode(
+  selectedData: {
+    requestSelectedData: any[];
+    responseSelectedData: any[];
+  },
+  api: any = {},
+) {
+  const { requestSelectedData: rows } = selectedData;
+
   return prettyCode(
     `
     /**
