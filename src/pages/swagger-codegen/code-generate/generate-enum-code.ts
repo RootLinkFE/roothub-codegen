@@ -51,17 +51,22 @@ export default function generateEnumCode(
     | any[],
   api: any = {},
 ) {
-  console.log('selectedData', selectedData);
   let rows = [];
   if (Array.isArray(selectedData)) {
     rows = selectedData;
   } else {
     const { requestSelectedData, responseSelectedData } = selectedData;
 
-    let resData;
+    let resData = [];
     let resDataAll: any[] = [];
+    if (responseSelectedData && responseSelectedData.length) {
+      resData = responseSelectedData.find((item: { name: string }) => item.name === 'data')?.children ?? [];
+    }
     if (requestSelectedData && requestSelectedData.length) {
-      resData = responseSelectedData.find((item: { name: string }) => item.name === 'data').children ?? [];
+      resData = [
+        ...resData,
+        ...(requestSelectedData.find((item: { name: string }) => item.name === 'data')?.children ?? []),
+      ];
     }
 
     function recursionReduce(list: any[]) {
