@@ -31,14 +31,14 @@ export default function useApiSwitchModel() {
 
       let swaggerUrl = state.swagger.urlValue;
       let urlType = type;
-      if (/[.json]$/.test(swaggerUrl)) {
+      if (/.json$/.test(swaggerUrl)) {
         // https://petstore.swagger.io/v2/swagger.json
         urlType = 'json';
-      } else if (/[.yaml]$/.test(swaggerUrl)) {
+      } else if (/.yaml$/.test(swaggerUrl)) {
         urlType = 'yaml';
       } else {
         urlType = 'api';
-        swaggerUrl = formatUrlChar(state.swagger.urlValue + '/swagger-resources');
+        swaggerUrl = formatUrlChar(state.swagger.urlValue) + '/swagger-resources';
       }
 
       let res = await requestToBody(swaggerUrl);
@@ -72,6 +72,7 @@ export default function useApiSwitchModel() {
    */
   const handleStorageUrl = () => {
     const current = formatUrlChar(state.swagger.urlValue);
+    console.log('current', current);
     const storageUrls: any[] = storage.get('storageUrls');
     let newStorageUrls: any[] = [current];
     if (storageUrls) {
@@ -105,6 +106,7 @@ export default function useApiSwitchModel() {
     async () => {
       if (selectedResourceIndex) {
         const formatUrl = formatUrlChar(state.swagger.urlValue);
+        console.log('formatUrl', formatUrl);
         const res = await requestToBody(
           formatUrl + (selectedResource.location || selectedResource.url),
           selectedResource.header,

@@ -50,9 +50,11 @@ export function prettyJSON(json: object) {
 }
 
 export function formatUrlChar(url: string) {
-  const formatUrl = url.lastIndexOf('/') === url.length - 1 ? url.slice(0, -1) : url;
-
-  return formatUrl;
+  if (/\/doc.html$/.test(url)) {
+    return url.slice(0, -9);
+  } else {
+    return url.lastIndexOf('/') === url.length - 1 ? url.slice(0, -1) : url;
+  }
 }
 
 // 将tags与paths关联
