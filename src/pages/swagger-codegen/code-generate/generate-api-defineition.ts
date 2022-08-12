@@ -11,17 +11,31 @@ export default function generateApiDefineition(apiData: pathsItem) {
 
   const apiMatch = api.match(/[a-zA-Z0-9]*$/);
   const name = apiMatch && apiMatch.length > 0 ? camelCase(`${method} ${apiMatch[0]}`) : camelCase(api);
+  let apiParams = 'params';
+  let apiPath = api;
+  const apiStrReg = /\{([\d\D]*)\}/g;
+  if (method === 'post') {
+    apiParams = 'data: params';
+  }
+  let argumentsData = ['params'];
+  const matchPathId = apiStrReg.exec(api);
+  if (matchPathId) {
+    argumentsData.unshift(matchPathId[1]);
+    apiPath = apiPath.replace(apiStrReg, function (str) {
+      return `$${str}`;
+    });
+  }
 
   return `
 /**
  * ${summary}
  */
- const ${name || 'fetch'} = (params) => {
+ const ${name || 'fetch'} = (${argumentsData.join(', ')}) => {
   return axios(
     {
-      path: '${api}',
+      path: ${'`'}${apiPath}${'`'},
       method: '${method}'
-      params
+      ${apiParams}
     }
   )
 };
