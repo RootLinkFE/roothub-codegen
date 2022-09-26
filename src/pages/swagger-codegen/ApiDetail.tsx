@@ -6,6 +6,7 @@
 import getParameterObject from '@/shared/getParameterObject';
 import getResponseParams from '@/shared/getResponseParams';
 import { Button, Col, message, Space, Table, TableProps, Tag, Row, Collapse, Switch, Popover } from 'antd';
+import { DownloadOutlined } from '@ant-design/icons';
 import { unionBy } from 'lodash';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useModel } from 'umi';
@@ -16,7 +17,7 @@ import ModelCodeDrawer from './ModelCodeDrawer';
 import { pathsItem } from '@/shared/ts/api-interface';
 import copy from 'copy-to-clipboard';
 import { MethodColors } from '@/shared/common';
-import { getStringToFn, flatChildren, getHeaderParams, getRequestParams } from '@/shared/utils';
+import { getStringToFn, flatChildren, getHeaderParams, getRequestParams, dataSaveToJSON } from '@/shared/utils';
 import ApiDefinitionDropdown from './ApiDefinitionDropdown';
 import { CustomMethodsItem } from '@/shared/ts/custom';
 const { Panel } = Collapse;
@@ -192,6 +193,13 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
     message.success('api已复制到剪贴板！');
   };
 
+  const handleDownload = () => {
+    dataSaveToJSON(
+      { ...selectedApi, requestParams: getRequestParams(selectedApi, resourceDetail), responseParamsData },
+      selectedApi.summary,
+    );
+  };
+
   if (!resourceDetail) {
     return null;
   } else {
@@ -216,6 +224,17 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
               复制
             </Button>
             <ApiDefinitionDropdown api={selectedApi} />
+            <Button
+              type="link"
+              size="small"
+              title="openapi.json"
+              onClick={() => {
+                handleDownload();
+              }}
+            >
+              <DownloadOutlined />
+              下载
+            </Button>
           </p>
           <p>接口描述：{selectedApi.description}</p>
         </div>

@@ -126,3 +126,27 @@ export function getRequestParams(api: any, resourceDetail: any) {
   }
   return [];
 }
+
+/**
+ * @description: 导出json文件
+ * @param {any} data
+ * @param {string} filename
+ * @return {*}
+ */
+export function dataSaveToJSON(data: any, filename: string = 'openapi') {
+  if (!data) {
+    console.error('保存的数据为空');
+    return false;
+  }
+  if (typeof data === 'object') {
+    data = JSON.stringify(data, undefined, 2);
+  }
+  const blob = new Blob([data], { type: 'text/json' }),
+    e = document.createEvent('MouseEvents'),
+    a = document.createElement('a');
+  a.download = `${filename}.json`;
+  a.href = window.URL.createObjectURL(blob);
+  a.dataset.downloadurl = ['text/json', a.download, a.href].join(':');
+  e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+  a.dispatchEvent(e);
+}

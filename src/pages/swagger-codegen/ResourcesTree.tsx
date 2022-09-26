@@ -3,12 +3,14 @@
  * @Date: 2022-07-04 15:39:44
  * @Description: 侧边菜单
  */
-import { Col, Select, Menu, MenuProps, Input, Row, Spin } from 'antd';
+import { Col, Select, Menu, MenuProps, Input, Row, Spin, Button } from 'antd';
+import { DownloadOutlined } from '@ant-design/icons';
 import React, { useCallback, useState } from 'react';
 import { useMemo } from 'react';
 import { useModel } from 'umi';
 import { pathsItem, tagsItem } from '@/shared/ts/api-interface';
 import { MethodColors } from '@/shared/common';
+import { dataSaveToJSON } from '@/shared/utils';
 
 const { Search } = Input;
 
@@ -34,6 +36,7 @@ const ResourcesTree: React.FC<{ labelKey: string } & MenuProps> = ({ labelKey })
   const {
     selectedResourceIndex,
     setSelectedResourceIndex,
+    selectedResource,
     resources,
     resourceDetail,
     resourceDetailLoading,
@@ -152,7 +155,23 @@ const ResourcesTree: React.FC<{ labelKey: string } & MenuProps> = ({ labelKey })
     return (
       <Col flex="20%" className="resources-tree">
         <div>
-          <Search placeholder="搜索接口（名称、api）" allowClear enterButton onSearch={onSearch} />
+          <Row align="middle" justify="center">
+            <div style={{ flex: 1 }}>
+              <Search placeholder="搜索接口（名称、api）" allowClear enterButton onSearch={onSearch} />
+            </div>
+            {resourceDetail && (
+              <Button
+                type="text"
+                size="small"
+                title="下载openapi.json"
+                onClick={() => {
+                  dataSaveToJSON(resourceDetail, selectedResource.name);
+                }}
+              >
+                <DownloadOutlined />
+              </Button>
+            )}
+          </Row>
           {type === 'api' && (
             <Select
               value={selectedResourceIndex}
