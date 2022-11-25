@@ -3,7 +3,7 @@
  * @Date: 2022-07-04 15:39:44
  * @Description: 侧边菜单
  */
-import { Col, Select, Menu, MenuProps, Input, Row, Spin, Button } from 'antd';
+import { Col, Select, Menu, MenuProps, Input, Row, Spin, Button, Badge } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 import React, { useCallback, useState } from 'react';
 import { useMemo } from 'react';
@@ -129,12 +129,20 @@ const ResourcesTree: React.FC<{ labelKey: string } & MenuProps> = ({ labelKey })
   const menuItems: MenuItem[] = useMemo(() => {
     return currentResourceTags.map((item: tagsItem, idx: number) => {
       let { name, paths = [] } = item;
+      const nameLabel = (
+        <Row justify="space-between" align="middle" wrap={false}>
+          <div className="menu-item-title-content" title={name}>
+            {name}
+          </div>
+          {paths && paths.length ? <Badge count={paths.length} style={{ backgroundColor: '#1890ff' }} /> : null}
+        </Row>
+      );
       return getItem(
-        name,
+        nameLabel,
         name,
         paths.map((row: pathsItem) => {
           return getItem(
-            <span>
+            <span title={row.summary}>
               <span style={{ paddingRight: '10px', color: MethodColors[row.methodUpper] }}>{row.methodUpper}</span>
               {highlightMenuName(row.summary, labelKey)}
             </span>,
