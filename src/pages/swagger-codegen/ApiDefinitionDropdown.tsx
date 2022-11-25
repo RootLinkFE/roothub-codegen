@@ -23,11 +23,16 @@ const ApiDefinitionDropdown: React.FC<{
   const { api, dropdownTitle = '代码生成', methodType = 'api', buttonType = 'link', onChange } = props;
 
   const generateMethods = codeGenerateMethods.filter((v) => v.type === methodType && v.status);
-  const { setDefinitionCodeDrawerProps } = useModel('useApiSwitchModel');
+  const { setDefinitionCodeDrawerProps, resourceDetail, apiurlPrefix } = useModel('useApiSwitchModel');
 
   const CustomMethods = useMemo(() => Array.from(state.custom.EnabledCustomMethods), [
     state.custom.EnabledCustomMethods,
   ]);
+
+  const prefix = useMemo(() => {
+    // 默认前缀 + basePath
+    return `${apiurlPrefix}${resourceDetail?.basePath}`;
+  }, [apiurlPrefix, resourceDetail]);
 
   const items = useMemo(() => {
     let currentCustomMethods = CustomMethods.filter((v: CustomMethodsItem) => v.type === methodType);
@@ -65,11 +70,11 @@ const ApiDefinitionDropdown: React.FC<{
       };
       drawerProps.title = api.summary;
       if (generateMethod) {
-        drawerProps.generateCode = () => generateMethod.function(api);
+        drawerProps.generateCode = () => generateMethod.function(api, prefix);
       } else {
         let item: any = CustomMethods.find((v) => v.key === key) ?? {};
         const cutomCodeFn = item?.function ? getStringToFn(item.function) : () => {};
-        drawerProps.generateCode = () => cutomCodeFn(api);
+        drawerProps.generateCode = () => cutomCodeFn(api, prefix);
       }
       setDefinitionCodeDrawerProps(drawerProps);
     } else {

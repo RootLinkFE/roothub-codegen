@@ -13,6 +13,7 @@ import ApiSwitchHeader from './useHeader';
 import ResourcesTree from './ResourcesTree';
 import { pathsItem } from '@/shared/ts/api-interface';
 import CustomMethodsDrawer from './CustomMethodsDrawer';
+import ApiurlPrefixDrawer from './ApiurlPrefixDrawer';
 
 const { TabPane } = Tabs;
 
@@ -22,6 +23,7 @@ export default function ApiSwitch() {
   );
 
   const [customMethodsVisible, setCustomMethodsVisible] = useState<boolean | undefined>(false);
+  const [apiurlPrefixVisible, setApiurlPrefixVisible] = useState<boolean | undefined>(false);
 
   const blockContent = useMemo(
     () => (
@@ -32,15 +34,16 @@ export default function ApiSwitch() {
     [],
   );
 
-  const settingDropdownMenuClick = useCallback(
-    ({ key }) => {
-      switch (key) {
-        case 'customMethods':
-          setCustomMethodsVisible(!customMethodsVisible);
-      }
-    },
-    [customMethodsVisible],
-  );
+  const settingDropdownMenuClick = useCallback(({ key }) => {
+    switch (key) {
+      case 'customMethods':
+        setCustomMethodsVisible(!customMethodsVisible);
+        return;
+      case 'apiurlPrefix':
+        setApiurlPrefixVisible(!apiurlPrefixVisible);
+        return;
+    }
+  }, []);
 
   const settingDropdownMenu = useMemo(() => {
     return (
@@ -50,6 +53,11 @@ export default function ApiSwitch() {
           {
             label: '设置自定义方法',
             key: 'customMethods',
+            children: undefined,
+          },
+          {
+            label: 'apiurl默认前缀',
+            key: 'apiurlPrefix',
             children: undefined,
           },
         ]}
@@ -121,6 +129,12 @@ export default function ApiSwitch() {
           visible={customMethodsVisible}
           onClose={() => {
             setCustomMethodsVisible(false);
+          }}
+        />
+        <ApiurlPrefixDrawer
+          visible={apiurlPrefixVisible}
+          onClose={() => {
+            setApiurlPrefixVisible(false);
           }}
         />
       </Row>

@@ -3,7 +3,6 @@
  * @Date: 2022-07-05 14:37:46
  * @Description: api详情组件
  */
-import getParameterObject from '@/shared/getParameterObject';
 import getResponseParams from '@/shared/getResponseParams';
 import { Button, Col, message, Space, Table, TableProps, Tag, Row, Collapse, Switch, Popover } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
@@ -24,7 +23,7 @@ const { Panel } = Collapse;
 
 const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
   const { api: selectedApi } = props;
-  const { resourceDetail, setDefinitionCodeDrawerProps } = useModel('useApiSwitchModel');
+  const { resourceDetail, setDefinitionCodeDrawerProps, apiurlPrefix } = useModel('useApiSwitchModel');
   const [tableCheck, setTableCheck] = useState({
     requestCheckStrictly: true,
     responseCheckStrictly: true,
@@ -36,6 +35,11 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
   const responseParamsData = useMemo(() => {
     return getResponseParams(selectedApi, resourceDetail) ?? [];
   }, [selectedApi, resourceDetail]);
+
+  const apiText = useMemo(() => {
+    // 默认前缀 + basePath + api
+    return `${apiurlPrefix}${resourceDetail?.basePath}${selectedApi.api}`;
+  }, [apiurlPrefix, resourceDetail, selectedApi]);
 
   const selectedRequestRowRef = useRef<any[]>([]);
   const selectedResponseRowRef = useRef<any[]>([]);
@@ -189,7 +193,7 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
   );
 
   const handleCopy = () => {
-    copy(selectedApi.api);
+    copy(apiText);
     message.success('api已复制到剪贴板！');
   };
 
@@ -219,7 +223,7 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
           <h2 className={styles.h2BorderTitle}>{selectedApi.summary}</h2>
           <p>
             <Tag color={MethodColors[selectedApi.method] || '#87d068'}>{selectedApi.method.toUpperCase()}</Tag>{' '}
-            {selectedApi.api}
+            {apiText}
             <Button type="link" size="small" style={{ marginLeft: '16px' }} onClick={handleCopy}>
               复制
             </Button>

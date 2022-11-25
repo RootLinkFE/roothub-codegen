@@ -172,6 +172,13 @@ export default function useApiSwitchModel() {
     [originSetDefinitionCodeDrawerProps],
   );
 
+  // apiurl默认前缀
+  const apiurlPrefix = useMemo(() => {
+    const urlValue = state.swagger.urlValue;
+    const { apiurlPrefixList } = state.settings.Settings;
+    return apiurlPrefixList.find((v) => v.status && v.url === urlValue)?.prefix || '';
+  }, [state.swagger.urlValue, state.settings.Settings, resources]);
+
   return {
     type,
     setType,
@@ -193,5 +200,6 @@ export default function useApiSwitchModel() {
     setSelectedDefinition,
     definitionCodeDrawerProps,
     setDefinitionCodeDrawerProps,
+    apiurlPrefix,
   };
 }

@@ -6,13 +6,13 @@
 import { pathsItem } from '@/shared/ts/api-interface';
 import { camelCase } from 'lodash';
 
-export default function generateApiDefineition(apiData: pathsItem) {
+export default function generateApiDefineition(apiData: pathsItem, prefix: string = '') {
   const { api, summary, method } = apiData;
 
   const apiMatch = api.match(/[a-zA-Z0-9]*$/);
   const name = apiMatch && apiMatch.length > 0 ? camelCase(`${method} ${apiMatch[0]}`) : camelCase(api);
   let apiParams = 'params';
-  let apiPath = api;
+  let apiPath = prefix + api;
   const apiStrReg = /\{([\d\D]*)\}/g;
   if (method === 'post') {
     apiParams = 'data: params';

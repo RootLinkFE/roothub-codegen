@@ -67,6 +67,9 @@ const CommandHandler: Record<string, (data: any) => any> = {
       }
     }
   },
+  updateCodeGenSettings(data) {
+    state.settings.updateSettings(data || []);
+  },
   updateCodeGenCustomMethods(data) {
     console.log('updateCodeGenCustomMethods: ', data);
     state.custom.updateCustomMethods(data || []);
