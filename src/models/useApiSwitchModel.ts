@@ -72,7 +72,6 @@ export default function useApiSwitchModel() {
    */
   const handleStorageUrl = () => {
     const current = formatUrlChar(state.swagger.urlValue);
-    console.log('current', current);
     const storageUrls: any[] = storage.get('storageUrls');
     let newStorageUrls: any[] = [current];
     if (storageUrls) {
@@ -106,7 +105,6 @@ export default function useApiSwitchModel() {
     async () => {
       if (selectedResourceIndex) {
         const formatUrl = formatUrlChar(state.swagger.urlValue);
-        console.log('formatUrl', formatUrl);
         const res = await requestToBody(
           formatUrl + (selectedResource.location || selectedResource.url),
           selectedResource.header,

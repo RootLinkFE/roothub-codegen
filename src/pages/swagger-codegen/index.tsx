@@ -3,9 +3,8 @@
  * @Date: 2022-06-14 17:11:40
  * @Description: 主页
  */
-import { isInVSCode } from '@/shared/vscode';
-import { InfoCircleOutlined, SettingOutlined } from '@ant-design/icons';
-import { Col, Button, Popover, Row, Typography, Tabs, Dropdown, Menu } from 'antd';
+import { SettingOutlined } from '@ant-design/icons';
+import { Col, Button, Row, Tabs, Dropdown, Menu } from 'antd';
 import React, { useCallback, useState, useMemo } from 'react';
 import { useModel } from 'umi';
 import ApiDetail from './ApiDetail';
