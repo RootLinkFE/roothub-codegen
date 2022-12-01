@@ -8,7 +8,7 @@ import CodeOutlined from '@ant-design/icons/lib/icons/CodeOutlined';
 import { useModel } from 'umi';
 import { useCallback, useMemo } from 'react';
 import state from '@/stores/index';
-import { getStringToFn } from '@/shared/utils';
+import { getStringToFn, getRequestParams } from '@/shared/utils';
 import { CustomMethodsItem } from '@/shared/ts/custom';
 import { pathsItem } from '@/shared/ts/api-interface';
 import { codeGenerateMethods } from './code-generate/index';
@@ -59,6 +59,8 @@ const ApiDefinitionDropdown: React.FC<{
     ];
   }, [CustomMethods]);
 
+  const requestParams = getRequestParams(api, resourceDetail);
+
   const handleMenuItemClick = ({ key }: any) => {
     if (methodType === 'api') {
       const generateMethod: any = generateMethods.find((v) => v.key === key);
@@ -70,11 +72,11 @@ const ApiDefinitionDropdown: React.FC<{
       };
       drawerProps.title = api.summary;
       if (generateMethod) {
-        drawerProps.generateCode = () => generateMethod.function(api, prefix);
+        drawerProps.generateCode = () => generateMethod.function({ ...api, requestParams }, prefix);
       } else {
         let item: any = CustomMethods.find((v) => v.key === key) ?? {};
         const cutomCodeFn = item?.function ? getStringToFn(item.function) : () => {};
-        drawerProps.generateCode = () => cutomCodeFn(api, prefix);
+        drawerProps.generateCode = () => cutomCodeFn({ ...api, requestParams }, prefix);
       }
       setDefinitionCodeDrawerProps(drawerProps);
     } else {

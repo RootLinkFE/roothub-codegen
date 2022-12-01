@@ -5,9 +5,10 @@
  */
 import { pathsItem } from '@/shared/ts/api-interface';
 import { camelCase } from 'lodash';
+import generateApiNotes from './generate-api-notes';
 
-export default function generateApiDefineition(apiData: pathsItem, prefix: string = '') {
-  const { api, summary, method } = apiData;
+export default function generateApiDefineition(apiData: pathsItem & { requestParams: any }, prefix: string = '') {
+  const { api, method } = apiData;
 
   const apiMatch = api.match(/[a-zA-Z0-9]*$/);
   const name = apiMatch && apiMatch.length > 0 ? camelCase(`${method} ${apiMatch[0]}`) : camelCase(api);
@@ -26,11 +27,10 @@ export default function generateApiDefineition(apiData: pathsItem, prefix: strin
     });
   }
 
-  return `
-/**
- * ${summary}
- */
- const ${name || 'fetch'} = (${argumentsData.join(', ')}) => {
+  const notes = generateApiNotes(apiData);
+
+  return `${notes}
+const ${name || 'fetch'} = (${argumentsData.join(', ')}) => {
   return axios(
     {
       path: ${'`'}${apiPath}${'`'},
