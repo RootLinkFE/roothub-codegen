@@ -16,7 +16,7 @@ import generateAvueFormCode from './generate-avue-form';
 
 import generateTableColumnsProps from './generate-table-columns-props';
 import generateModelFormItemsCode from './generate-model-form-items-code';
-import generateEnumCode from './generate-enum-code';
+import { generateEnumCode } from './generate-enum-code';
 
 export const codeGenerateMethods = [
   {

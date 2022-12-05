@@ -9,7 +9,7 @@ import { DownloadOutlined } from '@ant-design/icons';
 import { unionBy } from 'lodash';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useModel } from 'umi';
-import generateEnumCode from './code-generate/generate-enum-code';
+import { checkIsEnum, generateEnumCode } from './code-generate/generate-enum-code';
 import styles from './index.module.less';
 import ParameterTableDefinition from './ParameterTableDefinition';
 import ModelCodeDrawer from './ModelCodeDrawer';
@@ -49,16 +49,21 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
   }, [selectedApi]);
 
   const showModelEnumCode = useCallback(
-    (record) => {
+    (record, type) => {
       let rows: any;
       if (record && record.description) {
         rows = [record];
       } else {
-        rows = [...requestParamsData, ...responseParamsData].filter((item: { description: string | string[] }) => {
-          if (item && item.description && item.description.indexOf) {
-            return item.description.indexOf('ENUM#') !== -1;
-          }
-          return false;
+        let paramsData: any = [];
+        if (type === 'requestParamsData') {
+          paramsData = [...requestParamsData];
+        } else if (type === 'responseParamsData') {
+          paramsData = [...responseParamsData];
+        } else {
+          paramsData = [...requestParamsData, ...responseParamsData];
+        }
+        rows = paramsData.filter((item: { description: string | string[] }) => {
+          return checkIsEnum(item);
         });
 
         // 去掉重复的枚举
@@ -72,7 +77,7 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
         title: `枚举（${selectedApi.description}）`,
         visible: true,
         language: 'typescript',
-        generateCode: () => generateEnumCode(rows || [], selectedApi),
+        generateCode: () => generateEnumCode(rows || []),
       });
     },
     [setDefinitionCodeDrawerProps, requestParamsData],
@@ -127,26 +132,25 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
   );
 
   // 模型 ReactNode
-  const schemaNode = {
-    title: '模型',
-    dataIndex: 'schema',
-    render: (definition: any, record: any) => {
-      if (definition) {
-        return <ParameterTableDefinition definition={definition} record={record} api={selectedApi} />;
-      }
-      if (
-        (record.description && record.description.indexOf('ENUM#') !== -1) ||
-        (record.enum && record.enum.length > 0)
-      ) {
-        return <a onClick={() => showModelEnumCode(record)}>生成枚举</a>;
-      }
-      return null;
-    },
+  const schemaNode = (type: string) => {
+    return {
+      title: '模型',
+      dataIndex: 'schema',
+      render: (definition: any, record: any) => {
+        if (definition) {
+          return <ParameterTableDefinition definition={definition} record={record} api={selectedApi} />;
+        }
+        if (checkIsEnum(record)) {
+          return <a onClick={() => showModelEnumCode(record, type)}>生成枚举</a>;
+        }
+        return null;
+      },
+    };
   };
 
   const RequestParamsColumns = useMemo(() => {
     const list = HeaderParamsColumns.slice(0);
-    list.push(schemaNode);
+    list.push(schemaNode('requestParamsData'));
     list.splice(1, 0, {
       title: '请求类型',
       dataIndex: 'in',
@@ -158,7 +162,7 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
   const ResponseParamsColumns = useMemo(() => {
     const list = HeaderParamsColumns.slice(0);
     list.slice(2, 1);
-    list.push(schemaNode);
+    list.push(schemaNode('responseParamsData'));
     return list;
   }, [selectedApi]);
 
