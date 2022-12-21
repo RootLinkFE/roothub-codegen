@@ -34,7 +34,7 @@ const ${name || 'fetch'} = (${argumentsData.join(', ')}) => {
   return axios(
     {
       path: ${'`'}${apiPath}${'`'},
-      method: '${method}'
+      method: '${method}',
       ${apiParams}
     }
   )
