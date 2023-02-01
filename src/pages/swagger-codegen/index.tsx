@@ -13,6 +13,8 @@ import ResourcesTree from './ResourcesTree';
 import { pathsItem } from '@/shared/ts/api-interface';
 import CustomMethodsDrawer from './CustomMethodsDrawer';
 import ApiurlPrefixDrawer from './ApiurlPrefixDrawer';
+import DefaultDrawer from '@/components/DefaultDrawer';
+import ExtractTextContext from './ExtractTextContext';
 
 const { TabPane } = Tabs;
 
@@ -23,6 +25,7 @@ export default function ApiSwitch() {
 
   const [customMethodsVisible, setCustomMethodsVisible] = useState<boolean | undefined>(false);
   const [apiurlPrefixVisible, setApiurlPrefixVisible] = useState<boolean | undefined>(false);
+  const [extractTextVisible, setExtractTextVisible] = useState<boolean | undefined>(false);
 
   const blockContent = useMemo(
     () => (
@@ -40,6 +43,9 @@ export default function ApiSwitch() {
         return;
       case 'apiurlPrefix':
         setApiurlPrefixVisible(!apiurlPrefixVisible);
+        return;
+      case 'extractText':
+        setExtractTextVisible(!apiurlPrefixVisible);
         return;
     }
   }, []);
@@ -106,6 +112,15 @@ export default function ApiSwitch() {
             <Dropdown overlay={settingDropdownMenu} trigger={['hover']}>
               <Button type="text" icon={<SettingOutlined />} title="设置"></Button>
             </Dropdown>
+            <Button
+              type="text"
+              title="上传图片提取文本，生成代码"
+              onClick={() => {
+                setExtractTextVisible(true);
+              }}
+            >
+              提取
+            </Button>
           </Col>
         </Row>
         <ApiSwitchHeader />
@@ -136,6 +151,15 @@ export default function ApiSwitch() {
             setApiurlPrefixVisible(false);
           }}
         />
+        <DefaultDrawer
+          visible={extractTextVisible}
+          title="提取转换"
+          onClose={() => {
+            setExtractTextVisible(false);
+          }}
+        >
+          <ExtractTextContext></ExtractTextContext>
+        </DefaultDrawer>
       </Row>
     </Row>
   );
