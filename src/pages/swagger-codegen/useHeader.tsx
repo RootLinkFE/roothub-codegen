@@ -1,7 +1,7 @@
 /*
  * @Author: ZtrainWilliams ztrain1224@163.com
  * @Date: 2022-07-27 17:16:27
- * @Description:
+ * @Description: ApiSwitchHeader
  */
 import { CloseOutlined } from '@ant-design/icons';
 import { isInVSCode } from '@/shared/vscode';

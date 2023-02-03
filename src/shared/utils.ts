@@ -160,22 +160,28 @@ export function dataSaveToJSON(data: any, filename: string = 'openapi') {
  */
 export function filterTransformArrayByRows(rows: any[], transformArray: string[]) {
   const result: any = [];
-  const nextArr: string[] = []; // transformArray未比对部分
-  transformArray.forEach((text: string) => {
+  const resultObj: any[] = [];
+  resultObj.length = transformArray.length;
+  const nextArr: { i: number; text: string }[] = []; // transformArray未比对部分
+  transformArray.forEach((text: string, i: number) => {
     const item = rows.find((v) => {
       return !isNil(v.description) && (v.description === text || v.description.indexOf(text) !== -1);
     });
     if (item) {
-      result.push(item);
+      resultObj[i] = item;
     } else {
-      nextArr.push(text);
+      nextArr.push({ i, text });
     }
   });
-  nextArr.forEach((text: string) => {
-    let item = filterStrRepeat(rows, text);
+  nextArr.forEach((m: { i: number; text: string }) => {
+    let item = filterStrRepeat(rows, m.text);
     if (item) {
-      result.push(item);
+      resultObj[m.i] = item;
     }
+  });
+
+  resultObj.forEach((m: any) => {
+    m && result.push(m);
   });
   return result;
 }

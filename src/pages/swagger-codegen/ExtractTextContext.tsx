@@ -20,6 +20,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { languageOptions, ImageTypes, ApiDataTypes, MethodTypes } from '@/shared/common';
 import { UploadOutlined } from '@ant-design/icons';
+import { useRequest } from 'ahooks';
 import axios from 'axios';
 import type { UploadProps } from 'antd';
 import type { RcFile } from 'antd/es/upload/interface';
@@ -28,6 +29,11 @@ import ApiDefinitionDropdown from './ApiDefinitionDropdown';
 import { useModel } from 'umi';
 import { pathsItem, tagsItem } from '@/shared/ts/api-interface';
 import { ocrApi } from '@/shared/config.json';
+import { uniq } from 'lodash';
+import storage from '@/shared/storage';
+import { postVSCodeMessage } from '@/shared/vscode';
+import state from '@/stores/index';
+import HistoryTextDropdown from './components/HistoryTextDropdown';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -39,33 +45,42 @@ type CodeFormData = {
 };
 
 const ExtractTextContext: React.FC<DrawerProps> = (props) => {
+  const swaggerStore = state.swagger;
   const { selectedApi, resourceDetail, transformSate, setTransformSate } = useModel('useApiSwitchModel');
 
+  const curStorageHistoryTexts: any[] = storage.get('storageHistoryTexts');
   const [form] = Form.useForm();
+  const [textForm] = Form.useForm();
   const [codeForm] = Form.useForm();
   const [codeFormData, setCodeFormData] = useState<CodeFormData>({
     api: selectedApi?.uuid,
     methodType: 'response',
   });
-  const [parsedText, setParsedText] = useState('配旨\t创建时闫\t创建人\t修改人\t\r\n');
 
-  const originalText = useMemo(() => {
-    return JSON.stringify(parsedText);
-  }, [parsedText]);
+  const setParsedText = (text: string) => {
+    let language = form.getFieldValue('language') ?? 'eng';
+    const isChinese = language === 'chs' || language === 'cht' ? true : false;
+    const originalText = JSON.stringify(text);
+    const replaceEndReg = new RegExp(`${isChinese ? '\t' : ''}\r\n$`);
+    const replaceReg = new RegExp(`${isChinese ? '\r' : ''}\n`, 'g');
+    const splitReg = new RegExp(isChinese ? '\t' : '\r');
+    const splitText = text.replace(replaceEndReg, '').replace(replaceReg, '').split(splitReg);
+    // console.log('splitText', language, splitReg, replaceEndReg, replaceReg, splitText)
+    textForm.setFieldsValue({
+      parsedText: text,
+      originalText,
+      splitText,
+    });
 
-  const splitText = useMemo(() => {
-    const str = parsedText;
-    const reg = new RegExp(/\t/);
-    const text = str.replace(/[\t\r\n]+[\r\n]+/g, '').split(reg);
-    return text;
-  }, [parsedText]);
-
-  useEffect(() => {
     setTransformSate({
       ...transformSate,
       textArray: splitText,
     });
-  }, [splitText]);
+  };
+
+  useEffect(() => {
+    setParsedText(curStorageHistoryTexts?.length > 0 ? curStorageHistoryTexts[0] : '');
+  }, []);
 
   const uploadProps: UploadProps = {
     maxCount: 1,
@@ -87,36 +102,71 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
     },
   };
 
-  const handleImageToText = async (values: any) => {
-    const formData = new FormData();
-    formData.append('file', values.file.file);
-    formData.append('language', 'chs');
-    formData.append('filetype', 'JPEG');
-    formData.append('isOverlayRequired', 'false');
-    formData.append('iscreatesearchablepdf', 'false');
-    formData.append('issearchablepdfhidetextlayer', 'false');
-    formData.append('isTable', 'true');
-    formData.append('scale', 'true');
+  const { run: handleImageToText, loading: textLoading } = useRequest(
+    async (values: any) => {
+      const formData = new FormData();
+      formData.append('file', values.file.file);
+      formData.append('language', values.language);
+      formData.append('filetype', values.filetype);
+      formData.append('isOverlayRequired', 'false');
+      formData.append('iscreatesearchablepdf', 'false');
+      formData.append('issearchablepdfhidetextlayer', 'false');
+      // formData.append('isTable', 'true');
+      formData.append('scale', 'false');
 
-    const res: any = await axios({
-      method: 'POST',
-      url: ocrApi.url,
-      headers: {
-        apikey: ocrApi.apikey,
-      },
-      data: formData,
-    });
-    const { data } = res;
-    if (res.status === 200 && data.ParsedResults) {
-      data.ParsedResults.length > 0 && setParsedText(data.ParsedResults[0].ParsedText);
-      message.success('提取文本成功!');
-    } else {
-      message.error(data.ErrorMessage || '提取文本失败!');
+      const res: any = await axios({
+        method: 'POST',
+        url: ocrApi.url,
+        headers: {
+          apikey: ocrApi.apikey,
+        },
+        data: formData,
+      });
+      const { data } = res;
+      if (res.status === 200 && data.ParsedResults?.length > 0) {
+        const text = data.ParsedResults[0].ParsedText;
+        setParsedText(text);
+        setText(text);
+        message.success('提取文本成功!');
+        return data;
+      } else {
+        message.error(data.ErrorMessage || '提取文本失败!');
+      }
+      return null;
+    },
+    {
+      manual: true,
+    },
+  );
+
+  const setText = (current: string | unknown) => {
+    const storageHistoryTexts: any[] = storage.get('storageHistoryTexts');
+    let newStorageHistoryTexts: any[] = [current];
+    if (storageHistoryTexts) {
+      const item = storageHistoryTexts.find((v: string) => v === current);
+      newStorageHistoryTexts = (item
+        ? uniq([current, ...storageHistoryTexts])
+        : [current, ...storageHistoryTexts]
+      ).slice(0, 15);
     }
+
+    postVSCodeMessage('pushStorage', {
+      key: 'storage',
+      data: { ['storageHistoryTexts']: newStorageHistoryTexts },
+    });
+
+    swaggerStore.setHistoryTexts(newStorageHistoryTexts);
+  };
+
+  // 历史文本下拉选取设置
+  const onHistoryTextChange = (text: string) => {
+    setParsedText(text);
+    setText(text);
   };
 
   const handleSplitTextToArray = () => {
     const dom: any = document.querySelector('.original-text');
+    const parsedText = textForm.getFieldValue('parsedText');
     if (dom) {
       console.log('dom', dom);
       dom.innerText = JSON.stringify(parsedText, null, 4);
@@ -235,11 +285,14 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
               <Select style={{ width: '150px' }} options={languageOptions}></Select>
             </Form.Item>
           </Col>
-          <Col span={12}>
-            <Form.Item wrapperCol={{ offset: 4, span: 12 }}>
-              <Button type="primary" title="ORCAPI" htmlType="submit">
+          <Col span={24}>
+            <Form.Item wrapperCol={{ offset: 2, span: 22 }}>
+              <Button type="primary" title="ORCAPI" htmlType="submit" loading={textLoading}>
                 获取文本
               </Button>
+              <Text type="secondary" style={{ marginLeft: '24px' }}>
+                提取方法来源<a href="https://ocr.space/OCRAPI#PostParameters">ORCAPI</a>
+              </Text>
             </Form.Item>
           </Col>
         </Row>
@@ -248,15 +301,20 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
       <h2 className={styles.h2BorderTitle}>文本内容</h2>
       <div>
         <Text type="secondary">提取文本后得到内容文本</Text>
-        <Form>
-          <Form.Item label="原始文本" name="originalText">
-            <TextArea value={originalText} defaultValue={originalText} />
+        <Form name="basic" form={textForm} {...itemCol} autoComplete="off">
+          <Form.Item label="原始文本" labelCol={{ span: 2 }} name="originalText">
+            <TextArea />
           </Form.Item>
-          <Form.Item label="分割文本" name="splitText">
-            <TextArea value={splitText} defaultValue={splitText} />
+          <Form.Item
+            label={<span title="文本分割后为数组类型(string[])">分割文本</span>}
+            labelCol={{ span: 2 }}
+            name="splitText"
+          >
+            <TextArea />
           </Form.Item>
-          <Form.Item>
-            <Button disabled={true}>历史文本</Button>
+          <Form.Item wrapperCol={{ offset: 2, span: 12 }}>
+            {/* <Button disabled={true}>历史文本</Button> */}
+            <HistoryTextDropdown onChange={onHistoryTextChange} />
           </Form.Item>
           <Form.Item label="代码生成是否关联文本数组">
             <Switch defaultChecked={transformSate.status} onChange={onStatusChange} />

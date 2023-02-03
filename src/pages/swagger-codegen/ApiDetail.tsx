@@ -195,7 +195,7 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
           ),
       });
     },
-    [selectedRequestRowRef, selectedResponseRowRef, selectedApi],
+    [selectedRequestRowRef, selectedResponseRowRef, selectedApi, transformSate],
   );
 
   const handleCopy = () => {

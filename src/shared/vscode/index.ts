@@ -63,6 +63,8 @@ const CommandHandler: Record<string, (data: any) => any> = {
         storage.set(key, data[key]);
         if (key === 'storageUrls' && data[key]) {
           state.swagger.setApiUrlsOrInitUrlValue(data[key]);
+        } else if (key === 'storageHistoryTexts' && data[key]) {
+          state.swagger.setHistoryTexts(data[key]);
         }
       }
     }
