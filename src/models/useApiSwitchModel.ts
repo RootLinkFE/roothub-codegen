@@ -108,6 +108,7 @@ export default function useApiSwitchModel() {
         const formatUrl = formatUrlChar(state.swagger.urlValue);
         const res = await requestToBody(
           formatUrl + (selectedResource.location || selectedResource.url),
+          'GET',
           selectedResource.header,
         );
         classifyPathsToTags(res.tags ?? [], res.paths ?? []);
