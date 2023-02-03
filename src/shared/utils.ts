@@ -192,7 +192,7 @@ export function filterTransformArrayByRows(rows: any[], transformArray: string[]
  * @param {string} str
  * @return {*}
  */
-function filterStrRepeat(rows: any[], str: string): any {
+export function filterStrRepeat(rows: any[], str: string): any {
   let repeatTextArr: any = [];
   rows.forEach((m: any) => {
     if (!isNil(m.description)) {
@@ -223,7 +223,7 @@ function filterStrRepeat(rows: any[], str: string): any {
  * @param {string} nextStr
  * @return {string}
  */
-function strRepeat(preStr: string, nextStr: string): string {
+export function strRepeat(preStr: string, nextStr: string): string {
   let repeat = '';
   let nextIdx = 0;
   for (var i = 0; i < preStr.length; i++) {
@@ -236,4 +236,14 @@ function strRepeat(preStr: string, nextStr: string): string {
     }
   }
   return repeat;
+}
+
+/**
+ * @description: 包含汉字
+ * @param {tring} s
+ * @return {boolean}
+ */
+export function isChinese(s: string) {
+  let reg = new RegExp('[\\u4E00-\\u9FFF]+', 'g');
+  return reg.test(s);
 }

@@ -3,22 +3,9 @@
  * @Date: 2023-02-01 15:53:05
  * @Description: 提取文本配置组件
  */
-import {
-  Button,
-  DrawerProps,
-  message,
-  Form,
-  Input,
-  Typography,
-  Select,
-  Row,
-  Col,
-  Upload,
-  TreeSelect,
-  Switch,
-} from 'antd';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { languageOptions, ImageTypes, ApiDataTypes, MethodTypes } from '@/shared/common';
+import { Button, DrawerProps, message, Form, Input, Typography, Select, Row, Col, Upload, Switch } from 'antd';
+import { useEffect, useState } from 'react';
+import { languageOptions, ImageTypes } from '@/shared/common';
 import { UploadOutlined } from '@ant-design/icons';
 import { useRequest } from 'ahooks';
 import axios from 'axios';
@@ -27,50 +14,41 @@ import type { RcFile } from 'antd/es/upload/interface';
 import styles from './index.module.less';
 import ApiDefinitionDropdown from './ApiDefinitionDropdown';
 import { useModel } from 'umi';
-import { pathsItem, tagsItem } from '@/shared/ts/api-interface';
 import { ocrApi } from '@/shared/config.json';
 import { uniq } from 'lodash';
 import storage from '@/shared/storage';
 import { postVSCodeMessage } from '@/shared/vscode';
 import state from '@/stores/index';
 import HistoryTextDropdown from './components/HistoryTextDropdown';
+import ModelCodeDrawer from './ModelCodeDrawer';
 
 const { Option } = Select;
 const { TextArea } = Input;
-const { Text, Link } = Typography;
-
-type CodeFormData = {
-  api: string | undefined;
-  methodType: string;
-};
+const { Text } = Typography;
 
 const ExtractTextContext: React.FC<DrawerProps> = (props) => {
   const swaggerStore = state.swagger;
-  const { selectedApi, resourceDetail, transformSate, setTransformSate } = useModel('useApiSwitchModel');
+  const { transformSate, setTransformSate } = useModel('useApiSwitchModel');
 
   const curStorageHistoryTexts: any[] = storage.get('storageHistoryTexts');
   const [form] = Form.useForm();
   const [textForm] = Form.useForm();
-  const [codeForm] = Form.useForm();
-  const [codeFormData, setCodeFormData] = useState<CodeFormData>({
-    api: selectedApi?.uuid,
-    methodType: 'response',
-  });
+  const [splitTextData, setSplitTextData] = useState<string[]>([]);
 
   const setParsedText = (text: string) => {
-    let language = form.getFieldValue('language') ?? 'eng';
-    const isChinese = language === 'chs' || language === 'cht' ? true : false;
     const originalText = JSON.stringify(text);
-    const replaceEndReg = new RegExp(`${isChinese ? '\t' : ''}\r\n$`);
-    const replaceReg = new RegExp(`${isChinese ? '\r' : ''}\n`, 'g');
-    const splitReg = new RegExp(isChinese ? '\t' : '\r');
-    const splitText = text.replace(replaceEndReg, '').replace(replaceReg, '').split(splitReg);
-    // console.log('splitText', language, splitReg, replaceEndReg, replaceReg, splitText)
+    const isT = /\t/g.test(text);
+    const replaceEndReg = new RegExp(`${isT ? '\t' : ''}\r\n$`);
+    const replaceReg = new RegExp(`${isT ? '\r' : ''}\n`, 'g');
+    const splitReg = new RegExp(isT ? '\t' : '\r');
+    const splitText: string[] = text.replace(replaceEndReg, '').replace(replaceReg, '').split(splitReg);
+    // console.log('splitText', originalText, isT, splitReg, replaceEndReg, replaceReg, splitText);
     textForm.setFieldsValue({
       parsedText: text,
       originalText,
       splitText,
     });
+    setSplitTextData(splitText);
 
     setTransformSate({
       ...transformSate,
@@ -112,7 +90,7 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
       formData.append('iscreatesearchablepdf', 'false');
       formData.append('issearchablepdfhidetextlayer', 'false');
       // formData.append('isTable', 'true');
-      formData.append('scale', 'false');
+      formData.append('scale', 'true');
 
       const res: any = await axios({
         method: 'POST',
@@ -162,66 +140,6 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
   const onHistoryTextChange = (text: string) => {
     setParsedText(text);
     setText(text);
-  };
-
-  const handleSplitTextToArray = () => {
-    const dom: any = document.querySelector('.original-text');
-    const parsedText = textForm.getFieldValue('parsedText');
-    if (dom) {
-      console.log('dom', dom);
-      dom.innerText = JSON.stringify(parsedText, null, 4);
-    }
-    const str = parsedText;
-    const reg = new RegExp(/[\t|(\t\r\n)]/);
-    // 名称\t类型\t方法\t状态\t\r\n
-    const text = str.replace(/[\t\r\n]+[\r\n]+/g, '').split(reg);
-    console.log('Split text', text);
-  };
-
-  const handleTranslate = useCallback((values: any) => {
-    console.log('handleTranslate', values);
-    // if (!filterFunction(values.function)) {
-    //   message.error('方法-校验是否函数未通过！');
-    //   return false;
-    // }
-    // const list = [...state.custom.EnabledCustomMethods];
-    // let text = '';
-    // const index = list.findIndex((v: CustomMethodsItem) => {
-    //   return values.key === v.key;
-    // });
-
-    // state.custom.setCustomMethods(list.sort((a, b) => b.sort - a.sort));
-    // clearFormData();
-    // message.success(`${text}成功！`);
-  }, []);
-
-  const treeData = useMemo(() => {
-    const arr = resourceDetail?.tags ?? [];
-    return arr.map((item: tagsItem) => {
-      return {
-        value: item.name,
-        title: item.name,
-        children: (item?.paths || []).map((m: pathsItem) => {
-          return {
-            ...m,
-            value: m.uuid ?? m.api,
-            title: m.summary || m.description,
-          };
-        }),
-      };
-    });
-  }, [resourceDetail]);
-  const onTreeSelectChange = (val: string) => {
-    setCodeFormData({
-      ...codeFormData,
-      api: val,
-    });
-  };
-  const onDataTypeChange = (val: string) => {
-    setCodeFormData({
-      ...codeFormData,
-      methodType: val,
-    });
   };
 
   const onStatusChange = (checked: boolean) => {
@@ -315,73 +233,17 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
           <Form.Item wrapperCol={{ offset: 2, span: 12 }}>
             {/* <Button disabled={true}>历史文本</Button> */}
             <HistoryTextDropdown onChange={onHistoryTextChange} />
+            <span style={{ marginLeft: '24px' }}>
+              <ApiDefinitionDropdown api={splitTextData} methodType="text" />
+            </span>
           </Form.Item>
           <Form.Item label="代码生成是否关联文本数组">
             <Switch defaultChecked={transformSate.status} onChange={onStatusChange} />
           </Form.Item>
         </Form>
-
-        {/* <Row>
-          <Col span={20}>
-            <TextArea value={originalText} />
-          </Col>
-          <Col span={4} style={{ textAlign: 'center' }}>
-            <Button>历史文本</Button>
-            <Button title="查看内容文本分割后的数组格式" onClick={handleSplitTextToArray}>
-              数组格式
-            </Button>
-            <Dropdown.Button overlay={menu}>
-              历史文本
-            </Dropdown.Button>
-            <ApiDefinitionDropdown api={selectedApi} />
-          </Col>
-        </Row> */}
       </div>
 
-      {/* <h2 className={styles.h2BorderTitle}>代码转换</h2>
-      <Form
-        name="code"
-        form={codeForm}
-        labelCol={{ span: 2 }}
-        wrapperCol={{ span: 22 }}
-        initialValues={{ dataType: 'response' }}
-        onFinish={handleTranslate}
-        onFinishFailed={() => {}}
-        autoComplete="off"
-      >
-        <Text type="secondary">存在文本内容，并选取api后方可转换代码</Text>
-        <Row>
-          <Col span={12}>
-            <Form.Item label="勾选api" name="api" {...itemCol} rules={[{ required: true, message: '请勾选api' }]}>
-              <div>{}</div>
-              <TreeSelect
-                showSearch
-                style={{ width: '100%' }}
-                value={codeFormData.api}
-                dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-                placeholder="Please select"
-                allowClear
-                treeDefaultExpandAll
-                onChange={onTreeSelectChange}
-                treeData={treeData}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item label="参数类型" name="dataType" {...itemCol}>
-              <Select defaultValue={'response'} options={ApiDataTypes} onChange={onDataTypeChange}></Select>
-            </Form.Item>
-          </Col>
-        </Row>
-        <Col span={12}>
-          <Form.Item wrapperCol={{ offset: 4, span: 12 }}>
-            <Button type="primary" htmlType="submit" disabled={!parsedText || !selectedApi} title="代码转换">
-              转换
-            </Button>
-            <ApiDefinitionDropdown dropdownTitle={'转换'} buttonType="primary" api={selectedApi} methodType={codeFormData.methodType} onChange={handleTranslate} />
-          </Form.Item>
-        </Col>
-      </Form> */}
+      <ModelCodeDrawer />
     </>
   );
 };

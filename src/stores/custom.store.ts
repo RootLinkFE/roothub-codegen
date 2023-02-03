@@ -14,7 +14,7 @@ import { MethodTypes } from '@/shared/common';
 const rhCustomMethods: any[] = storage.get('customMethods') ?? [];
 
 const baseTypeData: any = {};
-MethodTypes.slice(-2).map((v: string) => {
+MethodTypes.slice(-3).map((v: string) => {
   baseTypeData[v] = {
     key: v,
     label: v,

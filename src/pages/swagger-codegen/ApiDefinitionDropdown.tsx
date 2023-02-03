@@ -14,7 +14,7 @@ import { pathsItem } from '@/shared/ts/api-interface';
 import { codeGenerateMethods } from './code-generate/index';
 
 const ApiDefinitionDropdown: React.FC<{
-  api: pathsItem | null;
+  api: any;
   methodType?: string;
   dropdownTitle?: string;
   buttonType?: 'link' | 'text' | 'dashed' | 'default' | 'ghost' | 'primary' | undefined;
@@ -62,14 +62,14 @@ const ApiDefinitionDropdown: React.FC<{
   const requestParams = getRequestParams(api, resourceDetail);
 
   const handleMenuItemClick = ({ key }: any) => {
+    let drawerProps = {
+      title: '',
+      visible: true,
+      language: 'javascript',
+      generateCode: () => {},
+    };
+    const generateMethod: any = generateMethods.find((v) => v.key === key);
     if (methodType === 'api') {
-      const generateMethod: any = generateMethods.find((v) => v.key === key);
-      let drawerProps = {
-        title: '',
-        visible: true,
-        language: 'javascript',
-        generateCode: () => {},
-      };
       drawerProps.title = api?.summary || '';
       if (generateMethod) {
         drawerProps.generateCode = () => generateMethod.function({ ...api, requestParams }, prefix);
@@ -77,6 +77,16 @@ const ApiDefinitionDropdown: React.FC<{
         let item: any = CustomMethods.find((v) => v.key === key) ?? {};
         const cutomCodeFn = item?.function ? getStringToFn(item.function) : () => {};
         drawerProps.generateCode = () => cutomCodeFn({ ...api, requestParams }, prefix);
+      }
+      setDefinitionCodeDrawerProps(drawerProps);
+    } else if (methodType === 'text') {
+      drawerProps.title = JSON.stringify(api) || '';
+      if (generateMethod) {
+        drawerProps.generateCode = () => generateMethod.function(api);
+      } else {
+        let item: any = CustomMethods.find((v) => v.key === key) ?? {};
+        const cutomCodeFn = item?.function ? getStringToFn(item.function) : () => {};
+        drawerProps.generateCode = () => cutomCodeFn(api);
       }
       setDefinitionCodeDrawerProps(drawerProps);
     } else {

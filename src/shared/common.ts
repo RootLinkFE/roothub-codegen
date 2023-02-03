@@ -15,7 +15,7 @@ export const MethodColors: any = {
 };
 
 // 方法类型
-export const MethodTypes: string[] = ['api', 'model', 'request', 'response'];
+export const MethodTypes: string[] = ['api', 'text', 'model', 'request', 'response'];
 
 export type OptionItem = {
   value: string;

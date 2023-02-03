@@ -18,6 +18,13 @@ import generateTableColumnsProps from './generate-table-columns-props';
 import generateModelFormItemsCode from './generate-model-form-items-code';
 import { generateEnumCode } from './generate-enum-code';
 
+import {
+  textCodeGenList,
+  textCodeGenOptions,
+  textCodeGenAvueColumns,
+  textCodeGenReactTable,
+} from './generate-text-code-gen';
+
 export const codeGenerateMethods = [
   {
     key: 'copy-api',
@@ -28,6 +35,46 @@ export const codeGenerateMethods = [
     sort: 96,
     language: 'typescript',
     function: generateApiDefineition,
+  },
+  {
+    key: 'options',
+    label: 'options',
+    type: 'text',
+    source: 'root',
+    status: 1,
+    sort: 97,
+    language: 'typescript',
+    function: textCodeGenOptions,
+  },
+  {
+    key: 'AvueColumns',
+    label: 'AvueColumns',
+    type: 'text',
+    source: 'root',
+    status: 1,
+    sort: 98,
+    language: 'typescript',
+    function: textCodeGenAvueColumns,
+  },
+  {
+    key: 'ReactTable',
+    label: 'ReactTable',
+    type: 'text',
+    source: 'root',
+    status: 1,
+    sort: 99,
+    language: 'typescript',
+    function: textCodeGenReactTable,
+  },
+  {
+    key: 'list',
+    label: 'list',
+    type: 'text',
+    source: 'root',
+    status: 1,
+    sort: 100,
+    language: 'typescript',
+    function: textCodeGenList,
   },
   {
     key: 'model-class',
