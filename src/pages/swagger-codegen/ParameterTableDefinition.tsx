@@ -1,7 +1,7 @@
 /*
  * @Author: ZtrainWilliams ztrain1224@163.com
  * @Date: 2022-06-14 17:11:40
- * @Description:
+ * @Description: 模型-代码生成下拉
  */
 import { Dropdown, Menu } from 'antd';
 import CodeOutlined from '@ant-design/icons/lib/icons/CodeOutlined';

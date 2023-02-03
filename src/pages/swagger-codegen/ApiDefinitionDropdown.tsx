@@ -14,7 +14,7 @@ import { pathsItem } from '@/shared/ts/api-interface';
 import { codeGenerateMethods } from './code-generate/index';
 
 const ApiDefinitionDropdown: React.FC<{
-  api: pathsItem;
+  api: pathsItem | null;
   methodType?: string;
   dropdownTitle?: string;
   buttonType?: 'link' | 'text' | 'dashed' | 'default' | 'ghost' | 'primary' | undefined;
@@ -70,7 +70,7 @@ const ApiDefinitionDropdown: React.FC<{
         language: 'javascript',
         generateCode: () => {},
       };
-      drawerProps.title = api.summary;
+      drawerProps.title = api?.summary || '';
       if (generateMethod) {
         drawerProps.generateCode = () => generateMethod.function({ ...api, requestParams }, prefix);
       } else {
