@@ -13,6 +13,7 @@ import { postVSCodeMessage } from '@/shared/vscode';
 import state from '@/stores/index';
 import { message } from 'antd';
 import { resourceItems, pathsItem } from '@/shared/ts/api-interface';
+import { TransformSate } from '@/shared/ts/settings';
 import { classifyPathsToTags } from '@/shared/utils';
 const yaml = require('js-yaml');
 
@@ -177,6 +178,13 @@ export default function useApiSwitchModel() {
     return apiurlPrefixList.find((v) => v.status && v.url === urlValue)?.prefix || '';
   }, [state.swagger.urlValue, state.settings.Settings, resources]);
 
+  // 文本转换配置
+  const [transformSate, setTransformSate] = useState<TransformSate>({
+    status: true, // 代码转换关联转换文本
+    textArray: [], // 最后文本记录数组
+    historyArray: [], // 历史文本转换记录
+  });
+
   return {
     type,
     setType,
@@ -199,5 +207,7 @@ export default function useApiSwitchModel() {
     definitionCodeDrawerProps,
     setDefinitionCodeDrawerProps,
     apiurlPrefix,
+    transformSate,
+    setTransformSate,
   };
 }

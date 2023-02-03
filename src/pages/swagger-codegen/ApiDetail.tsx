@@ -23,7 +23,7 @@ const { Panel } = Collapse;
 
 const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
   const { api: selectedApi } = props;
-  const { resourceDetail, setDefinitionCodeDrawerProps, apiurlPrefix } = useModel('useApiSwitchModel');
+  const { resourceDetail, setDefinitionCodeDrawerProps, apiurlPrefix, transformSate } = useModel('useApiSwitchModel');
   const [tableCheck, setTableCheck] = useState({
     requestCheckStrictly: true,
     responseCheckStrictly: true,
@@ -188,6 +188,8 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
                   ? flatChildren(responseParamsData)
                   : selectedResponseRowRef.current,
               resourceDetail,
+              transformTextArray:
+                transformSate.status && transformSate.textArray.length > 0 ? transformSate.textArray : null,
             },
             selectedApi,
           ),

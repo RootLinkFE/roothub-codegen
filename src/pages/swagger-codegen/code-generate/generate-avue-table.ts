@@ -4,14 +4,17 @@
  * @Description:
  */
 import getApiNameAsPageName from '@/shared/getApiNameAsPageName';
-import { prettyCode } from '@/shared/utils';
+import { prettyCode, filterTransformArrayByRows } from '@/shared/utils';
 import generateAvueTableColumns from './generate-avue-table-columns';
 
 export default function generateAvueTablePageCode(
   selectedData: any,
   api: { api: string; description: string; summary: string },
 ) {
-  const { responseSelectedData: body } = selectedData;
+  let { responseSelectedData: body, transformTextArray } = selectedData;
+  if (transformTextArray) {
+    body = filterTransformArrayByRows(body, transformTextArray);
+  }
   const columnCode = generateAvueTableColumns(body);
   const componentName = getApiNameAsPageName(api.api);
   const matchApiName: any[] | null = api?.api.match(/^\/api\/[a-zA-Z]+/);

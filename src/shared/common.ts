@@ -19,24 +19,24 @@ export const MethodTypes: string[] = ['api', 'model', 'request', 'response'];
 
 export type OptionItem = {
   value: string;
-  key: string;
+  label: string;
 };
-export const FileTypes: OptionItem[] = [
+export const languageOptions: OptionItem[] = [
   {
-    value: ' Chinese(Simplified)',
-    key: 'chs',
+    label: ' Chinese(Simplified)',
+    value: 'chs',
   },
   {
-    value: 'Chinese(Traditional)',
-    key: 'cht',
+    label: 'Chinese(Traditional)',
+    value: 'cht',
   },
   {
-    value: 'English',
-    key: 'eng',
+    label: 'English',
+    value: 'eng',
   },
   {
-    value: 'Finnish',
-    key: 'fin',
+    label: 'Finnish',
+    value: 'fin',
   },
 ];
 
@@ -44,12 +44,12 @@ export const ImageTypes: string[] = ['PDF', 'GIF', 'PNG', 'JPG', 'JPEG', 'TIF', 
 
 export const ApiDataTypes: OptionItem[] = [
   {
-    value: '请求参数',
-    key: 'request',
+    label: '请求参数',
+    value: 'request',
   },
   {
-    value: '响应参数',
-    key: 'response',
+    label: '响应参数',
+    value: 'response',
   },
 ];
 

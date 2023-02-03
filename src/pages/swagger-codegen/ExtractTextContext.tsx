@@ -3,75 +3,69 @@
  * @Date: 2023-02-01 15:53:05
  * @Description: 提取文本配置组件
  */
-import { Button, DrawerProps, message, Form, Input, InputNumber, Select, Row, Col, Upload } from 'antd';
+import {
+  Button,
+  DrawerProps,
+  message,
+  Form,
+  Input,
+  Typography,
+  Select,
+  Row,
+  Col,
+  Upload,
+  TreeSelect,
+  Switch,
+} from 'antd';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import state from '@/stores/index';
-import { CustomMethodsItem } from '@/shared/ts/custom';
-import CodeMirror from '@uiw/react-codemirror';
-import { javascript } from '@codemirror/lang-javascript';
-import { FileTypes, ImageTypes, ApiDataTypes, MethodTypes } from '@/shared/common';
-import type { OptionItem } from '@/shared/common';
-import { getStringToFn } from '@/shared/utils';
-import { codeGenerateMethods } from './code-generate/index';
-import { CodeMirrorTypes } from '@/shared/common';
+import { languageOptions, ImageTypes, ApiDataTypes, MethodTypes } from '@/shared/common';
 import { UploadOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import type { UploadProps } from 'antd';
 import type { RcFile } from 'antd/es/upload/interface';
 import styles from './index.module.less';
+import ApiDefinitionDropdown from './ApiDefinitionDropdown';
+import { useModel } from 'umi';
+import { pathsItem, tagsItem } from '@/shared/ts/api-interface';
+import { ocrApi } from '@/shared/config.json';
 
 const { Option } = Select;
 const { TextArea } = Input;
+const { Text, Link } = Typography;
+
+type CodeFormData = {
+  api: string | undefined;
+  methodType: string;
+};
 
 const ExtractTextContext: React.FC<DrawerProps> = (props) => {
+  const { selectedApi, resourceDetail, transformSate, setTransformSate } = useModel('useApiSwitchModel');
+
   const [form] = Form.useForm();
-  form.setFieldsValue({
-    language: 'chs',
-    filetype: 'JPEG',
-  });
   const [codeForm] = Form.useForm();
-  const [parsedText, setParsedText] = useState('');
-  const rootDataSource = codeGenerateMethods
-    .filter((v) => v.status)
-    .map((v) => {
-      return {
-        ...v,
-        function: v.function.toString(),
-      };
+  const [codeFormData, setCodeFormData] = useState<CodeFormData>({
+    api: selectedApi?.uuid,
+    methodType: 'response',
+  });
+  const [parsedText, setParsedText] = useState('配旨\t创建时闫\t创建人\t修改人\t\r\n');
+
+  const originalText = useMemo(() => {
+    return JSON.stringify(parsedText);
+  }, [parsedText]);
+
+  const splitText = useMemo(() => {
+    const str = parsedText;
+    const reg = new RegExp(/\t/);
+    const text = str.replace(/[\t\r\n]+[\r\n]+/g, '').split(reg);
+    return text;
+  }, [parsedText]);
+
+  useEffect(() => {
+    setTransformSate({
+      ...transformSate,
+      textArray: splitText,
     });
-  const methodList = useMemo(() => {
-    return [...state.custom.EnabledCustomMethods, ...rootDataSource];
-  }, [state.custom.EnabledCustomMethods]);
-
-  useEffect(() => {}, []);
-
-  const editorHeight = useMemo(() => {
-    const height = window.innerHeight - 400;
-    return height < 300 ? 300 : height;
-  }, [window.innerHeight]);
-
-  const validateKey = (rule: any, value: any, callback: any) => {
-    if (value) {
-      const index = methodList.findIndex((v: CustomMethodsItem) => {
-        return value === v.key;
-      });
-      if (index !== -1) {
-        callback(new Error('键值已被使用，请修改'));
-      } else {
-        callback();
-      }
-    } else {
-      callback();
-    }
-  };
-
-  const filterFunction = (fn: any) => {
-    try {
-      return Object.prototype.toString.call(getStringToFn(fn)) === '[object Function]';
-    } catch (error) {
-      return false;
-    }
-  };
+  }, [splitText]);
 
   const uploadProps: UploadProps = {
     maxCount: 1,
@@ -94,8 +88,6 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
   };
 
   const handleImageToText = async (values: any) => {
-    console.log('handleImageToText', form.getFieldsValue());
-    // const values = form.getFieldsValue();
     const formData = new FormData();
     formData.append('file', values.file.file);
     formData.append('language', 'chs');
@@ -108,9 +100,9 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
 
     const res: any = await axios({
       method: 'POST',
-      url: 'https://api.ocr.space/parse/image',
+      url: ocrApi.url,
       headers: {
-        apikey: 'K84668927688957',
+        apikey: ocrApi.apikey,
       },
       data: formData,
     });
@@ -123,8 +115,21 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
     }
   };
 
-  const submit = useCallback((values: any) => {
-    console.log('submit', values);
+  const handleSplitTextToArray = () => {
+    const dom: any = document.querySelector('.original-text');
+    if (dom) {
+      console.log('dom', dom);
+      dom.innerText = JSON.stringify(parsedText, null, 4);
+    }
+    const str = parsedText;
+    const reg = new RegExp(/[\t|(\t\r\n)]/);
+    // 名称\t类型\t方法\t状态\t\r\n
+    const text = str.replace(/[\t\r\n]+[\r\n]+/g, '').split(reg);
+    console.log('Split text', text);
+  };
+
+  const handleTranslate = useCallback((values: any) => {
+    console.log('handleTranslate', values);
     // if (!filterFunction(values.function)) {
     //   message.error('方法-校验是否函数未通过！');
     //   return false;
@@ -140,13 +145,39 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
     // message.success(`${text}成功！`);
   }, []);
 
-  const clearFormData = () => {
-    form.setFieldsValue({
-      key: '',
-      label: '',
-      type: '',
-      function: '',
-      description: '',
+  const treeData = useMemo(() => {
+    const arr = resourceDetail?.tags ?? [];
+    return arr.map((item: tagsItem) => {
+      return {
+        value: item.name,
+        title: item.name,
+        children: (item?.paths || []).map((m: pathsItem) => {
+          return {
+            ...m,
+            value: m.uuid ?? m.api,
+            title: m.summary || m.description,
+          };
+        }),
+      };
+    });
+  }, [resourceDetail]);
+  const onTreeSelectChange = (val: string) => {
+    setCodeFormData({
+      ...codeFormData,
+      api: val,
+    });
+  };
+  const onDataTypeChange = (val: string) => {
+    setCodeFormData({
+      ...codeFormData,
+      methodType: val,
+    });
+  };
+
+  const onStatusChange = (checked: boolean) => {
+    setTransformSate({
+      ...transformSate,
+      status: checked,
     });
   };
 
@@ -163,7 +194,7 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
         form={form}
         labelCol={{ span: 2 }}
         wrapperCol={{ span: 22 }}
-        initialValues={{ remember: true }}
+        initialValues={{ language: 'chs', filetype: 'JPEG' }}
         onFinish={handleImageToText}
         onFinishFailed={() => {}}
         autoComplete="off"
@@ -183,11 +214,11 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
               labelCol={{ span: 8 }}
               rules={[{ required: true, message: '请选择图片类型' }]}
             >
-              <Select style={{ width: '150px' }} defaultValue={'JPEG'}>
-                {FileTypes.map((v: OptionItem) => {
+              <Select style={{ width: '150px' }}>
+                {ImageTypes.map((v: string) => {
                   return (
-                    <Option value={v.value} key={v.key}>
-                      {v.value}
+                    <Option value={v} key={v}>
+                      {v}
                     </Option>
                   );
                 })}
@@ -201,15 +232,7 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
               labelCol={{ span: 8 }}
               rules={[{ required: true, message: '请选择识别语言' }]}
             >
-              <Select style={{ width: '150px' }} defaultValue={'chs'}>
-                {ImageTypes.map((v: string) => {
-                  return (
-                    <Option value={v} key={v}>
-                      {v}
-                    </Option>
-                  );
-                })}
-              </Select>
+              <Select style={{ width: '150px' }} options={languageOptions}></Select>
             </Form.Item>
           </Col>
           <Col span={12}>
@@ -224,48 +247,83 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
 
       <h2 className={styles.h2BorderTitle}>文本内容</h2>
       <div>
-        <TextArea value={parsedText} max-length="200" />
+        <Text type="secondary">提取文本后得到内容文本</Text>
+        <Form>
+          <Form.Item label="原始文本" name="originalText">
+            <TextArea value={originalText} defaultValue={originalText} />
+          </Form.Item>
+          <Form.Item label="分割文本" name="splitText">
+            <TextArea value={splitText} defaultValue={splitText} />
+          </Form.Item>
+          <Form.Item>
+            <Button disabled={true}>历史文本</Button>
+          </Form.Item>
+          <Form.Item label="代码生成是否关联文本数组">
+            <Switch defaultChecked={transformSate.status} onChange={onStatusChange} />
+          </Form.Item>
+        </Form>
 
-        <div>{parsedText}</div>
+        {/* <Row>
+          <Col span={20}>
+            <TextArea value={originalText} />
+          </Col>
+          <Col span={4} style={{ textAlign: 'center' }}>
+            <Button>历史文本</Button>
+            <Button title="查看内容文本分割后的数组格式" onClick={handleSplitTextToArray}>
+              数组格式
+            </Button>
+            <Dropdown.Button overlay={menu}>
+              历史文本
+            </Dropdown.Button>
+            <ApiDefinitionDropdown api={selectedApi} />
+          </Col>
+        </Row> */}
       </div>
 
-      <h2 className={styles.h2BorderTitle}>代码转换</h2>
+      {/* <h2 className={styles.h2BorderTitle}>代码转换</h2>
       <Form
         name="code"
         form={codeForm}
         labelCol={{ span: 2 }}
         wrapperCol={{ span: 22 }}
-        initialValues={{ remember: true }}
-        onFinish={submit}
+        initialValues={{ dataType: 'response' }}
+        onFinish={handleTranslate}
         onFinishFailed={() => {}}
         autoComplete="off"
       >
+        <Text type="secondary">存在文本内容，并选取api后方可转换代码</Text>
         <Row>
           <Col span={12}>
-            <Form.Item label="勾选api" name="api" {...itemCol}>
+            <Form.Item label="勾选api" name="api" {...itemCol} rules={[{ required: true, message: '请勾选api' }]}>
               <div>{}</div>
+              <TreeSelect
+                showSearch
+                style={{ width: '100%' }}
+                value={codeFormData.api}
+                dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+                placeholder="Please select"
+                allowClear
+                treeDefaultExpandAll
+                onChange={onTreeSelectChange}
+                treeData={treeData}
+              />
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item label="参数类型" name="language" {...itemCol}>
-              <Select defaultValue={'javascript'}>
-                {ApiDataTypes.map((v: OptionItem) => {
-                  return (
-                    <Option value={v.value} key={v.key}>
-                      {v.value}
-                    </Option>
-                  );
-                })}
-              </Select>
+            <Form.Item label="参数类型" name="dataType" {...itemCol}>
+              <Select defaultValue={'response'} options={ApiDataTypes} onChange={onDataTypeChange}></Select>
             </Form.Item>
           </Col>
         </Row>
-        <Form.Item wrapperCol={{ offset: 12, span: 12 }}>
-          <Button type="primary" htmlType="submit" disabled={!parsedText} title="添加自定义方法">
-            转换
-          </Button>
-        </Form.Item>
-      </Form>
+        <Col span={12}>
+          <Form.Item wrapperCol={{ offset: 4, span: 12 }}>
+            <Button type="primary" htmlType="submit" disabled={!parsedText || !selectedApi} title="代码转换">
+              转换
+            </Button>
+            <ApiDefinitionDropdown dropdownTitle={'转换'} buttonType="primary" api={selectedApi} methodType={codeFormData.methodType} onChange={handleTranslate} />
+          </Form.Item>
+        </Col>
+      </Form> */}
     </>
   );
 };

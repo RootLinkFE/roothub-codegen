@@ -16,3 +16,13 @@ export interface Settings {
   theme: string;
   apiurlPrefixList: apiurlPrefixItem[];
 }
+
+export type TransformSateHistoryArrayItem = {
+  key: string;
+  text: string;
+};
+export interface TransformSate {
+  status: boolean; // 代码转换关联转换文本
+  textArray: string[]; // 最后文本记录数组
+  historyArray: TransformSateHistoryArrayItem[]; // 历史文本转换记录
+}

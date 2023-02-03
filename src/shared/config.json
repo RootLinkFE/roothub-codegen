@@ -1,0 +1,6 @@
+{
+  "ocrApi": {
+    "url": "https://api.ocr.space/parse/image",
+    "apikey": "K84668927688957"
+  }
+}
