@@ -4,14 +4,17 @@
  * @Description: generateAvueFormCode
  */
 import getApiNameAsPageName from '@/shared/getApiNameAsPageName';
-import { prettyCode } from '@/shared/utils';
+import { prettyCode, filterTransformArrayByRows } from '@/shared/utils';
 import generateAvueFormColumns from './generate-avue-form-columns';
 
 export default function generateAvueFormCode(
   selectedData: any,
   api: { api: string; description: string; summary: string },
 ) {
-  const { requestSelectedData: body } = selectedData;
+  let { requestSelectedData: body, transformTextArray } = selectedData;
+  if (transformTextArray) {
+    body = filterTransformArrayByRows(body, transformTextArray);
+  }
   const columnCode = generateAvueFormColumns(body);
   const componentName = getApiNameAsPageName(api.api);
   const matchApiName: any[] | null = api?.api.match(/^\/api\/[a-zA-Z]+/);

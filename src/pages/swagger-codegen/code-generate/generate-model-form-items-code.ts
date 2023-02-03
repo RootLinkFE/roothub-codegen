@@ -1,4 +1,9 @@
-import { cleanParameterDescription, prettyCode } from '../../../shared/utils';
+/*
+ * @Author: ZtrainWilliams ztrain1224@163.com
+ * @Date: 2022-07-27 17:16:27
+ * @Description:
+ */
+import { prettyCode, filterTransformArrayByRows } from '../../../shared/utils';
 
 const FieldTypeMap: Record<string, string> = {
   integer: 'number',
@@ -54,10 +59,14 @@ export default function generateModelFormItemsCode(
   selectedData: {
     requestSelectedData: any[];
     responseSelectedData: any[];
+    transformTextArray?: any[];
   },
   api: any = {},
 ) {
-  const { requestSelectedData: rows } = selectedData;
+  let { requestSelectedData: rows, transformTextArray } = selectedData;
+  if (transformTextArray) {
+    rows = filterTransformArrayByRows(rows, transformTextArray);
+  }
 
   return prettyCode(
     `

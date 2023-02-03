@@ -1,9 +1,9 @@
 /*
  * @Author: ZtrainWilliams ztrain1224@163.com
  * @Date: 2022-06-14 17:11:40
- * @Description: 表格code生成
+ * @Description: 表格code生成 | 生成 ReactTable 列配置
  */
-import { cleanParameterDescription, prettyJSON } from '@/shared/utils';
+import { cleanParameterDescription, prettyJSON, filterTransformArrayByRows } from '@/shared/utils';
 
 type filterItemFn = (row: any, index: number, rows: any[]) => any | null;
 
@@ -14,12 +14,7 @@ type filterItemFn = (row: any, index: number, rows: any[]) => any | null;
  * @returns
  */
 export default function generateTableColumnsProps(
-  selectedData:
-    | {
-        requestSelectedData: any[];
-        responseSelectedData: any[];
-      }
-    | any[],
+  selectedData: any,
   filter: boolean = true,
   filterItem?: filterItemFn,
 ) {
@@ -28,7 +23,11 @@ export default function generateTableColumnsProps(
     rows = selectedData;
   } else {
     rows = selectedData.responseSelectedData;
+    if (selectedData?.transformTextArray) {
+      rows = filterTransformArrayByRows(rows, selectedData.transformTextArray);
+    }
   }
+
   const columns: any[] = [];
   rows.forEach((row, index) => {
     if (filter) {

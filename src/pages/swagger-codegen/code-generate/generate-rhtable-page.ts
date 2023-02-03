@@ -5,15 +5,18 @@
  */
 import getApiNameAsPageName from '@/shared/getApiNameAsPageName';
 import { defaultSwaggerUrl } from '@/shared/swaggerUrl';
-import { prettyCode } from '../../../shared/utils';
+import { prettyCode, filterTransformArrayByRows } from '@/shared/utils';
 import generateTableColumnsProps from './generate-table-columns-props';
 
 export default function generateRhTablePageCode(
   selectedData: any,
   api: { api: string; description: string; summary: string },
 ) {
-  const { responseSelectedData: body } = selectedData;
+  let { responseSelectedData: body, transformTextArray } = selectedData;
 
+  if (transformTextArray) {
+    body = filterTransformArrayByRows(body, transformTextArray);
+  }
   const columnCode = generateTableColumnsProps(body, true);
 
   const componentName = getApiNameAsPageName(api.api);

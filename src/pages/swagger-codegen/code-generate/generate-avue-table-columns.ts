@@ -4,14 +4,17 @@
  * @Description: generateAvueTableColumns
  */
 import generateTableColumnsProps from './generate-table-columns-props';
-import { cleanParameterDescription } from '@/shared/utils';
+import { cleanParameterDescription, filterTransformArrayByRows } from '@/shared/utils';
 
-export default function generateAvueTableColumns(body: any, record?: any, api?: any) {
+export default function generateAvueTableColumns(body: any, record?: any, api?: any, selectedData?: any) {
   const parametersSet = new Set();
   (api?.parameters ?? []).forEach((param: { name: string }) => {
     parametersSet.add(param.name);
   });
-  const rows = Array.isArray(body) ? body : record?.children || [];
+  let rows = Array.isArray(body) ? body : record?.children || [];
+  if (selectedData?.transformTextArray) {
+    rows = filterTransformArrayByRows(rows, selectedData.transformTextArray);
+  }
   return generateTableColumnsProps(rows, true, (row, index) => {
     let result: any = {
       prop: row.name,

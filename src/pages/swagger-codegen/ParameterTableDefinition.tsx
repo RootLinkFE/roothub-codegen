@@ -16,7 +16,7 @@ import { codeGenerateMethods } from './code-generate/index';
 const ParameterTableDefinition: React.FC<{ definition: any; record: any; api: pathsItem }> = function (props) {
   const { definition, record, api } = props;
 
-  const { setSelectedDefinition, setDefinitionCodeDrawerProps } = useModel('useApiSwitchModel');
+  const { setSelectedDefinition, setDefinitionCodeDrawerProps, transformSate } = useModel('useApiSwitchModel');
   const modelGenerateMethods = codeGenerateMethods.filter((v) => v.type === 'model' && v.status);
 
   const title = useMemo(() => {
@@ -59,12 +59,14 @@ const ParameterTableDefinition: React.FC<{ definition: any; record: any; api: pa
       language: 'javascript',
       generateCode: () => {},
     };
+    const textArray = transformSate.status && transformSate.textArray.length > 0 ? transformSate.textArray : null;
     if (generateMethod) {
-      drawerProps.generateCode = () => generateMethod.function(definition, record, api);
+      drawerProps.generateCode = () =>
+        generateMethod.function(definition, record, api, { transformTextArray: textArray });
     } else {
       let item: any = CustomMethods.find((v) => v.key === key) ?? {};
       const cutomCodeFn = item?.function ? getStringToFn(item.function) : () => {};
-      drawerProps.generateCode = () => cutomCodeFn({ definition, record }, api);
+      drawerProps.generateCode = () => cutomCodeFn({ definition, record }, api, { transformTextArray: textArray });
     }
     setSelectedDefinition(params);
     setDefinitionCodeDrawerProps(drawerProps);
