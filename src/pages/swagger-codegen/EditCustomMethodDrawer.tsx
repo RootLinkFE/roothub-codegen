@@ -137,7 +137,7 @@ const EditCustomMethodDrawer: React.FC<
         form={form}
         labelCol={{ span: 2 }}
         wrapperCol={{ span: 22 }}
-        initialValues={{ remember: true }}
+        initialValues={{ remember: true, language: 'javascript', status: 1 }}
         onFinish={submit}
         onFinishFailed={() => {}}
         autoComplete="off"
@@ -175,7 +175,7 @@ const EditCustomMethodDrawer: React.FC<
           </Col>
           <Col span={12}>
             <Form.Item label="语言" name="language" {...itemCol} rules={[{ required: true, message: '请选择语言' }]}>
-              <Select defaultValue={'javascript'}>
+              <Select>
                 {CodeMirrorTypes.map((v: string) => {
                   return (
                     <Option value={v} key={v}>
@@ -195,7 +195,7 @@ const EditCustomMethodDrawer: React.FC<
           </Col>
           <Col span={12}>
             <Form.Item label="状态" name="status" {...itemCol} rules={[{ required: true, message: '请选择状态' }]}>
-              <Select defaultValue={1}>
+              <Select>
                 <Option value={0} key={0}>
                   禁用
                 </Option>
