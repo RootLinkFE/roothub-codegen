@@ -6,6 +6,7 @@
 import { Row, Dropdown, Menu } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import state from '@/stores/index';
+import { observer } from 'mobx-react-lite';
 
 const HistoryTextDropdown: React.FC<{ onChange: (key: string) => void }> = (props) => {
   const { onChange } = props;
@@ -51,4 +52,4 @@ const HistoryTextDropdown: React.FC<{ onChange: (key: string) => void }> = (prop
   );
 };
 
-export default HistoryTextDropdown;
+export default observer(HistoryTextDropdown);
