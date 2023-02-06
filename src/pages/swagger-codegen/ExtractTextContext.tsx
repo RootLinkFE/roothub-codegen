@@ -32,6 +32,7 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
 
   const curStorageHistoryTexts: any[] = storage.get('storageHistoryTexts');
   const [form] = Form.useForm();
+  const [fileList, setFileList] = useState<any[]>([]);
   const [textForm] = Form.useForm();
   const [splitTextData, setSplitTextData] = useState<string[]>([]);
 
@@ -62,6 +63,7 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
 
   const uploadProps: UploadProps = {
     maxCount: 1,
+    fileList: fileList,
     beforeUpload: (file: RcFile) => {
       const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
       if (!isJpgOrPng) {
@@ -75,9 +77,19 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
       }
       return false;
     },
-    onChange(info) {
-      console.log('upload', info);
+    onChange(info: any) {
+      setFileList(info.fileList);
     },
+  };
+
+  const pasteChange = (value: any) => {
+    const items = value.clipboardData.items[0];
+    if (items.type.includes('image')) {
+      const file = items.getAsFile();
+      const fileItem: any = { file, name: file.name };
+      form.setFieldValue('file', fileItem);
+      setFileList([fileItem]);
+    }
   };
 
   const { run: handleImageToText, loading: textLoading } = useRequest(
@@ -142,6 +154,10 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
     setText(text);
   };
 
+  const fileInputClick = (e: any) => {
+    e.stopPropagation();
+  };
+
   const onStatusChange = (checked: boolean) => {
     setTransformSate({
       ...transformSate,
@@ -171,7 +187,16 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
           <Col span={12}>
             <Form.Item label="上传图片" name="file" {...itemCol} rules={[{ required: true, message: '请上传图片' }]}>
               <Upload {...uploadProps}>
-                <Button icon={<UploadOutlined />}>上传</Button>
+                <Row wrap={false}>
+                  <Col span={16.5}>
+                    <Input placeholder="粘贴上传图片" allowClear onPaste={pasteChange} onClick={fileInputClick} />
+                  </Col>
+                  <Col span={7.5}>
+                    <Button icon={<UploadOutlined />} style={{ width: '100%' }}>
+                      上传
+                    </Button>
+                  </Col>
+                </Row>
               </Upload>
             </Form.Item>
           </Col>
