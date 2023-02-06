@@ -65,11 +65,11 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
     maxCount: 1,
     fileList: fileList,
     beforeUpload: (file: RcFile) => {
-      const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
-      if (!isJpgOrPng) {
-        message.error('只可上传 JPG/PNG file!');
-        form.setFieldValue('file', null);
-      }
+      // const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+      // if (!isJpgOrPng) {
+      //   message.error('只可上传 JPG/PNG file!');
+      //   form.setFieldValue('file', null);
+      // }
       const isLt1M = file.size / 1024 / 1024 <= 1;
       if (!isLt1M) {
         message.error('图片大小不可大于 1MB!');
@@ -234,7 +234,10 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
                 提取文本
               </Button>
               <Text type="secondary" style={{ marginLeft: '24px' }}>
-                提取方法来源<a href="https://ocr.space/OCRAPI#PostParameters">ORCAPI</a>
+                提取方法来源
+                <a href="https://ocr.space/OCRAPI#PostParameters" target="_blank">
+                  ORCAPI
+                </a>
               </Text>
             </Form.Item>
           </Col>
