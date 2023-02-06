@@ -231,7 +231,7 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
           <Col span={24}>
             <Form.Item wrapperCol={{ offset: 2, span: 22 }}>
               <Button type="primary" title="ORCAPI" htmlType="submit" loading={textLoading}>
-                获取文本
+                提取文本
               </Button>
               <Text type="secondary" style={{ marginLeft: '24px' }}>
                 提取方法来源<a href="https://ocr.space/OCRAPI#PostParameters">ORCAPI</a>
@@ -243,7 +243,7 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
 
       <h2 className={styles.h2BorderTitle}>文本内容</h2>
       <div>
-        <Text type="secondary">提取文本后得到内容文本</Text>
+        <Text type="secondary">提取文本后得到文本内容</Text>
         <Form name="basic" form={textForm} {...itemCol} autoComplete="off">
           <Form.Item label="原始文本" labelCol={{ span: 2 }} name="originalText">
             <TextArea />
