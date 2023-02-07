@@ -247,3 +247,25 @@ export function isChinese(s: string) {
   let reg = new RegExp('[\\u4E00-\\u9FFF]+', 'g');
   return reg.test(s);
 }
+
+/**
+ * @description: 文件流转base64
+ * @param {any} file
+ * @return {*}
+ */
+export function filetoBase64(file: any) {
+  return new Promise((resolve, reject) => {
+    let reader = new FileReader(); // 实例化文件读取对象
+    reader.readAsDataURL(file); // 将文件读取为 DataURL,也就是base64编码
+    reader.onload = (e: any) => {
+      //文件读取成功完成时触发
+      let result: string = e.target.result;
+      // 获得文件读取成功后的DataURL,也就是base64编码
+      if (result) {
+        resolve(result);
+      } else {
+        reject(result);
+      }
+    };
+  });
+}

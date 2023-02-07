@@ -15,7 +15,7 @@ export const MethodColors: any = {
 };
 
 // 方法类型
-export const MethodTypes: string[] = ['api', 'text', 'model', 'request', 'response'];
+export const MethodTypes: string[] = ['api', 'text', 'model', 'extract', 'request', 'response'];
 
 export type OptionItem = {
   value: string;
@@ -23,7 +23,7 @@ export type OptionItem = {
 };
 export const languageOptions: OptionItem[] = [
   {
-    label: ' Chinese(Simplified)',
+    label: 'Chinese(Simplified)',
     value: 'chs',
   },
   {
@@ -37,6 +37,14 @@ export const languageOptions: OptionItem[] = [
   {
     label: 'Finnish',
     value: 'fin',
+  },
+  {
+    label: '中英文混合',
+    value: 'CHN_ENG',
+  },
+  {
+    label: '英文',
+    value: 'ENG',
   },
 ];
 

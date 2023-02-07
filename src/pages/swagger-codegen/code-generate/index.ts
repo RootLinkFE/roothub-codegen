@@ -25,6 +25,8 @@ import {
   textCodeGenReactTable,
 } from './generate-text-code-gen';
 
+import generateExtractBaiduOcrapi from './generate-extract-baidu-ocrapi';
+
 export const codeGenerateMethods = [
   {
     key: 'copy-api',
@@ -75,6 +77,16 @@ export const codeGenerateMethods = [
     sort: 100,
     language: 'typescript',
     function: textCodeGenList,
+  },
+  {
+    key: 'ExtractBaiduOcrapi',
+    label: 'ExtractBaiduOcrapi', // 百度通用文字识别
+    type: 'extract',
+    source: 'root',
+    status: 1,
+    sort: 98,
+    language: 'typescript',
+    function: generateExtractBaiduOcrapi,
   },
   {
     key: 'model-class',

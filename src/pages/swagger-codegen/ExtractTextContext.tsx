@@ -4,7 +4,7 @@
  * @Description: 提取文本配置组件
  */
 import { Button, DrawerProps, message, Form, Input, Typography, Select, Row, Col, Upload, Switch } from 'antd';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { languageOptions, ImageTypes } from '@/shared/common';
 import { UploadOutlined } from '@ant-design/icons';
 import { useRequest } from 'ahooks';
@@ -15,12 +15,15 @@ import styles from './index.module.less';
 import ApiDefinitionDropdown from './ApiDefinitionDropdown';
 import { useModel } from 'umi';
 import { ocrApi } from '@/shared/config.json';
-import { uniq } from 'lodash';
+import { uniq, values } from 'lodash';
 import storage from '@/shared/storage';
 import { postVSCodeMessage } from '@/shared/vscode';
 import state from '@/stores/index';
 import HistoryTextDropdown from './components/HistoryTextDropdown';
 import ModelCodeDrawer from './ModelCodeDrawer';
+import { filetoBase64, getStringToFn } from '@/shared/utils';
+import { codeGenerateMethods } from './code-generate/index';
+import { CustomMethodsItem } from '@/shared/ts/custom';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -28,24 +31,64 @@ const { Text } = Typography;
 
 const ExtractTextContext: React.FC<DrawerProps> = (props) => {
   const swaggerStore = state.swagger;
+  const { historyTexts, extractType } = swaggerStore;
   const { transformSate, setTransformSate } = useModel('useApiSwitchModel');
 
-  const curStorageHistoryTexts: any[] = storage.get('storageHistoryTexts');
+  const [curState, setCurState] = useState<{
+    storageHistoryTexts: string[];
+    extractType: string;
+  }>({
+    storageHistoryTexts: historyTexts,
+    extractType: extractType,
+  });
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState<any[]>([]);
   const [textForm] = Form.useForm();
   const [splitTextData, setSplitTextData] = useState<string[]>([]);
+  const extractTypeOptions = useMemo(() => {
+    const extractGenerateMethods = [
+      ...state.custom.EnabledCustomMethods.filter((v: CustomMethodsItem) => v.type === 'extract'),
+      ...codeGenerateMethods.filter((v) => v.type === 'extract' && v.status),
+    ];
+    return [
+      {
+        label: '默认',
+        value: 'ocrapi',
+      },
+      ...extractGenerateMethods.map((v: any) => {
+        return {
+          ...v,
+          value: v.key,
+        };
+      }),
+    ];
+  }, []);
 
-  const setParsedText = (text: string) => {
-    const originalText = JSON.stringify(text);
-    const isT = /\t/g.test(text);
-    const replaceEndReg = new RegExp(`${isT ? '\t' : ''}\r\n$`);
-    const replaceReg = new RegExp(`${isT ? '\r' : ''}\n`, 'g');
-    const splitReg = new RegExp(isT ? '\t' : '\r');
-    const splitText: string[] = text.replace(replaceEndReg, '').replace(replaceReg, '').split(splitReg);
-    // console.log('splitText', originalText, isT, splitReg, replaceEndReg, replaceReg, splitText);
+  useEffect(() => {
+    setParsedText(historyTexts?.length > 0 ? historyTexts[0] : '');
+    setCurState({
+      storageHistoryTexts: historyTexts,
+      extractType,
+    });
+  }, [swaggerStore]);
+
+  const setParsedText = (value: any) => {
+    const originalText = JSON.stringify(value);
+    let splitText: string[] = [];
+    if (Object.prototype.toString.call(value) === '[object Array]') {
+      splitText = value.map((v: any) => {
+        return v.words;
+      });
+    } else {
+      const isT = /\t/g.test(value);
+      const replaceEndReg = new RegExp(`${isT ? '\t' : ''}\r\n$`);
+      const replaceReg = new RegExp(`${isT ? '\r' : ''}\n`, 'g');
+      const splitReg = new RegExp(isT ? '\t' : '\r');
+      splitText = value.replace(replaceEndReg, '').replace(replaceReg, '').split(splitReg);
+      // console.log('splitText', originalText, isT, splitReg, replaceEndReg, replaceReg, splitText);
+    }
     textForm.setFieldsValue({
-      parsedText: text,
+      parsedText: value,
       originalText,
       splitText,
     });
@@ -56,10 +99,6 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
       textArray: splitText,
     });
   };
-
-  useEffect(() => {
-    setParsedText(curStorageHistoryTexts?.length > 0 ? curStorageHistoryTexts[0] : '');
-  }, []);
 
   const uploadProps: UploadProps = {
     maxCount: 1,
@@ -94,33 +133,70 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
 
   const { run: handleImageToText, loading: textLoading } = useRequest(
     async (values: any) => {
-      const formData = new FormData();
-      formData.append('file', values.file.file);
-      formData.append('language', values.language);
-      formData.append('filetype', values.filetype);
-      formData.append('isOverlayRequired', 'false');
-      formData.append('iscreatesearchablepdf', 'false');
-      formData.append('issearchablepdfhidetextlayer', 'false');
-      // formData.append('isTable', 'true');
-      formData.append('scale', 'true');
+      const { extractType } = values;
+      if (extractType && extractType !== storage.get('storageExtractType')) {
+        swaggerStore.setExtractType(extractType);
+      }
 
-      const res: any = await axios({
-        method: 'POST',
-        url: ocrApi.url,
-        headers: {
-          apikey: ocrApi.apikey,
-        },
-        data: formData,
-      });
-      const { data } = res;
-      if (res.status === 200 && data.ParsedResults?.length > 0) {
-        const text = data.ParsedResults[0].ParsedText;
-        setParsedText(text);
-        setText(text);
-        message.success('提取文本成功!');
-        return data;
+      // default
+      if (extractType === 'ocrapi' || !extractType) {
+        const formData = new FormData();
+        formData.append('file', values.file.file);
+        formData.append('language', values.language);
+        formData.append('filetype', values.filetype);
+        formData.append('isOverlayRequired', 'false');
+        formData.append('iscreatesearchablepdf', 'false');
+        formData.append('issearchablepdfhidetextlayer', 'false');
+        // formData.append('isTable', 'true');
+        formData.append('scale', 'true');
+
+        const res: any = await axios({
+          method: 'POST',
+          url: ocrApi.url,
+          headers: {
+            apikey: ocrApi.apikey,
+          },
+          data: formData,
+        });
+        const { data } = res;
+        if (res.status === 200 && data.ParsedResults?.length > 0) {
+          const paresd = data.ParsedResults[0];
+          if (paresd.FileParseExitCode === 1) {
+            const text = paresd.ParsedText;
+            setParsedText(text);
+            setHistoryText(text);
+            message.success('提取文本成功!');
+          } else {
+            message.error(paresd.ErrorMessage || '提取文本失败!');
+          }
+          return data;
+        } else {
+          message.error(data.ErrorMessage || '提取文本失败!');
+        }
       } else {
-        message.error(data.ErrorMessage || '提取文本失败!');
+        const item = extractTypeOptions.find((v: any) => {
+          return v.key === extractType;
+        });
+        let cutomCodeFn: any = item?.function;
+        if (item?.source === 'custom') {
+          cutomCodeFn = item?.function
+            ? typeof item.function === 'string'
+              ? getStringToFn(item.function)
+              : item.function
+            : () => {};
+        }
+        const data = await cutomCodeFn(values.file.file, values);
+        if (data.words_result?.length > 0) {
+          // const wordsResult = JSON.stringify(data.words_result);
+          const wordsResult = data.words_result;
+
+          setParsedText(wordsResult);
+          setHistoryText(wordsResult);
+          message.success('提取文本成功!');
+          return data;
+        } else {
+          message.error('提取文本失败!');
+        }
       }
       return null;
     },
@@ -129,7 +205,18 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
     },
   );
 
-  const setText = (current: string | unknown) => {
+  const getFiletoBase64 = async (file: any) => {
+    return filetoBase64(file).then((imageBase64: any) => {
+      return imageBase64;
+    });
+  };
+
+  /**设置历史文本
+   * @description:
+   * @param {string} current
+   * @return {*}
+   */
+  const setHistoryText = (current: string | unknown) => {
     const storageHistoryTexts: any[] = storage.get('storageHistoryTexts');
     let newStorageHistoryTexts: any[] = [current];
     if (storageHistoryTexts) {
@@ -151,7 +238,7 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
   // 历史文本下拉选取设置
   const onHistoryTextChange = (text: string) => {
     setParsedText(text);
-    setText(text);
+    setHistoryText(text);
   };
 
   const fileInputClick = (e: any) => {
@@ -178,7 +265,7 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
         form={form}
         labelCol={{ span: 2 }}
         wrapperCol={{ span: 22 }}
-        initialValues={{ language: 'chs', filetype: 'JPEG' }}
+        initialValues={{ language: 'chs', filetype: 'JPEG', extractType: curState.extractType }}
         onFinish={handleImageToText}
         onFinishFailed={() => {}}
         autoComplete="off"
@@ -228,18 +315,32 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
               <Select style={{ width: '150px' }} options={languageOptions}></Select>
             </Form.Item>
           </Col>
-          <Col span={24}>
-            <Form.Item wrapperCol={{ offset: 2, span: 22 }}>
-              <Button type="primary" title="ORCAPI" htmlType="submit" loading={textLoading}>
-                提取文本
-              </Button>
-              <Text type="secondary" style={{ marginLeft: '24px' }}>
-                提取方法来源
+        </Row>
+        <Row>
+          <Col span={12}>
+            <Form.Item label="操作提取" labelCol={{ span: 4 }}>
+              <Row style={{ marginBottom: '16px' }}>
+                <Button type="primary" title="ORCAPI" htmlType="submit" loading={textLoading}>
+                  提取文本
+                </Button>
+              </Row>
+              <Text type="secondary">
+                default: 提取方法来源
                 <a href="https://ocr.space/OCRAPI#PostParameters" target="_blank">
                   ORCAPI
                 </a>
               </Text>
             </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="提取方法" name="extractType" labelCol={{ span: 4 }}>
+              <Select options={extractTypeOptions} style={{ width: '88%' }}></Select>
+            </Form.Item>
+            <Row>
+              <Text type="secondary">
+                设置不同的提取方法，调用对应自定义方法（首页-设置-设置自定义方法），默认方法除外
+              </Text>
+            </Row>
           </Col>
         </Row>
       </Form>

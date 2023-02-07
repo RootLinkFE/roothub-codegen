@@ -65,6 +65,8 @@ const CommandHandler: Record<string, (data: any) => any> = {
           state.swagger.setApiUrlsOrInitUrlValue(data[key]);
         } else if (key === 'storageHistoryTexts' && data[key]) {
           state.swagger.setHistoryTexts(data[key]);
+        } else if (key === 'extractType' && data[key]) {
+          state.swagger.setExtractType(data[key]);
         }
       }
     }

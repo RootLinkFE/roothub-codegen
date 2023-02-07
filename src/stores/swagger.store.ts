@@ -4,12 +4,15 @@ import storage from '../shared/storage';
 
 // url历史记录获取
 const storageUrls: string[] = storage.get('storageUrls') ?? [];
+// 默认提取方法
+const storageExtractType: string = storage.get('storageExtractType') ?? 'ocrapi';
 // 历史文本转换记录
 const storageHistoryTexts: string[] = storage.get('storageHistoryTexts') ?? [];
 
 class SwaggerStore {
   urlValue: string = storageUrls?.length > 0 ? storageUrls[0] : defaultSwaggerUrl;
   apiUrls: string[] = storageUrls; // api历史列表
+  extractType: string = storageExtractType; // 提取方法
   historyTexts: string[] = storageHistoryTexts; // 历史文本转换记录
 
   constructor() {
@@ -28,6 +31,11 @@ class SwaggerStore {
 
   setUrlValue(v: string) {
     this.urlValue = v;
+  }
+
+  setExtractType(type: string) {
+    this.extractType = type;
+    storage.set('storageExtractType', type);
   }
 
   setHistoryTexts(list: string[]) {
