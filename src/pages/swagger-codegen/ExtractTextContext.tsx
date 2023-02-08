@@ -187,9 +187,7 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
         }
         const data = await cutomCodeFn(values.file.file, values);
         if (data.words_result?.length > 0) {
-          // const wordsResult = JSON.stringify(data.words_result);
           const wordsResult = data.words_result;
-
           setParsedText(wordsResult);
           setHistoryText(wordsResult);
           message.success('提取文本成功!');

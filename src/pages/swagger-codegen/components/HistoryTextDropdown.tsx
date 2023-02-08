@@ -7,6 +7,7 @@ import { Row, Dropdown, Menu } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import state from '@/stores/index';
 import { observer } from 'mobx-react-lite';
+import { useMemo } from 'react';
 
 const HistoryTextDropdown: React.FC<{ onChange: (key: string) => void }> = (props) => {
   const { onChange } = props;
@@ -15,35 +16,39 @@ const HistoryTextDropdown: React.FC<{ onChange: (key: string) => void }> = (prop
 
   const handleDelete = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>, i: number) => {
     e.stopPropagation();
-    const urls = [...swaggerStore.historyTexts];
-    urls.splice(i, 1);
-    swaggerStore.setHistoryTexts(urls);
+    const list = [...historyTexts];
+    list.splice(i, 1);
+    swaggerStore.setHistoryTexts(list);
   };
 
-  const historyTextMenu = (
-    <Menu
-      items={historyTexts.map((text: string, i: number) => {
-        return {
-          label: (
-            <Row justify="space-between" align="middle">
-              <span>{text}</span>
-              <CloseOutlined
-                className="dropdown-menu-item-icon"
-                title="删除"
-                onClick={(e) => {
-                  handleDelete(e, i);
-                }}
-              />
-            </Row>
-          ),
-          key: text,
-        };
-      })}
-      onClick={(event) => {
-        onChange(event.key);
-      }}
-    ></Menu>
-  );
+  const historyTextMenu = useMemo(() => {
+    console.log('historyTexts', historyTexts);
+    return (
+      <Menu
+        items={historyTexts.map((text: string, i: number) => {
+          const key = JSON.stringify(text);
+          return {
+            label: (
+              <Row justify="space-between" align="middle">
+                <span>{key}</span>
+                <CloseOutlined
+                  className="dropdown-menu-item-icon"
+                  title="删除"
+                  onClick={(e) => {
+                    handleDelete(e, i);
+                  }}
+                />
+              </Row>
+            ),
+            key,
+          };
+        })}
+        onClick={(event) => {
+          onChange(event.key);
+        }}
+      ></Menu>
+    );
+  }, [historyTexts]);
 
   return (
     <Dropdown.Button overlay={historyTextMenu} disabled={historyTexts.length <= 0}>
@@ -52,4 +57,4 @@ const HistoryTextDropdown: React.FC<{ onChange: (key: string) => void }> = (prop
   );
 };
 
-export default observer(HistoryTextDropdown);
+export default HistoryTextDropdown;
