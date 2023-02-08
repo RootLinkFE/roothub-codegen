@@ -22,7 +22,6 @@ const HistoryTextDropdown: React.FC<{ onChange: (key: string) => void }> = (prop
   };
 
   const historyTextMenu = useMemo(() => {
-    console.log('historyTexts', historyTexts);
     return (
       <Menu
         items={historyTexts.map((text: string, i: number) => {
@@ -57,4 +56,4 @@ const HistoryTextDropdown: React.FC<{ onChange: (key: string) => void }> = (prop
   );
 };
 
-export default HistoryTextDropdown;
+export default observer(HistoryTextDropdown);

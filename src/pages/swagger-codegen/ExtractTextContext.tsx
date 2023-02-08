@@ -15,13 +15,13 @@ import styles from './index.module.less';
 import ApiDefinitionDropdown from './ApiDefinitionDropdown';
 import { useModel } from 'umi';
 import { ocrApi } from '@/shared/config.json';
-import { uniq, values } from 'lodash';
+import { uniq, isEqual, uniqWith } from 'lodash';
 import storage from '@/shared/storage';
 import { postVSCodeMessage } from '@/shared/vscode';
 import state from '@/stores/index';
 import HistoryTextDropdown from './components/HistoryTextDropdown';
 import ModelCodeDrawer from './ModelCodeDrawer';
-import { filetoBase64, getStringToFn } from '@/shared/utils';
+import { getStringToFn } from '@/shared/utils';
 import { codeGenerateMethods } from './code-generate/index';
 import { CustomMethodsItem } from '@/shared/ts/custom';
 
@@ -70,6 +70,11 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
       storageHistoryTexts: historyTexts,
       extractType,
     });
+
+    const current = 'Age\r\nAddress\r\nTags\r\nAction\r\n';
+    // [{"words":"Name"},{"words":"Age"},{"words":"Address"},{"words":"Tags"},{"words":"Action"}]
+    const item = historyTexts.findIndex((v: string) => isEqual(v, current));
+    console.log(item, current, historyTexts);
   }, [swaggerStore]);
 
   const setParsedText = (value: any) => {
@@ -203,12 +208,6 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
     },
   );
 
-  const getFiletoBase64 = async (file: any) => {
-    return filetoBase64(file).then((imageBase64: any) => {
-      return imageBase64;
-    });
-  };
-
   /**设置历史文本
    * @description:
    * @param {string} current
@@ -218,11 +217,13 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
     const storageHistoryTexts: any[] = storage.get('storageHistoryTexts');
     let newStorageHistoryTexts: any[] = [current];
     if (storageHistoryTexts) {
-      const item = storageHistoryTexts.find((v: string) => v === current);
-      newStorageHistoryTexts = (item
-        ? uniq([current, ...storageHistoryTexts])
-        : [current, ...storageHistoryTexts]
-      ).slice(0, 15);
+      const index = storageHistoryTexts.findIndex((v: string) => isEqual(v, current));
+      if (index !== -1) {
+        storageHistoryTexts.splice(index, 1);
+      } else if (storageHistoryTexts.length === 15) {
+        storageHistoryTexts.splice(14, 1);
+      }
+      newStorageHistoryTexts = [current, ...storageHistoryTexts];
     }
 
     postVSCodeMessage('pushStorage', {
