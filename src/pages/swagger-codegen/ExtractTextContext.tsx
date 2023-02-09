@@ -15,7 +15,7 @@ import styles from './index.module.less';
 import ApiDefinitionDropdown from './ApiDefinitionDropdown';
 import { useModel } from 'umi';
 import { ocrApi } from '@/shared/config.json';
-import { uniq, isEqual, uniqWith } from 'lodash';
+import { isEqual } from 'lodash';
 import storage from '@/shared/storage';
 import { postVSCodeMessage } from '@/shared/vscode';
 import state from '@/stores/index';
@@ -44,7 +44,6 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState<any[]>([]);
   const [textForm] = Form.useForm();
-  const [splitTextData, setSplitTextData] = useState<string[]>([]);
   const extractTypeOptions = useMemo(() => {
     const extractGenerateMethods = [
       ...state.custom.EnabledCustomMethods.filter((v: CustomMethodsItem) => v.type === 'extract'),
@@ -70,11 +69,6 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
       storageHistoryTexts: historyTexts,
       extractType,
     });
-
-    const current = 'Age\r\nAddress\r\nTags\r\nAction\r\n';
-    // [{"words":"Name"},{"words":"Age"},{"words":"Address"},{"words":"Tags"},{"words":"Action"}]
-    const item = historyTexts.findIndex((v: string) => isEqual(v, current));
-    console.log(item, current, historyTexts);
   }, [swaggerStore]);
 
   const setParsedText = (value: any) => {
@@ -97,12 +91,21 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
       originalText,
       splitText,
     });
-    setSplitTextData(splitText);
 
     setTransformSate({
       ...transformSate,
       textArray: splitText,
     });
+  };
+
+  const splitTextChange = () => {
+    const values = textForm.getFieldsValue();
+    if (typeof values.splitText === 'string') {
+      setTransformSate({
+        ...transformSate,
+        textArray: values.splitText.split(','),
+      });
+    }
   };
 
   const uploadProps: UploadProps = {
@@ -236,8 +239,12 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
 
   // 历史文本下拉选取设置
   const onHistoryTextChange = (text: string) => {
-    setParsedText(text);
-    setHistoryText(text);
+    let value = text;
+    try {
+      value = JSON.parse(value);
+    } catch (error) {}
+    setParsedText(value);
+    setHistoryText(value);
   };
 
   const fileInputClick = (e: any) => {
@@ -347,22 +354,39 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
       <h2 className={styles.h2BorderTitle}>文本内容</h2>
       <div>
         <Text type="secondary">提取文本后得到文本内容</Text>
-        <Form name="basic" form={textForm} {...itemCol} autoComplete="off">
-          <Form.Item label="原始文本" labelCol={{ span: 2 }} name="originalText">
+        <Form
+          name="basic"
+          form={textForm}
+          {...{
+            labelCol: { span: 2 },
+            wrapperCol: { span: 22 },
+          }}
+          autoComplete="off"
+        >
+          <Form.Item label="原始文本" wrapperCol={{ span: 20 }} name="originalText">
             <TextArea />
           </Form.Item>
-          <Form.Item
-            label={<span title="文本分割后为数组类型(string[])">分割文本</span>}
-            labelCol={{ span: 2 }}
-            name="splitText"
-          >
-            <TextArea />
-          </Form.Item>
+          <Row>
+            <Col span={22}>
+              <Form.Item
+                label={<span title="文本分割后为数组类型(string[])">分割文本</span>}
+                labelCol={{ span: 2 }}
+                name="splitText"
+              >
+                <TextArea />
+              </Form.Item>
+            </Col>
+            <Col span={2}>
+              <Button type="link" onClick={splitTextChange}>
+                修改
+              </Button>
+            </Col>
+          </Row>
           <Form.Item wrapperCol={{ offset: 2, span: 12 }}>
             {/* <Button disabled={true}>历史文本</Button> */}
             <HistoryTextDropdown onChange={onHistoryTextChange} />
             <span style={{ marginLeft: '24px' }}>
-              <ApiDefinitionDropdown api={splitTextData} methodType="text" />
+              <ApiDefinitionDropdown api={transformSate.textArray} methodType="text" />
             </span>
           </Form.Item>
           <Form.Item label="代码生成是否关联文本数组">
