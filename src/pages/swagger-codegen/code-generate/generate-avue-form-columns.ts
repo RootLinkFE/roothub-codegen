@@ -7,6 +7,21 @@ import generateTableColumnsProps from './generate-table-columns-props';
 import { cleanParameterDescription } from '@/shared/utils';
 
 export default function generateAvueFormColumns(body: any, record?: any, api?: any) {
+  const TypeMap: Record<string, string> = {
+    integer: 'number',
+  };
+
+  function getFieldType(prop: any): string {
+    const { type, format, $ref } = prop;
+    if ($ref) {
+      return 'object';
+    }
+    if (type === 'string' && format === 'date-time') {
+      return 'dateTime';
+    }
+    return `${TypeMap[type] || prop.type}`;
+  }
+
   const rows = Array.isArray(body) ? body : record?.children || [];
   return generateTableColumnsProps(rows, true, (row, index) => {
     let result: any = {
@@ -21,11 +36,12 @@ export default function generateAvueFormColumns(body: any, record?: any, api?: a
       (row.enum && row.enum.length > 0)
     ) {
       result.type = 'select';
-    }
-    if (['date', 'time'].includes(row.name)) {
+    } else if (['date', 'time'].includes(row.name)) {
       result.type = 'datetime';
       result.format = 'YYYY-MM-DD HH:mm:ss';
       result.valueFormat = 'YYYY-MM-DD HH:mm:ss';
+    } else {
+      result.type = getFieldType(row);
     }
     return result;
   });

@@ -7,6 +7,21 @@ import generateTableColumnsProps from './generate-table-columns-props';
 import { cleanParameterDescription, filterTransformArrayByRows } from '@/shared/utils';
 
 export default function generateAvueTableColumns(body: any, record?: any, api?: any, selectedData?: any) {
+  const TypeMap: Record<string, string> = {
+    integer: 'number',
+  };
+
+  function getFieldType(prop: any): string {
+    const { type, format, $ref } = prop;
+    if ($ref) {
+      return 'object';
+    }
+    if (type === 'string' && format === 'date-time') {
+      return 'dateTime';
+    }
+    return `${TypeMap[type] || prop.type}`;
+  }
+
   const parametersSet = new Set();
   (api?.parameters ?? []).forEach((param: { name: string }) => {
     parametersSet.add(param.name);
@@ -15,12 +30,14 @@ export default function generateAvueTableColumns(body: any, record?: any, api?: 
   if (selectedData?.transformTextArray) {
     rows = filterTransformArrayByRows(rows, selectedData.transformTextArray);
   }
+
   return generateTableColumnsProps(rows, true, (row, index) => {
     let result: any = {
       prop: row.name,
       label: cleanParameterDescription(row.description),
       minWidth: 150,
       overHidden: true,
+      type: getFieldType(row),
     };
     const item = parametersSet.has(row.name);
     if (item) {
@@ -32,9 +49,10 @@ export default function generateAvueTableColumns(body: any, record?: any, api?: 
         (row.enum && row.enum.length > 0)
       ) {
         result.searchType = 'select';
-      }
-      if (['date', 'time'].includes(row.name)) {
+        result.type = 'select';
+      } else if (['date', 'time'].includes(row.name)) {
         result.searchType = 'datetime';
+        result.type = 'datetime';
         result.format = 'YYYY-MM-DD HH:mm:ss';
         result.valueFormat = 'YYYY-MM-DD HH:mm:ss';
       }
