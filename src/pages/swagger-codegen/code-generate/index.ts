@@ -8,6 +8,7 @@ import generateApiDefineition from './generate-api-defineition';
 import generateModelClass from './generate-model-class';
 import generateTypeScriptType from './generate-typescript-type';
 import generateRhTablePageCode from './generate-rhtable-page';
+import generateAvueProTablePageCode from './generate-avue-pro-table';
 
 import generateAvueTableColumns from './generate-avue-table-columns';
 import generateAvueTablePageCode from './generate-avue-table';
@@ -137,6 +138,16 @@ export const codeGenerateMethods = [
     sort: 95,
     language: 'vue',
     function: generateAvueTablePageCode,
+  },
+  {
+    key: 'avue-pro-table',
+    label: 'avue-pro-table',
+    type: 'response',
+    source: 'root',
+    status: 1,
+    sort: 94,
+    language: 'vue',
+    function: generateAvueProTablePageCode,
   },
   // {
   //   key: 'avue-form-model',
