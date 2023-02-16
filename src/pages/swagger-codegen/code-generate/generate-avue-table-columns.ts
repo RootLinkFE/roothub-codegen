@@ -42,19 +42,22 @@ export default function generateAvueTableColumns(body: any, record?: any, api?: 
     const item = parametersSet.has(row.name);
     if (item) {
       result.search = true;
+      result.searchPlaceholder = '请输入';
 
       if (
-        row.name.indexOf('状态') !== -1 ||
+        row.description.indexOf('状态') !== -1 ||
         (row.description && row.description.indexOf('ENUM#') !== -1) ||
         (row.enum && row.enum.length > 0)
       ) {
         result.searchType = 'select';
         result.type = 'select';
+        result.searchPlaceholder = '请选择';
       } else if (['date', 'time'].includes(row.name)) {
         result.searchType = 'datetime';
         result.type = 'datetime';
         result.format = 'YYYY-MM-DD HH:mm:ss';
         result.valueFormat = 'YYYY-MM-DD HH:mm:ss';
+        result.searchPlaceholder = '请选择';
       }
     }
     return result;

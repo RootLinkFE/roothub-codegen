@@ -15,7 +15,7 @@ export default function generateAvueProTablePageCode(
   if (transformTextArray) {
     body = filterTransformArrayByRows(body, transformTextArray);
   }
-  const columnCode = generateAvueTableColumns(body);
+  const columnCode = generateAvueTableColumns(body, {}, api);
   const componentName = getApiNameAsPageName(api.api);
   const matchApiName: any[] | null = api?.api.match(/^\/api\/[a-zA-Z]+/);
   const apiName = matchApiName && matchApiName?.length > 0 ? matchApiName[0].replace('/api/', '') : componentName;
