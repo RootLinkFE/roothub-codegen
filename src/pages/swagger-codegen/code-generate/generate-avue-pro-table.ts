@@ -49,6 +49,6 @@ export default function generateAvueProTablePageCode(
     column: ${columnCode},
   }));
   </script>
-  <style></style>
+  <style lang="scss" scoped></style>
   `);
 }

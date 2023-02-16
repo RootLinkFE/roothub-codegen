@@ -31,7 +31,7 @@ export default function generateAvueFormColumns(body: any, record?: any, api?: a
     };
 
     if (
-      row.name.indexOf('状态') !== -1 ||
+      row.description?.indexOf('状态') !== -1 ||
       (row.description && row.description.indexOf('ENUM#') !== -1) ||
       (row.enum && row.enum.length > 0)
     ) {

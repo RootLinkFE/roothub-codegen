@@ -45,7 +45,7 @@ export default function generateAvueTableColumns(body: any, record?: any, api?: 
       result.searchPlaceholder = '请输入';
 
       if (
-        row.description.indexOf('状态') !== -1 ||
+        row.description?.indexOf('状态') !== -1 ||
         (row.description && row.description.indexOf('ENUM#') !== -1) ||
         (row.enum && row.enum.length > 0)
       ) {
