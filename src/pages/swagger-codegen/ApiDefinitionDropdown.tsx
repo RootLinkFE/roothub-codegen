@@ -1,17 +1,17 @@
 /*
  * @Author: ZtrainWilliams ztrain1224@163.com
  * @Date: 2022-07-14 13:50:44
- * @Description: 方法下拉生成
+ * @Description: api方法下拉代码生成
  */
 import { Dropdown, Menu, Button } from 'antd';
 import CodeOutlined from '@ant-design/icons/lib/icons/CodeOutlined';
 import { useModel } from 'umi';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import state from '@/stores/index';
 import { getStringToFn, getRequestParams } from '@/shared/utils';
 import { CustomMethodsItem } from '@/shared/ts/custom';
-import { pathsItem } from '@/shared/ts/api-interface';
 import { codeGenerateMethods } from './code-generate/index';
+import { observer } from 'mobx-react-lite';
 
 const ApiDefinitionDropdown: React.FC<{
   api: any;
@@ -111,4 +111,4 @@ const ApiDefinitionDropdown: React.FC<{
   );
 };
 
-export default ApiDefinitionDropdown;
+export default observer(ApiDefinitionDropdown);
