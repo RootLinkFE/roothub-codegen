@@ -28,6 +28,9 @@ import {
 
 import generateExtractBaiduOcrapi from './generate-extract-baidu-ocrapi';
 
+import generateTransformTextToZhAndEn from './generate-transform-text';
+import generateTransformTextByForm from './generate-transform-text-by-form';
+
 export const codeGenerateMethods = [
   {
     key: 'copy-api',
@@ -208,5 +211,28 @@ export const codeGenerateMethods = [
     sort: 92,
     language: 'javascript',
     function: generateEnumCode,
+  },
+];
+
+export const orderCodeGenerateMethods = [
+  {
+    key: 'generate-transform-text-zh-en',
+    label: '过滤输出中英文',
+    type: 'transform',
+    source: 'root',
+    status: 1,
+    sort: 92,
+    language: 'javascript',
+    function: generateTransformTextToZhAndEn,
+  },
+  {
+    key: 'generate-transform-text-by-form',
+    label: '表单文本过滤',
+    type: 'transform',
+    source: 'root',
+    status: 1,
+    sort: 91,
+    language: 'javascript',
+    function: generateTransformTextByForm,
   },
 ];

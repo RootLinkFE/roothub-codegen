@@ -24,6 +24,7 @@ import ModelCodeDrawer from './ModelCodeDrawer';
 import { getStringToFn } from '@/shared/utils';
 import { codeGenerateMethods } from './code-generate/index';
 import { CustomMethodsItem } from '@/shared/ts/custom';
+import TextTransformDropdown from './components/TextTransformDropdown';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -106,6 +107,21 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
         textArray: values.splitText.split(','),
       });
     }
+  };
+
+  /**
+   * @description: 文本过滤回调
+   * @param {string[]|string} values
+   * @return {string[]|string}
+   */
+  const transformTextChange = (values: any) => {
+    textForm.setFieldsValue({
+      splitText: values,
+    });
+    setTransformSate({
+      ...transformSate,
+      textArray: values,
+    });
   };
 
   const uploadProps: UploadProps = {
@@ -380,6 +396,7 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
               <Button type="link" onClick={splitTextChange}>
                 修改
               </Button>
+              <TextTransformDropdown value={transformSate.textArray} onChange={transformTextChange} />
             </Col>
           </Row>
           <Form.Item wrapperCol={{ offset: 2, span: 12 }}>
