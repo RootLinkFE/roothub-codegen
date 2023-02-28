@@ -9,6 +9,7 @@ import { cleanParameterDescription, filterTransformArrayByRows } from '@/shared/
 export default function generateAvueTableColumns(body: any, record?: any, api?: any, selectedData?: any) {
   const TypeMap: Record<string, string> = {
     integer: 'number',
+    string: 'input',
   };
 
   function getFieldType(prop: any): string {
@@ -17,7 +18,7 @@ export default function generateAvueTableColumns(body: any, record?: any, api?: 
       return 'object';
     }
     if (type === 'string' && format === 'date-time') {
-      return 'dateTime';
+      return 'datetime';
     }
     return `${TypeMap[type] || prop.type}`;
   }
@@ -32,12 +33,13 @@ export default function generateAvueTableColumns(body: any, record?: any, api?: 
   }
 
   return generateTableColumnsProps(rows, true, (row, index) => {
+    const type = getFieldType(row);
     let result: any = {
       prop: row.name,
       label: cleanParameterDescription(row.description),
       minWidth: 150,
       overHidden: true,
-      type: getFieldType(row),
+      type,
     };
     const item = parametersSet.has(row.name);
     if (item) {
@@ -58,6 +60,9 @@ export default function generateAvueTableColumns(body: any, record?: any, api?: 
         result.format = 'YYYY-MM-DD HH:mm:ss';
         result.valueFormat = 'YYYY-MM-DD HH:mm:ss';
         result.searchPlaceholder = '请选择';
+      } else if (type === 'number') {
+        result.min = 0;
+        result.max = 999999999;
       }
     }
     return result;

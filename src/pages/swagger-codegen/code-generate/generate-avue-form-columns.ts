@@ -9,6 +9,7 @@ import { cleanParameterDescription } from '@/shared/utils';
 export default function generateAvueFormColumns(body: any, record?: any, api?: any) {
   const TypeMap: Record<string, string> = {
     integer: 'number',
+    string: 'input',
   };
 
   function getFieldType(prop: any): string {
@@ -17,7 +18,7 @@ export default function generateAvueFormColumns(body: any, record?: any, api?: a
       return 'object';
     }
     if (type === 'string' && format === 'date-time') {
-      return 'dateTime';
+      return 'datetime';
     }
     return `${TypeMap[type] || prop.type}`;
   }
@@ -29,6 +30,7 @@ export default function generateAvueFormColumns(body: any, record?: any, api?: a
       label: cleanParameterDescription(row.description),
       span: 24,
     };
+    const type = getFieldType(row);
 
     if (
       row.description?.indexOf('状态') !== -1 ||
@@ -40,8 +42,11 @@ export default function generateAvueFormColumns(body: any, record?: any, api?: a
       result.type = 'datetime';
       result.format = 'YYYY-MM-DD HH:mm:ss';
       result.valueFormat = 'YYYY-MM-DD HH:mm:ss';
+    } else if (type === 'number') {
+      result.min = 0;
+      result.max = 999999999;
     } else {
-      result.type = getFieldType(row);
+      result.type = type;
     }
     return result;
   });
