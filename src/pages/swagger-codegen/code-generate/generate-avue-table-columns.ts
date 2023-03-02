@@ -60,6 +60,7 @@ export default function generateAvueTableColumns(body: any, record?: any, api?: 
         result.format = 'YYYY-MM-DD HH:mm:ss';
         result.valueFormat = 'YYYY-MM-DD HH:mm:ss';
         result.searchPlaceholder = '请选择';
+        result.minWidth = 170;
       } else if (type === 'number') {
         result.min = 0;
         result.max = 999999999;
