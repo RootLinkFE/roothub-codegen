@@ -1,20 +1,16 @@
-/*
- * @Author: ZtrainWilliams ztrain1224@163.com
- * @Date: 2022-07-14 14:31:41
- * @Description: api声明生成方法
+/**
+ * avue-api-request
  */
-import { pathsItem } from '@/shared/ts/api-interface';
-import { camelCase } from 'lodash';
-import generateApiNotes from './generate-api-notes';
+function generateApiDefineition(apiData, prefix) {
+  const { api, summary, method, parameters } = apiData;
+  const utilsFn = window.utilsFn ?? {};
 
-export default function generateApiDefineition(apiData: pathsItem & { requestParams: any }, prefix: string = '') {
-  const { api, method, parameters } = apiData;
   const apiMatch = api.match(/[a-zA-Z0-9]*$/);
-  const name = apiMatch && apiMatch.length > 0 ? camelCase(`${method} ${apiMatch[0]}`) : camelCase(api);
+  // window.lodash
+  const name = apiMatch && apiMatch.length > 0 ? lodash.camelCase(`${method} ${apiMatch[0]}`) : lodash.camelCase(api);
   let apiParams = 'params';
   let apiPath = prefix + api;
   const apiStrReg = /\{([\d\D]*)\}/g;
-  let argumentsData = ['params'];
   let inBody = false;
   let inQuery = false;
   parameters.forEach((v) => {
@@ -35,6 +31,12 @@ export default function generateApiDefineition(apiData: pathsItem & { requestPar
     apiParams = 'data: params';
   }
 
+  let packTableData = '';
+  if (/[page|list]$/.test(api)) {
+    packTableData = '.then(packTableData)';
+  }
+
+  let argumentsData = ['params'];
   const matchPathId = apiStrReg.exec(api);
   if (matchPathId) {
     argumentsData.unshift(matchPathId[1]);
@@ -42,18 +44,17 @@ export default function generateApiDefineition(apiData: pathsItem & { requestPar
       return `$${str}`;
     });
   }
-
-  const notes = generateApiNotes(apiData);
+  const notes = utilsFn.generateApiNotes(apiData);
 
   return `${notes}
-const ${name || 'fetch'} = (${argumentsData.join(', ')}) => {
-  return axios(
-    {
-      path: ${'`'}${apiPath}${'`'},
-      method: '${method}',
-      ${apiParams}
-    }
-  )
-};
-  `;
+  export const ${name || 'fetch'} = (${argumentsData.join(', ')}) => {
+    return request(
+      {
+        url: ${'`'}${apiPath}${'`'},
+        method: '${method}',
+        ${apiParams}
+      }
+    ).then(responseHandle)${packTableData};
+  };
+    `;
 }
