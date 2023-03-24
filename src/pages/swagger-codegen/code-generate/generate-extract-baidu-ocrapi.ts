@@ -41,7 +41,7 @@ export default function generateExtractBaiduOcrapi(file: any, values: any) {
       url: 'https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       params: {
-        access_token: 'access_token',
+        access_token: '24.4b2db3703b47bfaf8d3ea9bd1d57efa0.2592000.1682243581.282335-30204631',
       },
       data: formData,
     });
