@@ -200,7 +200,7 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
 
   const handleCopy = () => {
     copy(apiText);
-    message.success('api已复制到剪贴板！');
+    message.success({ key: 'copy-key', content: 'api已复制到剪贴板！' });
   };
 
   const handleDownload = () => {
@@ -229,7 +229,9 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
           <h2 className={styles.h2BorderTitle}>{selectedApi.summary}</h2>
           <p>
             <Tag color={MethodColors[selectedApi.method] || '#87d068'}>{selectedApi.method.toUpperCase()}</Tag>{' '}
-            {apiText}
+            <span className="copy-link" onClick={handleCopy}>
+              {apiText}
+            </span>
             <Button type="link" size="small" style={{ marginLeft: '16px' }} onClick={handleCopy}>
               复制
             </Button>
