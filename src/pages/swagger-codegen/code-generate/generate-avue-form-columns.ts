@@ -23,12 +23,13 @@ export default function generateAvueFormColumns(body: any, record?: any, api?: a
     return `${TypeMap[type] || prop.type}`;
   }
 
-  const rows = Array.isArray(body) ? body : record?.children || [];
+  const rows = Array.isArray(body) ? body : record?.children || body?.requestSelectedData || [];
   return generateTableColumnsProps(rows, true, (row, index) => {
     let result: any = {
       prop: row.name,
       label: cleanParameterDescription(row.description),
       span: 24,
+      placeholder: '请输入',
     };
     const type = getFieldType(row);
 
@@ -38,14 +39,31 @@ export default function generateAvueFormColumns(body: any, record?: any, api?: a
       (row.enum && row.enum.length > 0)
     ) {
       result.type = 'select';
+      result.dicData = [
+        { label: '启用', value: 0 },
+        { label: '停用', value: 1 },
+      ];
+      result.placeholder = '请选择';
     } else if (['date', 'time'].includes(row.name)) {
       result.type = 'datetime';
       result.format = 'YYYY-MM-DD HH:mm:ss';
       result.valueFormat = 'YYYY-MM-DD HH:mm:ss';
+      result.placeholder = '请选择';
     } else if (type === 'number') {
-      result.min = 0;
-      result.max = 999999999;
+      if (!/(Id|id)$/.test(row.name)) {
+        result.min = 0;
+        result.max = 999999999;
+      }
+    } else if (
+      row.description?.indexOf('备注') !== -1 ||
+      row.description?.indexOf('说明') !== -1 ||
+      row.description?.indexOf('原因') !== -1
+    ) {
+      result.maxLength = 200;
+      result.type = type;
+      result.row = 3;
     } else {
+      result.maxLength = 50;
       result.type = type;
     }
     return result;

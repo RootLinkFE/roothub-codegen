@@ -54,6 +54,10 @@ export default function generateAvueTableColumns(body: any, record?: any, api?: 
         result.searchType = 'select';
         result.type = 'select';
         result.searchPlaceholder = '请选择';
+        result.dicData = [
+          { label: '启用', value: 0 },
+          { label: '停用', value: 1 },
+        ];
       } else if (['date', 'time'].includes(row.name)) {
         result.searchType = 'datetime';
         result.type = 'datetime';

@@ -31,6 +31,8 @@ export const textCodeGenAvueColumns = (textArray: any[]) => {
     columns.push({
       label: text,
       prop: key,
+      minWidth: 140,
+      overHidden: true,
     });
   });
   return prettyJSON(columns);
