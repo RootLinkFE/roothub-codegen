@@ -12,7 +12,6 @@ import { useModel } from 'umi';
 import { checkIsEnum, generateEnumCode } from './code-generate/generate-enum-code';
 import styles from './index.module.less';
 import ParameterTableDefinition from './ParameterTableDefinition';
-import ModelCodeDrawer from './ModelCodeDrawer';
 import { pathsItem } from '@/shared/ts/api-interface';
 import copy from 'copy-to-clipboard';
 import { MethodColors } from '@/shared/common';
@@ -352,7 +351,6 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
             生成全部枚举
           </Button>
         </Space> */}
-        <ModelCodeDrawer />
       </Col>
     );
   }

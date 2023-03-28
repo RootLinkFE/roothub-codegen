@@ -109,6 +109,8 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
     }
   };
 
+  const matchTextChange = () => {};
+
   /**
    * @description: 文本过滤回调
    * @param {string[]|string} values
@@ -367,7 +369,18 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
         </Row>
       </Form>
 
-      <h2 className={styles.h2BorderTitle}>文本内容</h2>
+      <h2 className={styles.h2BorderTitle}>
+        文本内容
+        <span style={{ marginLeft: '16px', fontSize: '14px' }}>
+          <Switch
+            defaultChecked={transformSate.status}
+            size="small"
+            onChange={onStatusChange}
+            style={{ marginRight: '8px' }}
+          />
+          代码生成是否关联文本数组
+        </span>
+      </h2>
       <div>
         <Text type="secondary">提取文本后得到文本内容</Text>
         <Form
@@ -406,8 +419,15 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
               <ApiDefinitionDropdown api={transformSate.textArray} methodType="text" />
             </span>
           </Form.Item>
-          <Form.Item label="代码生成是否关联文本数组">
-            <Switch defaultChecked={transformSate.status} onChange={onStatusChange} />
+          <Form.Item label="原始代码" wrapperCol={{ span: 20 }} name="oldCode">
+            <Col span={22}>
+              <TextArea style={{ height: '200px' }} />
+            </Col>
+            <Col span={2}>
+              <Button type="link" onClick={matchTextChange}>
+                匹配
+              </Button>
+            </Col>
           </Form.Item>
         </Form>
       </div>

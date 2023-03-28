@@ -11,9 +11,10 @@ function generateApiDefineition(apiData, prefix) {
   let apiParams = 'params';
   let apiPath = prefix + api;
   const apiStrReg = /\{([\d\D]*)\}/g;
+  let argumentsData = ['params'];
   let inBody = false;
   let inQuery = false;
-  parameters.forEach((v) => {
+  (parameters || []).forEach((v) => {
     if (v.in === 'body') {
       inBody = true;
     } else if (v.in === 'query') {
@@ -36,7 +37,6 @@ function generateApiDefineition(apiData, prefix) {
     packTableData = '.then(packTableData)';
   }
 
-  let argumentsData = ['params'];
   const matchPathId = apiStrReg.exec(api);
   if (matchPathId) {
     argumentsData.unshift(matchPathId[1]);

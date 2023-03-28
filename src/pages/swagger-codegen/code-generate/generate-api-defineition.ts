@@ -17,7 +17,7 @@ export default function generateApiDefineition(apiData: pathsItem & { requestPar
   let argumentsData = ['params'];
   let inBody = false;
   let inQuery = false;
-  parameters.forEach((v) => {
+  (parameters || []).forEach((v) => {
     if (v.in === 'body') {
       inBody = true;
     } else if (v.in === 'query') {

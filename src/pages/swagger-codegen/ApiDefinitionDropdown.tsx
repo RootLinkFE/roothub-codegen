@@ -19,8 +19,9 @@ const ApiDefinitionDropdown: React.FC<{
   dropdownTitle?: string;
   buttonType?: 'link' | 'text' | 'dashed' | 'default' | 'ghost' | 'primary' | undefined;
   onChange?: (key: string, item?: CustomMethodsItem | undefined) => void;
+  isPaths?: boolean; // 是否Paths循环生成
 }> = function (props) {
-  const { api, dropdownTitle = '代码生成', methodType = 'api', buttonType = 'link', onChange } = props;
+  const { api, dropdownTitle = '代码生成', methodType = 'api', buttonType = 'link', onChange, isPaths } = props;
 
   const generateMethods = codeGenerateMethods.filter((v) => v.type === methodType && v.status);
   const { setDefinitionCodeDrawerProps, resourceDetail, apiurlPrefix } = useModel('useApiSwitchModel');
@@ -69,34 +70,62 @@ const ApiDefinitionDropdown: React.FC<{
       generateCode: () => {},
     };
     const generateMethod: any = generateMethods.find((v) => v.key === key);
-    if (methodType === 'api') {
-      drawerProps.title = api?.summary || '';
-      if (generateMethod) {
-        drawerProps.generateCode = () => generateMethod.function({ ...api, requestParams }, prefix);
-      } else {
-        let item: any = CustomMethods.find((v) => v.key === key) ?? {};
-        const cutomCodeFn = item?.function ? getStringToFn(item.function) : () => {};
-        drawerProps.generateCode = () => cutomCodeFn({ ...api, requestParams }, prefix);
-      }
-      setDefinitionCodeDrawerProps(drawerProps);
-    } else if (methodType === 'text') {
-      drawerProps.title = JSON.stringify(api) || '';
-      if (generateMethod) {
-        drawerProps.generateCode = () => generateMethod.function(api);
-      } else {
-        let item: any = CustomMethods.find((v) => v.key === key) ?? {};
-        const cutomCodeFn = item?.function ? getStringToFn(item.function) : () => {};
-        drawerProps.generateCode = () => cutomCodeFn(api);
-      }
-      setDefinitionCodeDrawerProps(drawerProps);
-    } else {
-      if (onChange) {
-        let item: any = generateMethods.find((v) => v.key === key);
-        if (item) {
-          onChange(key, { ...item });
+    if (isPaths) {
+      if (methodType === 'api') {
+        drawerProps.title = api?.summary || '';
+        const { paths } = api;
+        let apiFn: any = () => {};
+        if (generateMethod) {
+          apiFn = generateMethod.function;
         } else {
-          item = CustomMethods.find((v) => v.key === key);
-          onChange(key, { ...item });
+          let item: any = CustomMethods.find((v) => v.key === key) ?? {};
+          apiFn = item?.function ? getStringToFn(item.function) : () => {};
+        }
+        drawerProps.generateCode = () => {
+          let resultText = '';
+          paths.forEach((m: any) => {
+            const curRequestParams = m.requestParams || getRequestParams(m, resourceDetail);
+            console.log(m, curRequestParams);
+            resultText +=
+              apiFn({ ...m, requestParams: curRequestParams }, prefix) +
+              `
+`;
+          });
+          return resultText;
+        };
+
+        setDefinitionCodeDrawerProps(drawerProps);
+      }
+    } else {
+      if (methodType === 'api') {
+        drawerProps.title = api?.summary || '';
+        if (generateMethod) {
+          drawerProps.generateCode = () => generateMethod.function({ ...api, requestParams }, prefix);
+        } else {
+          let item: any = CustomMethods.find((v) => v.key === key) ?? {};
+          const cutomCodeFn = item?.function ? getStringToFn(item.function) : () => {};
+          drawerProps.generateCode = () => cutomCodeFn({ ...api, requestParams }, prefix);
+        }
+        setDefinitionCodeDrawerProps(drawerProps);
+      } else if (methodType === 'text') {
+        drawerProps.title = JSON.stringify(api) || '';
+        if (generateMethod) {
+          drawerProps.generateCode = () => generateMethod.function(api);
+        } else {
+          let item: any = CustomMethods.find((v) => v.key === key) ?? {};
+          const cutomCodeFn = item?.function ? getStringToFn(item.function) : () => {};
+          drawerProps.generateCode = () => cutomCodeFn(api);
+        }
+        setDefinitionCodeDrawerProps(drawerProps);
+      } else {
+        if (onChange) {
+          let item: any = generateMethods.find((v) => v.key === key);
+          if (item) {
+            onChange(key, { ...item });
+          } else {
+            item = CustomMethods.find((v) => v.key === key);
+            onChange(key, { ...item });
+          }
         }
       }
     }
@@ -104,9 +133,13 @@ const ApiDefinitionDropdown: React.FC<{
 
   return (
     <Dropdown overlay={<Menu onClick={handleMenuItemClick} items={items} />} trigger={['hover']}>
-      <Button type={buttonType}>
-        <CodeOutlined /> {dropdownTitle}
-      </Button>
+      {isPaths ? (
+        <CodeOutlined title={dropdownTitle} />
+      ) : (
+        <Button type={buttonType}>
+          <CodeOutlined /> {dropdownTitle}
+        </Button>
+      )}
     </Dropdown>
   );
 };

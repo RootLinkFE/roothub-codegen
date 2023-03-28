@@ -11,6 +11,7 @@ import { useModel } from 'umi';
 import { pathsItem, tagsItem } from '@/shared/ts/api-interface';
 import { MethodColors } from '@/shared/common';
 import { dataSaveToJSON } from '@/shared/utils';
+import ApiDefinitionDropdown from './ApiDefinitionDropdown';
 
 const { Search } = Input;
 
@@ -134,6 +135,7 @@ const ResourcesTree: React.FC<{ labelKey: string } & MenuProps> = ({ labelKey })
           <div className="menu-item-title-content" title={name}>
             {name}
           </div>
+          <ApiDefinitionDropdown api={item} isPaths />
           {paths && paths.length ? <Badge count={paths.length} style={{ backgroundColor: '#1890ff' }} /> : null}
         </Row>
       );

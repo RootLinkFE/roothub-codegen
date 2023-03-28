@@ -15,6 +15,7 @@ import CustomMethodsDrawer from './CustomMethodsDrawer';
 import ApiurlPrefixDrawer from './ApiurlPrefixDrawer';
 import DefaultDrawer from '@/components/DefaultDrawer';
 import ExtractTextContext from './ExtractTextContext';
+import ModelCodeDrawer from './ModelCodeDrawer';
 
 const { TabPane } = Tabs;
 
@@ -161,6 +162,8 @@ export default function ApiSwitch() {
           <ExtractTextContext></ExtractTextContext>
         </DefaultDrawer>
       </Row>
+
+      <ModelCodeDrawer />
     </Row>
   );
 }
