@@ -30,7 +30,7 @@ export default function ApiSwitch() {
 
   const blockContent = useMemo(
     () => (
-      <Row align="middle" style={{ marginLeft: '20px', width: '460px', paddingTop: '10px' }}>
+      <Row align="middle" style={{ marginLeft: '20px', minWidth: '260px', paddingTop: '10px' }}>
         <h2>OpenApi-CodeGen</h2>
       </Row>
     ),
