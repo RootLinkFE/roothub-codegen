@@ -12,6 +12,7 @@ import { pathsItem, tagsItem } from '@/shared/ts/api-interface';
 import { MethodColors } from '@/shared/common';
 import { dataSaveToJSON } from '@/shared/utils';
 import ApiDefinitionDropdown from './ApiDefinitionDropdown';
+import state from '@/stores/index';
 
 const { Search } = Input;
 
@@ -45,7 +46,8 @@ const ResourcesTree: React.FC<{ labelKey: string } & MenuProps> = ({ labelKey })
     selectedApi,
     setItemSelectedApi,
   } = useModel('useApiSwitchModel');
-  // console.log(resourceDetail, 'resourceDetail')
+
+  const { urlValue } = state.swagger;
 
   // 搜索显示tags
   const [searchTags, setSearchTags] = useState<tagsItem[] | null>(null);
@@ -175,7 +177,7 @@ const ResourcesTree: React.FC<{ labelKey: string } & MenuProps> = ({ labelKey })
                 size="small"
                 title="下载openapi.json"
                 onClick={() => {
-                  dataSaveToJSON(resourceDetail, selectedResource.name);
+                  dataSaveToJSON(resourceDetail, selectedResource?.name || urlValue);
                 }}
               >
                 <DownloadOutlined />
