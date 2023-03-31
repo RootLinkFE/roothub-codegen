@@ -29,6 +29,7 @@ import {
 import generateExtractBaiduOcrapi from './generate-extract-baidu-ocrapi';
 
 import generateTransformTextToZhAndEn from './generate-transform-text';
+import generateSplitTransformTextToZhAndEn from './generate-split-transform-text';
 import generateTransformTextByForm from './generate-transform-text-by-form';
 
 export const codeGenerateMethods = [
@@ -224,6 +225,16 @@ export const orderCodeGenerateMethods = [
     sort: 92,
     language: 'javascript',
     function: generateTransformTextToZhAndEn,
+  },
+  {
+    key: 'generate-split-transform-text-zh-en',
+    label: '分割过滤输出中英文',
+    type: 'transform',
+    source: 'root',
+    status: 1,
+    sort: 92,
+    language: 'javascript',
+    function: generateSplitTransformTextToZhAndEn,
   },
   {
     key: 'generate-transform-text-by-form',
