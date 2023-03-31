@@ -129,7 +129,7 @@ export default function ApiSwitch() {
       <Row wrap={false} style={{ paddingTop: '10px', flex: 1 }}>
         {/* 资源列表 */}
         {resources && <ResourcesTree labelKey="name" />}
-        <Col flex="80%">
+        <Col flex="auto">
           <Tabs activeKey={tabActiveKey} type="editable-card" onChange={tabChange} onEdit={tabEdit}>
             {selectedApiRows.map((item: pathsItem) => {
               return (
