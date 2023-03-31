@@ -161,15 +161,15 @@ export function dataSaveToJSON(data: any, filename: string = 'openapi') {
  */
 export function filterTransformArrayByRows(rows: any[], transformArray: string[]) {
   const result: any = [];
-  const resultObj: any[] = [];
-  resultObj.length = transformArray.length;
+  const resultArr: any[] = [];
+  resultArr.length = transformArray.length;
   const nextArr: { i: number; text: string }[] = []; // transformArray未比对部分
   transformArray.forEach((text: string, i: number) => {
     const item = rows.find((v) => {
       return !isNil(v.description) && (v.description === text || v.description.indexOf(text) !== -1);
     });
     if (item) {
-      resultObj[i] = item;
+      resultArr[i] = item;
     } else {
       nextArr.push({ i, text });
     }
@@ -177,11 +177,11 @@ export function filterTransformArrayByRows(rows: any[], transformArray: string[]
   nextArr.forEach((m: { i: number; text: string }) => {
     let item = filterStrRepeat(rows, m.text);
     if (item) {
-      resultObj[m.i] = item;
+      resultArr[m.i] = item;
     }
   });
 
-  resultObj.forEach((m: any) => {
+  resultArr.forEach((m: any) => {
     m && result.push(m);
   });
   return result;
@@ -237,6 +237,45 @@ export function strRepeat(preStr: string, nextStr: string): string {
     }
   }
   return repeat;
+}
+
+/**
+ * @description: 原始代码与响应参数匹配字段后返回
+ * @param {any} rows
+ * @param {any} baseCode
+ * @return {*}
+ */
+export function filterBaseCodeByRows(rows: any[], baseCode: any) {
+  if (Array.isArray(baseCode)) {
+    const nextArr: { i: number; codeItem: any }[] = []; // baseCode未比对部分
+    const labelField = 'label';
+
+    baseCode.forEach((codeItem: any, i: number) => {
+      const item = rows.find((v) => {
+        return (
+          !isNil(v.description) &&
+          (v.description === codeItem[labelField] || v.description.indexOf(codeItem[labelField]) !== -1)
+        );
+      });
+
+      if (item) {
+        codeItem.prop = item.name;
+      } else {
+        nextArr.push({ i, codeItem });
+      }
+    });
+    nextArr.forEach((m: { i: number; codeItem: any }) => {
+      let item = filterStrRepeat(rows, m.codeItem[labelField]);
+      if (item) {
+        baseCode[m.i] = {
+          ...m.codeItem,
+          prop: item.name,
+        };
+      }
+    });
+    // 未匹配项原样输出
+  }
+  return baseCode;
 }
 
 /**

@@ -34,7 +34,6 @@ const TextTransformDropdown: React.FC<{
   const handleMenuItemClick = ({ key }: any) => {
     let item: any = generateMethods.find((v) => v.key === key);
     let textArray: any = item.function(value);
-    console.log('handleMenuItemClick', item, value, textArray);
     onChange(textArray);
   };
 

@@ -4,7 +4,12 @@
  * @Description: generateAvueTableColumns
  */
 import generateTableColumnsProps from './generate-table-columns-props';
-import { cleanParameterDescription, filterTransformArrayByRows } from '@/shared/utils';
+import {
+  cleanParameterDescription,
+  filterTransformArrayByRows,
+  filterBaseCodeByRows,
+  prettyJSON,
+} from '@/shared/utils';
 
 export default function generateAvueTableColumns(body: any, record?: any, api?: any, selectedData?: any) {
   const TypeMap: Record<string, string> = {
@@ -28,7 +33,9 @@ export default function generateAvueTableColumns(body: any, record?: any, api?: 
     parametersSet.add(param.name);
   });
   let rows = Array.isArray(body) ? body : record?.children || [];
-  if (selectedData?.transformTextArray) {
+  if (selectedData?.baseCode) {
+    return prettyJSON(filterBaseCodeByRows(rows, selectedData.baseCode));
+  } else if (selectedData?.transformTextArray) {
     rows = filterTransformArrayByRows(rows, selectedData.transformTextArray);
   }
 

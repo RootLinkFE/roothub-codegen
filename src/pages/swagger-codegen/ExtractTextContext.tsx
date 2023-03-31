@@ -109,7 +109,22 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
     }
   };
 
-  const matchTextChange = () => {};
+  const matchTextChange = () => {
+    const oldCode = textForm.getFieldValue('oldCode');
+    let code: any = null;
+    try {
+      let codeArr = eval(oldCode);
+      if (codeArr) {
+        code = codeArr;
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    setTransformSate({
+      ...transformSate,
+      baseCode: code,
+    });
+  };
 
   /**
    * @description: 文本过滤回调
@@ -276,6 +291,13 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
     });
   };
 
+  const onIsBaseCodeChange = (checked: boolean) => {
+    setTransformSate({
+      ...transformSate,
+      isBaseCode: checked,
+    });
+  };
+
   const itemCol = {
     labelCol: { span: 4 },
     wrapperCol: { span: 20 },
@@ -419,16 +441,26 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
               <ApiDefinitionDropdown api={transformSate.textArray} methodType="text" />
             </span>
           </Form.Item>
-          <Form.Item label="原始代码" wrapperCol={{ span: 20 }} name="oldCode">
+          <Form.Item wrapperCol={{ span: 22 }} label="原始代码" name="oldCode">
+            <TextArea style={{ height: '200px' }} />
+          </Form.Item>
+          <Row>
+            <Col span={2}></Col>
             <Col span={22}>
-              <TextArea style={{ height: '200px' }} />
-            </Col>
-            <Col span={2}>
               <Button type="link" onClick={matchTextChange}>
                 匹配
               </Button>
+              <span style={{ marginLeft: '16px', fontSize: '14px' }}>
+                <Switch
+                  defaultChecked={transformSate.isBaseCode}
+                  size="small"
+                  onChange={onIsBaseCodeChange}
+                  style={{ marginRight: '8px' }}
+                />
+                代码生成是否关联原始代码数组
+              </span>
             </Col>
-          </Form.Item>
+          </Row>
         </Form>
       </div>
 

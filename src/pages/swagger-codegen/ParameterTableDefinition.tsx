@@ -60,13 +60,15 @@ const ParameterTableDefinition: React.FC<{ definition: any; record: any; api: pa
       generateCode: () => {},
     };
     const textArray = transformSate.status && transformSate.textArray.length > 0 ? transformSate.textArray : null;
+    const baseCode = transformSate.isBaseCode && transformSate.baseCode.length > 0 ? transformSate.baseCode : null;
     if (generateMethod) {
       drawerProps.generateCode = () =>
-        generateMethod.function(definition, record, api, { transformTextArray: textArray });
+        generateMethod.function(definition, record, api, { transformTextArray: textArray, baseCode });
     } else {
       let item: any = CustomMethods.find((v) => v.key === key) ?? {};
       const cutomCodeFn = item?.function ? getStringToFn(item.function) : () => {};
-      drawerProps.generateCode = () => cutomCodeFn({ definition, record }, api, { transformTextArray: textArray });
+      drawerProps.generateCode = () =>
+        cutomCodeFn({ definition, record }, api, { transformTextArray: textArray, baseCode });
     }
     setSelectedDefinition(params);
     setDefinitionCodeDrawerProps(drawerProps);
