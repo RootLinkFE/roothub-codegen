@@ -19,7 +19,7 @@ export default function generateNotes(apiData: pathsItem & { requestParams: any 
 
   const params: any[] = [];
   (requestParams || []).forEach((row: any) => {
-    params.push(`* @param {${FieldTypeMap[row.type] || row.type}} ${row.name}`);
+    params.push(`* @param {${FieldTypeMap[row.type] || row.type}} ${row.name} ${row.description}`);
   });
 
   return `/**

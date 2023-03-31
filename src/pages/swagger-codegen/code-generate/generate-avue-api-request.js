@@ -33,7 +33,7 @@ function generateApiDefineition(apiData, prefix) {
   }
 
   let packTableData = '';
-  if (/[page|list]$/.test(api)) {
+  if (/(page|list)$/.test(api)) {
     packTableData = '.then(packTableData)';
   }
 
