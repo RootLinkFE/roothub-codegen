@@ -23,10 +23,17 @@ function generateAvueTablePageCode(selectedData, api) {
     parametersSet.add(param.name);
   });
   const columnCode = utilsFn.generateTableColumnsProps(body, true, (row, index) => {
+    let reg = new RegExp(/[a-zA-Z]+/g);
     let result = {
       prop: row.name,
       label: utilsFn.cleanParameterDescription(row.description),
-      minWidth: 150,
+      minWidth: reg.test(text)
+        ? text.length > 16
+          ? text.length * 7 + 10
+          : 140
+        : text.length > 8
+        ? text.length * 14 + 10
+        : 140,
       overHidden: true,
     };
     const item = parametersSet.has(row.name);

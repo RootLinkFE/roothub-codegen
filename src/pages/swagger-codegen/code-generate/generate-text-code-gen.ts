@@ -26,12 +26,19 @@ export const textCodeGenOptions = (textArray: any[]) => {
 // AvueColumns
 export const textCodeGenAvueColumns = (textArray: any[]) => {
   const columns: any[] = [];
+  let reg = new RegExp(/[a-zA-Z]+/g);
   textArray.forEach((text, i) => {
     let key = isChinese(text) ? `prop${i + 1}` : text;
     columns.push({
       label: text,
       prop: key,
-      minWidth: 140,
+      minWidth: reg.test(text)
+        ? text.length > 16
+          ? text.length * 7 + 10
+          : 140
+        : text.length > 8
+        ? text.length * 14 + 10
+        : 140,
       overHidden: true,
     });
   });
