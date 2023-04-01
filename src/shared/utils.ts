@@ -3,7 +3,6 @@
  * @Date: 2022-06-14 17:11:40
  * @Description:
  */
-import { tagsItem, pathsItem } from '@/shared/ts/api-interface';
 import getParameterObject from './getParameterObject';
 import { isNil } from 'lodash';
 
@@ -309,3 +308,50 @@ export function filetoBase64(file: any) {
     };
   });
 }
+
+/**
+ * @description: 如果图片宽度过大则切割图片
+ * @param {any} file
+ * @return {Promise} resolve - Base64图片数组
+ */
+export const splitImageToBase64 = function (file: any) {
+  return new Promise((resolve, reject) => {
+    let reader = new FileReader(); // 实例化文件读取对象
+    reader.readAsDataURL(file);
+    reader.onload = function () {
+      let oImg: any = new Image();
+      oImg.src = this.result;
+      document.body.appendChild(oImg);
+
+      oImg.onload = function () {
+        let imgWidth = oImg.offsetWidth;
+        let imgHeight = oImg.offsetHeight;
+        const splitWidth = 1300;
+        if (imgWidth > splitWidth) {
+          // 分割图片
+          let splitCount = Math.ceil(imgWidth / splitWidth);
+          let canvas = document.createElement('canvas');
+          canvas.width = splitWidth;
+          canvas.height = imgHeight;
+          let ctx: any = canvas.getContext('2d');
+          let imgDataArr = [];
+          for (let i = 0; i < splitCount; i++) {
+            let x = i * splitWidth;
+            let y = 0;
+            let w = i === splitCount - 1 ? imgWidth - x : splitWidth;
+            let h = imgHeight;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(oImg, x, y, w, h, 0, 0, w, h);
+            let imageDataURL = canvas.toDataURL(); // 返回base64
+            imgDataArr.push(imageDataURL);
+          }
+          resolve(imgDataArr);
+          console.log('imgDataArr', imgDataArr);
+          document.body.removeChild(oImg);
+        } else {
+          resolve([]);
+        }
+      };
+    };
+  });
+};

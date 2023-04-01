@@ -21,7 +21,7 @@ import { postVSCodeMessage } from '@/shared/vscode';
 import state from '@/stores/index';
 import HistoryTextDropdown from './components/HistoryTextDropdown';
 import ModelCodeDrawer from './ModelCodeDrawer';
-import { getStringToFn } from '@/shared/utils';
+import { getStringToFn, splitImageToBase64 } from '@/shared/utils';
 import { codeGenerateMethods } from './code-generate/index';
 import { CustomMethodsItem } from '@/shared/ts/custom';
 import TextTransformDropdown from './components/TextTransformDropdown';
@@ -44,6 +44,7 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
   });
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState<any[]>([]);
+  const [base64ImageList, setBase64ImageList] = useState<any[]>([]);
   const [textForm] = Form.useForm();
   const extractTypeOptions = useMemo(() => {
     const extractGenerateMethods = [
@@ -51,16 +52,16 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
       ...codeGenerateMethods.filter((v) => v.type === 'extract' && v.status),
     ];
     return [
-      {
-        label: '默认',
-        value: 'ocrapi',
-      },
       ...extractGenerateMethods.map((v: any) => {
         return {
           ...v,
           value: v.key,
         };
       }),
+      {
+        label: 'OCRapi',
+        value: 'ocrapi',
+      },
     ];
   }, []);
 
@@ -158,20 +159,29 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
       return false;
     },
     onChange(info: any) {
+      splitImageToBase64(info.file).then((list: any) => {
+        setBase64ImageList(list);
+      });
       setFileList(info.fileList);
     },
   };
 
+  // 粘贴回调
   const pasteChange = (value: any) => {
     const items = value.clipboardData.items[0];
     if (items.type.includes('image')) {
+      // 图片-粘贴
       const file = items.getAsFile();
       const fileItem: any = { file, name: file.name };
       form.setFieldValue('file', fileItem);
+      splitImageToBase64(file).then((list: any) => {
+        setBase64ImageList(list);
+      });
       setFileList([fileItem]);
     }
   };
 
+  // 提取文字api调用
   const { run: handleImageToText, loading: textLoading } = useRequest(
     async (values: any) => {
       const { extractType } = values;
@@ -220,21 +230,46 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
         });
         let cutomCodeFn: any = item?.function;
         if (item?.source === 'custom') {
+          // 获取自定义方法
           cutomCodeFn = item?.function
             ? typeof item.function === 'string'
               ? getStringToFn(item.function)
               : item.function
             : () => {};
         }
-        const data = await cutomCodeFn(values.file.file, values);
-        if (data.words_result?.length > 0) {
-          const wordsResult = data.words_result;
-          setParsedText(wordsResult);
-          setHistoryText(wordsResult);
-          message.success('提取文本成功!');
-          return data;
-        } else {
-          message.error('提取文本失败!');
+        // 存在base64列表则需分别调用接口后拼接输出
+        if (base64ImageList && base64ImageList.length > 0) {
+          let pAll = [];
+          for (let i = 0; i < base64ImageList.length; i++) {
+            pAll.push(cutomCodeFn(null, base64ImageList[i]));
+          }
+          try {
+            Promise.all(pAll)
+              .then((res) => {
+                let wordsResult: any = [];
+                res.forEach((v) => {
+                  wordsResult = [...wordsResult, ...(v.words_result || [])];
+                });
+                wordsResult = filterWordsResult(wordsResult);
+                setParsedText(wordsResult);
+                setHistoryText(wordsResult);
+                message.success('提取文本成功!');
+              })
+              .catch(() => {
+                message.error('提取文本失败!');
+              });
+          } catch (error) {}
+        } else if (values.file.file) {
+          const data = await cutomCodeFn(values.file.file, values);
+          if (data.words_result?.length > 0) {
+            const wordsResult = filterWordsResult(data.words_result);
+            setParsedText(wordsResult);
+            setHistoryText(wordsResult);
+            message.success('提取文本成功!');
+            return data;
+          } else {
+            message.error('提取文本失败!');
+          }
         }
       }
       return null;
@@ -243,6 +278,25 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
       manual: true,
     },
   );
+
+  /**
+   * @description: 处理存在单独文字时向前拼接
+   * @param {any} words
+   * @return {*}
+   */
+  const filterWordsResult = function (words: any) {
+    const result = [];
+    for (let i = 0; i < words.length; i++) {
+      if (words[i].words.length === 1) {
+        if (i !== 0) {
+          words[result.length - 1].words = words[result.length - 1].words + words[i].words;
+        }
+      } else {
+        result.push(words[i]);
+      }
+    }
+    return result;
+  };
 
   /**设置历史文本
    * @description:
