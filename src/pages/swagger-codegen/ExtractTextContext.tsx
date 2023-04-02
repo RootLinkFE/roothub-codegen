@@ -284,15 +284,15 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
    * @param {any} words
    * @return {*}
    */
-  const filterWordsResult = function (words: any) {
+  const filterWordsResult = function (wordList: any) {
     const result = [];
-    for (let i = 0; i < words.length; i++) {
-      if (words[i].words.length === 1) {
+    for (let i = 0; i < wordList.length; i++) {
+      if (wordList[i].words.length === 1) {
         if (i !== 0) {
-          words[result.length - 1].words = words[result.length - 1].words + words[i].words;
+          result[result.length - 1].words = result[result.length - 1].words + wordList[i].words;
         }
       } else {
-        result.push(words[i]);
+        result.push(wordList[i]);
       }
     }
     return result;
