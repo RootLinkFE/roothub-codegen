@@ -289,7 +289,7 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
     for (let i = 0; i < words.length; i++) {
       if (words[i].words.length === 1) {
         if (i !== 0) {
-          words[result.length - 1].words = words[result.length - 1].words + words[i].words;
+          result[result.length - 1].words = result[result.length - 1].words + words[i].words;
         }
       } else {
         result.push(words[i]);
