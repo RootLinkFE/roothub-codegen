@@ -4,6 +4,7 @@
  * @Description:
  */
 import getParameterObject from './getParameterObject';
+import { isInVSCode } from '@/shared/vscode';
 import { isNil } from 'lodash';
 
 export function cleanParameterDescription(s: string) {
@@ -318,15 +319,19 @@ export const splitImageToBase64 = function (file: any) {
   return new Promise((resolve, reject) => {
     let reader = new FileReader(); // 实例化文件读取对象
     reader.readAsDataURL(file);
-    reader.onload = function () {
+    reader.onload = function (e: any) {
       let oImg: any = new Image();
-      oImg.src = this.result;
+      // URL.createObjectURL(file)
+      const imgResult = e.target.result;
+      oImg.src = imgResult;
+      // console.log(oImg);
       document.body.appendChild(oImg);
-
       oImg.onload = function () {
         let imgWidth = oImg.offsetWidth;
         let imgHeight = oImg.offsetHeight;
-        const splitWidth = 1300;
+        // createImage(oImg, imgWidth, imgHeight);
+        const splitWidth = isInVSCode ? 800 : 1300;
+        // console.log(isInVSCode, imgWidth, imgHeight, oImg.width, oImg.height);
         if (imgWidth > splitWidth) {
           // 分割图片
           let splitCount = Math.ceil(imgWidth / splitWidth);
@@ -349,9 +354,23 @@ export const splitImageToBase64 = function (file: any) {
           console.log('imgDataArr', imgDataArr);
           document.body.removeChild(oImg);
         } else {
-          resolve([]);
+          resolve([imgResult]);
         }
       };
     };
   });
 };
+
+function createImage(oImg, width, height) {
+  let w = width * 2;
+  let h = height * 2;
+  let canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  let ctx: any = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(oImg, w, h);
+  let imageDataURL = canvas.toDataURL(); // 返回base64
+  console.log(imageDataURL);
+  return imageDataURL;
+}

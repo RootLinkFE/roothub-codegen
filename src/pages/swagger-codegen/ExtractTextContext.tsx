@@ -260,7 +260,7 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
               });
           } catch (error) {}
         } else if (values.file.file) {
-          const data = await cutomCodeFn(values.file.file, values);
+          const data = await cutomCodeFn(values.file.file, null);
           if (data.words_result?.length > 0) {
             const wordsResult = filterWordsResult(data.words_result);
             setParsedText(wordsResult);
