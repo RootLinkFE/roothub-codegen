@@ -159,9 +159,10 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
       return false;
     },
     onChange(info: any) {
-      splitImageToBase64(info.file).then((list: any) => {
-        setBase64ImageList(list);
-      });
+      info.file &&
+        splitImageToBase64(info.file).then((list: any) => {
+          setBase64ImageList(list);
+        });
       setFileList(info.fileList);
     },
   };
@@ -174,9 +175,10 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
       const file = items.getAsFile();
       const fileItem: any = { file, name: file.name };
       form.setFieldValue('file', fileItem);
-      splitImageToBase64(file).then((list: any) => {
-        setBase64ImageList(list);
-      });
+      file &&
+        splitImageToBase64(file).then((list: any) => {
+          setBase64ImageList(list);
+        });
       setFileList([fileItem]);
     }
   };
@@ -239,26 +241,25 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
         }
         // 存在base64列表则需分别调用接口后拼接输出
         if (base64ImageList && base64ImageList.length > 0) {
-          let pAll = [];
-          for (let i = 0; i < base64ImageList.length; i++) {
-            pAll.push(cutomCodeFn(null, base64ImageList[i]));
-          }
-          try {
-            Promise.all(pAll)
-              .then((res) => {
-                let wordsResult: any = [];
-                res.forEach((v) => {
-                  wordsResult = [...wordsResult, ...(v.words_result || [])];
-                });
-                wordsResult = filterWordsResult(wordsResult);
-                setParsedText(wordsResult);
-                setHistoryText(wordsResult);
-                message.success('提取文本成功!');
-              })
-              .catch(() => {
+          let wordsResult: any = [];
+          (async () => {
+            // 避免接口并发
+            for (let i = 0; i < base64ImageList.length; i++) {
+              let res = await cutomCodeFn(null, base64ImageList[i]);
+              if (res.words_result?.length > 0) {
+                wordsResult = [...wordsResult, ...(res.words_result || [])];
+              } else {
                 message.error('提取文本失败!');
-              });
-          } catch (error) {}
+                return false;
+              }
+            }
+            if (wordsResult.length > 0) {
+              wordsResult = filterWordsResult(wordsResult);
+              setParsedText(wordsResult);
+              setHistoryText(wordsResult);
+              message.success('提取文本成功!');
+            }
+          })();
         } else if (values.file.file) {
           const data = await cutomCodeFn(values.file.file, null);
           if (data.words_result?.length > 0) {
