@@ -272,8 +272,18 @@ export function filterBaseCodeByRows(rows: any[], baseCode: any) {
         };
       }
     });
-    // 未匹配项原样输出
+  } else if (typeof baseCode === 'string') {
+    let resultStr = baseCode;
+    rows.forEach((item) => {
+      const regExp = new RegExp(`(?<=label: '${item.description}',\\s*prop: ')[^']+`, 'g');
+      const match = resultStr.match(regExp);
+      if (match) {
+        resultStr = resultStr.replace(match[0], item.name);
+      }
+    });
+    return resultStr;
   }
+  // 未匹配项原样输出
   return baseCode;
 }
 

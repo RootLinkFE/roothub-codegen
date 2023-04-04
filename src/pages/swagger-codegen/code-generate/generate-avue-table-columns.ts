@@ -34,7 +34,8 @@ export default function generateAvueTableColumns(body: any, record?: any, api?: 
   });
   let rows = Array.isArray(body) ? body : record?.children || [];
   if (selectedData?.baseCode) {
-    return prettyJSON(filterBaseCodeByRows(rows, selectedData.baseCode));
+    let code = filterBaseCodeByRows(rows, selectedData.baseCode);
+    return typeof code === 'string' ? code : prettyJSON(code);
   } else if (selectedData?.transformTextArray) {
     rows = filterTransformArrayByRows(rows, selectedData.transformTextArray);
   }

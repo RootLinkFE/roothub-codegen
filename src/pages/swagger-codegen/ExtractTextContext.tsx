@@ -119,7 +119,8 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
         code = codeArr;
       }
     } catch (err) {
-      console.error(err);
+      code = oldCode;
+      console.error(err, code);
     }
     setTransformSate({
       ...transformSate,

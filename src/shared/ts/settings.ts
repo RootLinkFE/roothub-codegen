@@ -26,5 +26,5 @@ export interface TransformSate {
   textArray: string[]; // 最后文本记录数组
   historyArray: TransformSateHistoryArrayItem[]; // 历史文本转换记录
   isBaseCode: boolean; // 是否原始代码
-  baseCode: any[];
+  baseCode: any;
 }

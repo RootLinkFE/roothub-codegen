@@ -185,7 +185,7 @@ export default function useApiSwitchModel() {
     textArray: [], // 最后文本记录数组
     historyArray: [], // 历史文本转换记录
     isBaseCode: false, // 是否原始代码
-    baseCode: [],
+    baseCode: null,
   });
 
   return {
