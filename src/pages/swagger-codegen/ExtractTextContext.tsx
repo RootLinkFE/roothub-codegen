@@ -25,7 +25,6 @@ import { getStringToFn, splitImageToBase64 } from '@/shared/utils';
 import { codeGenerateMethods } from './code-generate/index';
 import { CustomMethodsItem } from '@/shared/ts/custom';
 import TextTransformDropdown from './components/TextTransformDropdown';
-import { spawn } from 'child_process';
 
 const { Option } = Select;
 const { TextArea } = Input;

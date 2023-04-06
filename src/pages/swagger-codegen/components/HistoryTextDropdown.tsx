@@ -28,8 +28,8 @@ const HistoryTextDropdown: React.FC<{ onChange: (key: string) => void }> = (prop
           const key = JSON.stringify(text);
           return {
             label: (
-              <Row justify="space-between" align="middle">
-                <span>{key}</span>
+              <Row justify="space-between" align="middle" style={{ maxWidth: '800px' }}>
+                <span title={key}>{key}</span>
                 <CloseOutlined
                   className="dropdown-menu-item-icon"
                   title="删除"

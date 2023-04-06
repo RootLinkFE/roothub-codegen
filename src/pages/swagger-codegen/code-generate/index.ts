@@ -24,6 +24,8 @@ import {
   textCodeGenOptions,
   textCodeGenAvueColumns,
   textCodeGenReactTable,
+  textCodeGenAvueFormColumns,
+  textCodeGenElementTable,
 } from './generate-text-code-gen';
 
 import generateExtractBaiduOcrapi from './generate-extract-baidu-ocrapi';
@@ -74,6 +76,26 @@ export const codeGenerateMethods = [
     function: textCodeGenReactTable,
   },
   {
+    key: 'AvueFormColumns',
+    label: 'AvueFormColumns',
+    type: 'text',
+    source: 'root',
+    status: 1,
+    sort: 98,
+    language: 'typescript',
+    function: textCodeGenAvueFormColumns,
+  },
+  {
+    key: 'ElementTable',
+    label: 'ElementTable',
+    type: 'text',
+    source: 'root',
+    status: 1,
+    sort: 99,
+    language: 'typescript',
+    function: textCodeGenElementTable,
+  },
+  {
     key: 'list',
     label: 'list',
     type: 'text',
@@ -85,7 +107,7 @@ export const codeGenerateMethods = [
   },
   {
     key: 'ExtractBaiduOcrapi',
-    label: 'ExtractBaiduOcrapi', // 百度通用文字识别
+    label: '百度高精度文字识别', // 百度通用文字识别
     type: 'extract',
     source: 'root',
     status: 1,

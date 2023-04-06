@@ -14,7 +14,7 @@ import {
 export default function generateAvueTableColumns(body: any, record?: any, api?: any, selectedData?: any) {
   const TypeMap: Record<string, string> = {
     integer: 'number',
-    string: 'input',
+    // string: 'input',
   };
 
   function getFieldType(prop: any): string {
@@ -25,7 +25,7 @@ export default function generateAvueTableColumns(body: any, record?: any, api?: 
     if (type === 'string' && format === 'date-time') {
       return 'datetime';
     }
-    return `${TypeMap[type] || prop.type}`;
+    return TypeMap[type] || (prop.type === 'string' ? null : prop.type);
   }
 
   const parametersSet = new Set();
@@ -49,6 +49,9 @@ export default function generateAvueTableColumns(body: any, record?: any, api?: 
       overHidden: true,
       type,
     };
+    if (type) {
+      result.type = type;
+    }
     const item = parametersSet.has(row.name);
     if (item) {
       result.search = true;

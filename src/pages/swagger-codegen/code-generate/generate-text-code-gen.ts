@@ -4,6 +4,7 @@
  * @Description: generate-text-code-gen
  */
 import { prettyJSON, isChinese } from '@/shared/utils';
+import generateAvueFormColumns from './generate-avue-form-columns';
 
 // 原数组
 export const textCodeGenList = (textArray: any[]) => {
@@ -57,4 +58,34 @@ export const textCodeGenReactTable = (textArray: any[]) => {
     });
   });
   return prettyJSON(columns);
+};
+
+// AvueFormColumns
+export const textCodeGenAvueFormColumns = (textArray: any[]) => {
+  const rows: any = textArray.map((text, i) => ({
+    name: isChinese(text) ? `key${i + 1}` : text,
+    description: text,
+    type: 'string',
+  }));
+  return generateAvueFormColumns(rows);
+};
+
+// ElementTable
+export const textCodeGenElementTable = (textArray: any[]) => {
+  const columns: any[] = [];
+  textArray.forEach((text, i) => {
+    let key = isChinese(text) ? `key${i + 1}` : text;
+    let reg = new RegExp(/[a-zA-Z]+/g);
+
+    columns.push(
+      `<el-table-column prop="${key}" label="${text}" width=${
+        reg.test(text) ? (text.length > 16 ? text.length * 7 + 10 : 140) : text.length > 8 ? text.length * 14 + 10 : 140
+      } />`,
+    );
+  });
+  return `
+<el-table :data="tableData" border style="width: 100%">
+  ${prettyJSON(columns)}
+</el-table>
+  `;
 };
