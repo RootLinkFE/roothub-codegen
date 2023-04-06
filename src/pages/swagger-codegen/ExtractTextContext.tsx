@@ -25,6 +25,7 @@ import { getStringToFn, splitImageToBase64 } from '@/shared/utils';
 import { codeGenerateMethods } from './code-generate/index';
 import { CustomMethodsItem } from '@/shared/ts/custom';
 import TextTransformDropdown from './components/TextTransformDropdown';
+import { spawn } from 'child_process';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -389,34 +390,38 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
               </Upload>
             </Form.Item>
           </Col>
-          <Col span={6}>
-            <Form.Item
-              label="图片类型"
-              name="filetype"
-              labelCol={{ span: 8 }}
-              rules={[{ required: true, message: '请选择图片类型' }]}
-            >
-              <Select style={{ width: '150px' }}>
-                {ImageTypes.map((v: string) => {
-                  return (
-                    <Option value={v} key={v}>
-                      {v}
-                    </Option>
-                  );
-                })}
-              </Select>
-            </Form.Item>
-          </Col>
-          <Col span={6}>
-            <Form.Item
-              label="识别语言"
-              name="language"
-              labelCol={{ span: 8 }}
-              rules={[{ required: true, message: '请选择识别语言' }]}
-            >
-              <Select style={{ width: '150px' }} options={languageOptions}></Select>
-            </Form.Item>
-          </Col>
+          {curState.extractType === 'ocrapi' ? (
+            <>
+              <Col span={6}>
+                <Form.Item
+                  label="图片类型"
+                  name="filetype"
+                  labelCol={{ span: 8 }}
+                  rules={[{ required: true, message: '请选择图片类型' }]}
+                >
+                  <Select style={{ width: '150px' }}>
+                    {ImageTypes.map((v: string) => {
+                      return (
+                        <Option value={v} key={v}>
+                          {v}
+                        </Option>
+                      );
+                    })}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={6}>
+                <Form.Item
+                  label="识别语言"
+                  name="language"
+                  labelCol={{ span: 8 }}
+                  rules={[{ required: true, message: '请选择识别语言' }]}
+                >
+                  <Select style={{ width: '150px' }} options={languageOptions}></Select>
+                </Form.Item>
+              </Col>
+            </>
+          ) : null}
         </Row>
         <Row>
           <Col span={12}>
@@ -427,10 +432,16 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
                 </Button>
               </Row>
               <Text type="secondary">
-                default: 提取方法来源
-                <a href="https://ocr.space/OCRAPI#PostParameters" target="_blank">
-                  ORCAPI
-                </a>
+                提取方法API来源
+                {curState.extractType === 'ExtractBaiduOcrapi' ? (
+                  <a href="https://ai.baidu.com/ai-doc/OCR/1k3h7y3db" target="_blank">
+                    通用文字识别（高精度版）api
+                  </a>
+                ) : (
+                  <a href="https://ocr.space/OCRAPI#PostParameters" target="_blank">
+                    ORCAPI
+                  </a>
+                )}
               </Text>
             </Form.Item>
           </Col>
@@ -439,9 +450,7 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
               <Select options={extractTypeOptions} style={{ width: '88%' }}></Select>
             </Form.Item>
             <Row>
-              <Text type="secondary">
-                设置不同的提取方法，调用对应自定义方法（首页-设置-设置自定义方法），默认方法除外
-              </Text>
+              <Text type="secondary">设置不同的提取方法，调用对应自定义方法（首页-设置-设置自定义方法）</Text>
             </Row>
           </Col>
         </Row>
@@ -460,7 +469,6 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
         </span>
       </h2>
       <div>
-        <Text type="secondary">提取文本后得到文本内容</Text>
         <Form
           name="basic"
           form={textForm}
@@ -470,9 +478,27 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
           }}
           autoComplete="off"
         >
-          <Form.Item label="原始文本" wrapperCol={{ span: 20 }} name="originalText">
-            <TextArea />
-          </Form.Item>
+          <Row>
+            <Col span={22}>
+              <Form.Item
+                label={<span title="提取文本后得到文本内容">原始文本</span>}
+                labelCol={{ span: 2 }}
+                name="originalText"
+              >
+                <TextArea />
+              </Form.Item>
+            </Col>
+            <Col span={2}>
+              <Button
+                type="link"
+                onClick={() => {
+                  setParsedText(textForm.getFieldValue('parsedText'));
+                }}
+              >
+                还原
+              </Button>
+            </Col>
+          </Row>
           <Row>
             <Col span={22}>
               <Form.Item

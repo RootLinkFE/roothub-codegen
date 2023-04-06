@@ -5,7 +5,7 @@ import storage from '../shared/storage';
 // url历史记录获取
 const storageUrls: string[] = storage.get('storageUrls') ?? [];
 // 默认提取方法
-const storageExtractType: string = storage.get('storageExtractType') ?? 'ocrapi';
+const storageExtractType: string = storage.get('storageExtractType') ?? 'ExtractBaiduOcrapi';
 // 历史文本转换记录
 const storageHistoryTexts: string[] = storage.get('storageHistoryTexts') ?? [];
 
