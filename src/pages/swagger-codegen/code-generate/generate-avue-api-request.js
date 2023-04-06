@@ -6,8 +6,13 @@ function generateApiDefineition(apiData, prefix) {
   const utilsFn = window.utilsFn ?? {};
 
   const apiMatch = api.match(/[a-zA-Z0-9]*$/);
+  const apiMatchName = apiMatch?.length > 0 ? apiMatch[0] : '';
+  const preReg = new RegExp(`^${method}`);
   // window.lodash
-  const name = apiMatch && apiMatch.length > 0 ? lodash.camelCase(`${method} ${apiMatch[0]}`) : lodash.camelCase(api);
+  const name =
+    apiMatch && apiMatch.length > 0
+      ? lodash.camelCase(`${preReg.test(apiMatchName) ? '' : method} ${apiMatchName}`)
+      : lodash.camelCase(api);
   let apiParams = 'params';
   let apiPath = prefix + api;
   const apiStrReg = /\{([\d\D]*)\}/g;

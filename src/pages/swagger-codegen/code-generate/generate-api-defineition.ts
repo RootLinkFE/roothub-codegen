@@ -9,8 +9,13 @@ import generateApiNotes from './generate-api-notes';
 
 export default function generateApiDefineition(apiData: pathsItem & { requestParams: any }, prefix: string = '') {
   const { api, method, parameters } = apiData;
-  const apiMatch = api.match(/[a-zA-Z0-9]*$/);
-  const name = apiMatch && apiMatch.length > 0 ? camelCase(`${method} ${apiMatch[0]}`) : camelCase(api);
+  const apiMatch: any = api.match(/[a-zA-Z0-9]*$/);
+  const apiMatchName = apiMatch?.length > 0 ? apiMatch[0] : '';
+  const preReg = new RegExp(`^${method}`);
+  const name =
+    apiMatch && apiMatch.length > 0
+      ? camelCase(`${preReg.test(apiMatchName) ? '' : method} ${apiMatchName}`)
+      : camelCase(api);
   let apiParams = 'params';
   let apiPath = prefix + api;
   const apiStrReg = /\{([\d\D]*)\}/g;
