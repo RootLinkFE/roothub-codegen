@@ -249,9 +249,6 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
               let res = await cutomCodeFn(null, base64ImageList[i]);
               if (res.words_result?.length > 0) {
                 wordsResult = [...wordsResult, ...(res.words_result || [])];
-              } else {
-                message.error('提取文本失败!');
-                return false;
               }
             }
             if (wordsResult.length > 0) {
@@ -259,6 +256,9 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
               setParsedText(wordsResult);
               setHistoryText(wordsResult);
               message.success('提取文本成功!');
+            } else {
+              message.error('提取文本失败!');
+              return false;
             }
           })();
         } else if (values.file.file) {

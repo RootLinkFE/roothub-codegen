@@ -350,6 +350,10 @@ export const splitImageToBase64 = function (file: any) {
             let x = i * splitWidth;
             let y = 0;
             let w = i === splitCount - 1 ? imgWidth - x : splitWidth;
+            if (w < 10) {
+              // 边界宽度不解析
+              continue;
+            }
             let h = imgHeight;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(oImg, x, y, w, h, 0, 0, w, h);
