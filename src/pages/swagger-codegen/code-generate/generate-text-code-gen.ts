@@ -3,7 +3,7 @@
  * @Date: 2023-02-03 14:46:27
  * @Description: generate-text-code-gen
  */
-import { prettyJSON, isChinese } from '@/shared/utils';
+import { prettyJSON, isChinese, indexOfArray } from '@/shared/utils';
 import generateAvueFormColumns from './generate-avue-form-columns';
 
 // 原数组
@@ -88,4 +88,50 @@ export const textCodeGenElementTable = (textArray: any[]) => {
   ${prettyJSON(columns)}
 </el-table>
   `;
+};
+
+// AvueSearchColumns
+export const textCodeGenAvueSearchColumns = (textArray: any[]) => {
+  const rows: any = textArray.map((text, i) => {
+    let result: any = {
+      prop: isChinese(text) ? `key${i + 1}` : text,
+      label: text,
+      placeholder: '请输入',
+      searchOrder: (textArray.length - i) * 10,
+    };
+    if (indexOfArray(text, ['状态', '类型', 'status'])) {
+      result.type = 'select';
+      result.dicUrl = '';
+      result.dicData = [
+        { label: '启用', value: 0 },
+        { label: '停用', value: 1 },
+      ];
+      result.placeholder = '请选择';
+    } else if (text.indexOf('是否') !== -1) {
+      result.type = 'select';
+      result.dicData = [
+        { label: '是', value: 0 },
+        { label: '否', value: 1 },
+      ];
+      result.placeholder = '请选择';
+    } else if (indexOfArray(text, ['时间', 'datetime'])) {
+      result.type = 'datetime';
+      result.format = 'YYYY-MM-DD HH:mm:ss';
+      result.valueFormat = 'YYYY-MM-DD HH:mm:ss';
+      result.placeholder = '请选择';
+    } else if (indexOfArray(text, ['日期', 'date'])) {
+      result.type = 'date';
+      result.format = 'YYYY-MM-DD';
+      result.valueFormat = 'YYYY-MM-DD';
+      result.placeholder = '请选择';
+    } else if (indexOfArray(text, ['月份', 'month'])) {
+      result.type = 'month';
+      result.format = 'YYYY-MM';
+      result.valueFormat = 'YYYY-MM';
+      result.placeholder = '请选择';
+    }
+
+    return result;
+  });
+  return prettyJSON(rows);
 };

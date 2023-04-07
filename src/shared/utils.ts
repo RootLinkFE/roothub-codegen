@@ -81,6 +81,21 @@ export function classifyPathsToTags(tags: any[], pathObj: object) {
 }
 
 /**
+ * @description: text 模糊匹配数组项
+ * @param {string} text
+ * @param {string[]} arr
+ * @return {boolean}
+ */
+export const indexOfArray = (text: string, arr: string[]) => {
+  for (let i = 0; i < arr.length; i++) {
+    if (text.indexOf(arr[i]) !== -1) {
+      return true;
+    }
+  }
+  return false;
+};
+
+/**
  * @description: 字符串函数转换成js函数
  * @param {string} val
  * @return {*}
