@@ -169,11 +169,12 @@ export function dataSaveToJSON(data: any, filename: string = 'openapi') {
 
 /**
  * @description: 对比两个数组，获取rows中description的与transformArray相近内容，返回数组
- * @param {any[]} rows
+ * @param {any[]} list
  * @param {string[]} transformArray
  * @return {any[]}
  */
-export function filterTransformArrayByRows(rows: any[], transformArray: string[]) {
+export function filterTransformArrayByRows(list: any[], transformArray: string[]) {
+  const rows = replaceDescriptionByRows(list);
   const result: any = [];
   const resultArr: any[] = [];
   resultArr.length = transformArray.length;
@@ -254,12 +255,27 @@ export function strRepeat(preStr: string, nextStr: string): string {
 }
 
 /**
- * @description: 原始代码与响应参数匹配字段后返回
+ * @description: description集中处理#
  * @param {any} rows
- * @param {any} baseCode
- * @return {*}
+ * @return {any}rows
  */
-export function filterBaseCodeByRows(rows: any[], baseCode: any) {
+const replaceDescriptionByRows = (rows: any[]) => {
+  return rows.map((row) => {
+    return {
+      ...row,
+      description: row.description.replace(/#/g, ''),
+    };
+  });
+};
+
+/**
+ * @description: 原始代码与响应参数匹配字段后返回
+ * @param {any} list
+ * @param {any} baseCode
+ * @return {string}
+ */
+export function filterBaseCodeByRows(list: any[], baseCode: any) {
+  const rows = replaceDescriptionByRows(list);
   if (Array.isArray(baseCode)) {
     const nextArr: { i: number; codeItem: any }[] = []; // baseCode未比对部分
     const labelField = 'label';
@@ -271,7 +287,6 @@ export function filterBaseCodeByRows(rows: any[], baseCode: any) {
           (v.description === codeItem[labelField] || v.description.indexOf(codeItem[labelField]) !== -1)
         );
       });
-
       if (item) {
         codeItem.prop = item.name;
       } else {
@@ -288,18 +303,74 @@ export function filterBaseCodeByRows(rows: any[], baseCode: any) {
       }
     });
   } else if (typeof baseCode === 'string') {
-    let resultStr = baseCode;
-    rows.forEach((item) => {
-      const regExp = new RegExp(`(?<=label: '${item.description}',\\s*prop: ')[^']+`, 'g');
-      const match = resultStr.match(regExp);
-      if (match) {
-        resultStr = resultStr.replace(match[0], item.name);
+    const splitReg = '},';
+    const splitCodes = baseCode.split(splitReg);
+    const baseCodeList = splitCodes.map((code, index) => {
+      return {
+        isMatch: /(?=.*prop:)(?=.*label:)/s.test(code),
+        // /label:/.test(code) && /prop:/.test(code),
+        code: code + (index !== splitCodes.length - 1 ? splitReg : ''),
+      };
+    });
+
+    const newCodeList: string[] = baseCodeList.map((codeItem) => {
+      if (codeItem.isMatch) {
+        return matchCodeByName(codeItem.code, rows);
+      } else {
+        return codeItem.code;
       }
     });
-    return resultStr;
+    return newCodeList.join('');
   }
   // 未匹配项原样输出
   return baseCode;
+}
+
+/**
+ * @description: 字符串匹配替换；寻找出代码字符串中的label值，并与
+ * @param {string} codeStr
+ * @param {any} rows
+ * @return {string}
+ */
+const matchCodeByName = (codeStr: string, rows: any) => {
+  // 提取label的值
+  const labelReg = /label:\s*['"](.+?)['"]/;
+  const labelMatch = codeStr.match(labelReg);
+  let labelText = '';
+  if (!labelMatch) {
+    return codeStr;
+  } else {
+    labelText = labelMatch[1];
+  }
+  for (let i = 0; i < rows.length; i++) {
+    const item = rows[i];
+    if (item.description === labelText) {
+      // 相等匹配，替换返回
+      return replacePropValue(codeStr, item.name);
+    }
+  }
+  let item = filterStrRepeat(rows, labelText);
+  if (item) {
+    // 非等量匹配下，找到与label匹配的子项，替换返回
+    return replacePropValue(codeStr, item.name);
+  }
+  return codeStr;
+};
+
+/**
+ * @description: 将value与代码中的prop值替换并返回
+ * @param {string} codeStr
+ * @param {string} value
+ * @return {string}
+ */
+function replacePropValue(codeStr: string, value: string) {
+  // 匹配prop的值并替换
+  const propReg = /(prop:\s*['"])(.+?)(['"])/;
+  const propMatch = codeStr.match(propReg);
+  if (!propMatch) {
+    return codeStr;
+  }
+  return codeStr.replace(propReg, `$1${value}$3`);
 }
 
 /**
