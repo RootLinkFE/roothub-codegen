@@ -4,18 +4,12 @@
  * @Description: api声明生成方法
  */
 import { pathsItem } from '@/shared/ts/api-interface';
-import { camelCase } from 'lodash';
 import generateApiNotes from './generate-api-notes';
+import generateApiConstName from './generate-api-const-name';
 
 export default function generateApiDefineition(apiData: pathsItem & { requestParams: any }, prefix: string = '') {
   const { api, method, parameters } = apiData;
-  const apiMatch: any = api.match(/[a-zA-Z0-9]*$/);
-  const apiMatchName = apiMatch?.length > 0 ? apiMatch[0] : '';
-  const preReg = new RegExp(`^${method}`);
-  const name =
-    apiMatch && apiMatch.length > 0
-      ? camelCase(`${preReg.test(apiMatchName) ? '' : method} ${apiMatchName}`)
-      : camelCase(api);
+  const name = generateApiConstName(apiData) ?? method;
   let apiParams = 'params';
   let apiPath = prefix + api;
   const apiStrReg = /\{([\d\D]*)\}/g;
