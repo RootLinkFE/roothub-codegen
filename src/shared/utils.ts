@@ -263,7 +263,7 @@ const replaceDescriptionByRows = (rows: any[]) => {
   return rows.map((row) => {
     return {
       ...row,
-      description: row.description.replace(/#/g, ''),
+      description: row.description ? row.description.replace(/#/g, '') : '',
     };
   });
 };
