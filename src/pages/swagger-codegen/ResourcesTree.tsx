@@ -4,7 +4,7 @@
  * @Description: 侧边菜单
  */
 import { Col, Select, Menu, MenuProps, Input, Row, Spin, Button, Badge } from 'antd';
-import { DownloadOutlined } from '@ant-design/icons';
+import { DownloadOutlined, ReloadOutlined } from '@ant-design/icons';
 import React, { useCallback, useState } from 'react';
 import { useMemo } from 'react';
 import { useModel } from 'umi';
@@ -39,6 +39,7 @@ const ResourcesTree: React.FC<{ labelKey: string } & MenuProps> = ({ labelKey })
     selectedResourceIndex,
     setSelectedResourceIndex,
     selectedResource,
+    fetchSelectedResource,
     resources,
     resourceDetail,
     resourceDetailLoading,
@@ -171,27 +172,40 @@ const ResourcesTree: React.FC<{ labelKey: string } & MenuProps> = ({ labelKey })
             <div style={{ flex: 1 }}>
               <Search placeholder="搜索接口（名称、api）" allowClear enterButton onSearch={onSearch} />
             </div>
-            {resourceDetail && (
+            <Button
+              type="text"
+              size="small"
+              title="下载openapi.json"
+              disabled={resourceDetailLoading}
+              onClick={() => {
+                dataSaveToJSON(resourceDetail, selectedResource?.name || urlValue);
+              }}
+            >
+              <DownloadOutlined />
+            </Button>
+          </Row>
+          {type === 'api' && (
+            <Row align="middle">
+              <Select
+                value={selectedResourceIndex}
+                onSelect={setSelectedResourceIndex}
+                className="docs-select"
+                options={resources}
+                fieldNames={{ label: 'name', value: 'location' }}
+                style={{ flex: 1 }}
+              ></Select>
               <Button
                 type="text"
                 size="small"
-                title="下载openapi.json"
+                title="刷新"
+                disabled={resourceDetailLoading}
                 onClick={() => {
-                  dataSaveToJSON(resourceDetail, selectedResource?.name || urlValue);
+                  fetchSelectedResource();
                 }}
               >
-                <DownloadOutlined />
+                <ReloadOutlined />
               </Button>
-            )}
-          </Row>
-          {type === 'api' && (
-            <Select
-              value={selectedResourceIndex}
-              onSelect={setSelectedResourceIndex}
-              className="docs-select"
-              options={resources}
-              fieldNames={{ label: 'name', value: 'location' }}
-            ></Select>
+            </Row>
           )}
         </div>
         {resourceDetailLoading ? (
