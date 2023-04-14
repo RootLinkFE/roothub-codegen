@@ -12,6 +12,7 @@ import { pathsItem } from '@/shared/ts/api-interface';
  */
 export default function generateNotes(apiData: pathsItem & { requestParams: any }) {
   const { summary, requestParams } = apiData;
+  console.log(apiData);
   function forEachParam(list: any[], params: string[], parentName?: string) {
     const FieldTypeMap: Record<string, string> = {
       integer: 'number',
@@ -20,18 +21,25 @@ export default function generateNotes(apiData: pathsItem & { requestParams: any 
     };
 
     list.forEach((row: any) => {
-      params.push(
-        `* @param {${FieldTypeMap[row.type] || row.type}} ${parentName ? `${parentName}.` : ''}${row.name || ''} ${
-          row.description || ''
-        }`,
-      );
-      if (row.children && row.children.length > 0) {
-        forEachParam(row.children, params, row.name);
+      if (row.in === 'body') {
+        if (row.children && row.children.length > 0) {
+          forEachParam(row.children, params);
+        }
+      } else {
+        params.push(
+          `* @param {${FieldTypeMap[row.type] || row.type}} ${parentName ? `${parentName}.` : ''}${row.name || ''} ${
+            row.description || ''
+          }`,
+        );
+        if (row.children && row.children.length > 0) {
+          forEachParam(row.children, params, row.name);
+        }
       }
     });
   }
   const params: any[] = [];
-  forEachParam(requestParams || [], params);
+
+  forEachParam(requestParams?.length === 1 ? requestParams[0].children || [] : requestParams || [], params);
 
   return `/**
  * @description: ${summary}
