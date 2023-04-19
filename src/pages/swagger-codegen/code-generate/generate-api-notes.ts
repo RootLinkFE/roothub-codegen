@@ -12,7 +12,6 @@ import { pathsItem } from '@/shared/ts/api-interface';
  */
 export default function generateNotes(apiData: pathsItem & { requestParams: any }) {
   const { summary, requestParams } = apiData;
-  console.log(apiData);
   function forEachParam(list: any[], params: string[], parentName?: string) {
     const FieldTypeMap: Record<string, string> = {
       integer: 'number',

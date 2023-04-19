@@ -7,7 +7,7 @@
  * avue-api-request
  */
 function generateApiDefineition(apiData, prefix) {
-  const { api, method, parameters } = apiData;
+  const { api, method, parameters, summary } = apiData;
   const utilsFn = window.utilsFn ?? {};
   // window.lodash
   const name = utilsFn.generateApiConstName(apiData) ?? method;
@@ -36,7 +36,7 @@ function generateApiDefineition(apiData, prefix) {
   }
 
   let packTableData = '';
-  if (/(page|list)$/.test(api)) {
+  if (/(page|list)$/.test(api) || /列表|分页/.test(summary)) {
     packTableData = '.then(packTableData)';
   }
 
