@@ -14,6 +14,7 @@ import generateAvueTableColumns from './avue/generate-avue-table-columns';
 import generateAvueTablePageCode from './avue/generate-avue-table';
 import generateAvueFormColumns from './avue/generate-avue-form-columns';
 import generateAvueFormCode from './avue/generate-avue-form';
+import generatAvueColumnsTranscoding from './avue/generate-avue-columns-transcoding';
 
 import generateTableColumnsProps from './generate-table-columns-props';
 import generateModelFormItemsCode from './generate-model-form-items-code';
@@ -167,6 +168,16 @@ export const codeGenerateMethods = [
     function: generateAvueTableColumns,
   },
   {
+    key: 'avue-table-columns-transcoding',
+    label: 'avue-table-columns-transcoding',
+    type: 'model',
+    source: 'root',
+    status: 1,
+    sort: 95,
+    language: 'vue',
+    function: generatAvueColumnsTranscoding,
+  },
+  {
     key: 'avue-table',
     label: 'avue-table',
     type: 'response',
@@ -195,6 +206,16 @@ export const codeGenerateMethods = [
     sort: 94,
     language: 'vue',
     function: generateAvueFormColumns,
+  },
+  {
+    key: 'avue-form-columns-transcoding',
+    label: 'avue-form-columns-transcoding',
+    type: 'request',
+    source: 'root',
+    status: 1,
+    sort: 95,
+    language: 'vue',
+    function: generatAvueColumnsTranscoding,
   },
   {
     key: 'avue-form-request',

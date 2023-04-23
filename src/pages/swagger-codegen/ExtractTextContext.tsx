@@ -347,13 +347,6 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
     });
   };
 
-  const onIsBaseCodeChange = (checked: boolean) => {
-    setTransformSate({
-      ...transformSate,
-      isBaseCode: checked,
-    });
-  };
-
   const itemCol = {
     labelCol: { span: 4 },
     wrapperCol: { span: 20 },
@@ -528,18 +521,9 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
           <Row>
             <Col span={2}></Col>
             <Col span={22}>
-              <Button type="link" onClick={matchTextChange}>
+              <Button type="primary" title="代码匹配接口文档" onClick={matchTextChange}>
                 匹配
               </Button>
-              <span style={{ marginLeft: '16px', fontSize: '14px' }}>
-                <Switch
-                  defaultChecked={transformSate.isBaseCode}
-                  size="small"
-                  onChange={onIsBaseCodeChange}
-                  style={{ marginRight: '8px' }}
-                />
-                代码生成是否关联原始代码数组
-              </span>
             </Col>
           </Row>
         </Form>

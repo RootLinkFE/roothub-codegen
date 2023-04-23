@@ -64,9 +64,22 @@ export function transcodingByRows(list: any[], baseCode: any) {
   return baseCode;
 }
 
-export default function avueColumnTranscoding(body: any, record?: any, selectedData?: any) {
-  let rows = Array.isArray(body) ? body : record?.children || [];
+export default function avueColumnTranscoding(body: any, record?: any, api?: any, selectedData?: any) {
+  let baseCode = '';
+  let rows = [];
 
-  let code = transcodingByRows(rows, selectedData.baseCode);
+  if (Object.prototype.toString.call(body) === '[object Object]') {
+    baseCode = body.baseCode;
+    rows = body?.requestSelectedData;
+  } else if (selectedData?.baseCode) {
+    baseCode = selectedData.baseCode;
+  } else if (record?.children) {
+    rows = record.children;
+  }
+  if (baseCode === '' || baseCode === undefined || baseCode === null) {
+    return 'no base code';
+  }
+
+  let code = transcodingByRows(rows, baseCode);
   return typeof code === 'string' ? code : prettyJSON(code);
 }

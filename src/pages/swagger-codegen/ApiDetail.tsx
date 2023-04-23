@@ -189,7 +189,7 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
               resourceDetail,
               transformTextArray:
                 transformSate.status && transformSate.textArray.length > 0 ? transformSate.textArray : null,
-              baseCode: transformSate.isBaseCode && transformSate.baseCode,
+              baseCode: transformSate.baseCode,
             },
             selectedApi,
           ),
