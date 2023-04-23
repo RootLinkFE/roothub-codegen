@@ -3,7 +3,7 @@
  * @Date: 2022-07-14 17:19:48
  * @Description: generateAvueTableColumns
  */
-import generateTableColumnsProps from './generate-table-columns-props';
+import generateTableColumnsProps from '../generate-table-columns-props';
 import {
   cleanParameterDescription,
   filterTransformArrayByRows,

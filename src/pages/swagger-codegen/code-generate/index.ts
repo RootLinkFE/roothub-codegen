@@ -8,12 +8,12 @@ import generateApiDefineition from './generate-api-defineition';
 import generateModelClass from './generate-model-class';
 import generateTypeScriptType from './generate-typescript-type';
 import generateRhTablePageCode from './generate-rhtable-page';
-import generateAvueProTablePageCode from './generate-avue-pro-table';
+import generateAvueProTablePageCode from './avue/generate-avue-pro-table';
 
-import generateAvueTableColumns from './generate-avue-table-columns';
-import generateAvueTablePageCode from './generate-avue-table';
-import generateAvueFormColumns from './generate-avue-form-columns';
-import generateAvueFormCode from './generate-avue-form';
+import generateAvueTableColumns from './avue/generate-avue-table-columns';
+import generateAvueTablePageCode from './avue/generate-avue-table';
+import generateAvueFormColumns from './avue/generate-avue-form-columns';
+import generateAvueFormCode from './avue/generate-avue-form';
 
 import generateTableColumnsProps from './generate-table-columns-props';
 import generateModelFormItemsCode from './generate-model-form-items-code';

@@ -259,7 +259,7 @@ export function strRepeat(preStr: string, nextStr: string): string {
  * @param {any} rows
  * @return {any}rows
  */
-const replaceDescriptionByRows = (rows: any[]) => {
+export const replaceDescriptionByRows = (rows: any[]) => {
   return rows.map((row) => {
     return {
       ...row,
@@ -332,7 +332,7 @@ export function filterBaseCodeByRows(list: any[], baseCode: any) {
  * @param {any} rows
  * @return {string}
  */
-const matchCodeByName = (codeStr: string, rows: any) => {
+export const matchCodeByName = (codeStr: string, rows: any) => {
   // 提取label的值
   const labelReg = /label:\s*['"](.+?)['"]/;
   const labelMatch = codeStr.match(labelReg);
@@ -363,7 +363,7 @@ const matchCodeByName = (codeStr: string, rows: any) => {
  * @param {string} value
  * @return {string}
  */
-function replacePropValue(codeStr: string, value: string) {
+export function replacePropValue(codeStr: string, value: string) {
   // 匹配prop的值并替换
   const propReg = /(prop:\s*['"])(.+?)(['"])/;
   const propMatch = codeStr.match(propReg);

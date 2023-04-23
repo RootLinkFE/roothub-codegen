@@ -4,7 +4,7 @@
  * @Description: generate-text-code-gen
  */
 import { prettyJSON, isChinese, indexOfArray } from '@/shared/utils';
-import generateAvueFormColumns from './generate-avue-form-columns';
+import generateAvueFormColumns from './avue/generate-avue-form-columns';
 
 // 原数组
 export const textCodeGenList = (textArray: any[]) => {

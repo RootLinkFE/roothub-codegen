@@ -3,7 +3,7 @@
  * @Date: 2022-07-26 16:18:42
  * @Description: generateAvueSearchColumns
  */
-import generateTableColumnsProps from './generate-table-columns-props';
+import generateTableColumnsProps from '../generate-table-columns-props';
 import { cleanParameterDescription } from '@/shared/utils';
 
 export default function generateAvueSearchColumns(body: any, record?: any, option?: any) {

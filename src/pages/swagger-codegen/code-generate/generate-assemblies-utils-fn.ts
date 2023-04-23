@@ -10,7 +10,7 @@ import getApiNameAsPageName from '@/shared/getApiNameAsPageName';
 import { prettyCode, filterTransformArrayByRows } from '@/shared/utils';
 import generateTableColumnsProps from './generate-table-columns-props';
 import { cleanParameterDescription, filetoBase64 } from '@/shared/utils';
-import generateAvueTableColumns from './generate-avue-table-columns';
+import generateAvueTableColumns from './avue/generate-avue-table-columns';
 
 export default {
   axios,
