@@ -187,8 +187,8 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
                   ? flatChildren(responseParamsData)
                   : selectedResponseRowRef.current,
               resourceDetail,
-              transformTextArray:
-                transformSate.status && transformSate.textArray.length > 0 ? transformSate.textArray : null,
+              transformTextRecord:
+                transformSate.status && transformSate.textRecord?.length > 0 ? transformSate.textRecord : null,
               baseCode: transformSate.baseCode,
             },
             selectedApi,

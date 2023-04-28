@@ -3,56 +3,144 @@
  * @Date: 2023-02-03 10:23:22
  * @Description: HistoryTextDropdown
  */
-import { Row, Dropdown, Menu } from 'antd';
+import { Row, Dropdown, Menu, Popover, Button, Table } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import state from '@/stores/index';
 import { observer } from 'mobx-react-lite';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import type { ColumnsType } from 'antd/es/table';
+import { filterSplitTextTowords } from '@/shared/utils';
+import { uniqueId } from 'lodash';
+import { HistoryItem } from '@/shared/common';
 
-const HistoryTextDropdown: React.FC<{ onChange: (key: string) => void }> = (props) => {
+const HistoryTextDropdown: React.FC<{ onChange: (type: string, key: any) => void }> = (props) => {
   const { onChange } = props;
   const swaggerStore = state.swagger;
   const { historyTexts } = state.swagger;
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
-  const handleDelete = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>, i: number) => {
-    e.stopPropagation();
+  const columns: ColumnsType<any> = [
+    {
+      title: '文本',
+      key: 'content',
+      dataIndex: 'content',
+      render: (value) => {
+        return JSON.stringify(value);
+      },
+      width: 650,
+    },
+    {
+      title: '操作',
+      key: 'operation',
+      fixed: 'right',
+      width: 220,
+      render: (value, row, index) => (
+        <>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              handleClick('select', row, index);
+            }}
+          >
+            选择
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            title="文本拼接"
+            onClick={() => {
+              handleClick('join', row, index);
+            }}
+          >
+            拼接
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            title="设置搜索项"
+            onClick={() => {
+              handleClick('setting', row, index);
+            }}
+          >
+            设置
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            danger
+            onClick={() => {
+              handleClick('delete', row, index);
+            }}
+          >
+            删除
+          </Button>
+        </>
+      ),
+    },
+  ];
+
+  const handleClick = (t: string, row: any, index: number) => {
+    if (t === 'select') {
+      onChange('text', row.content);
+    } else if (t === 'join') {
+      // 拼接文本
+      const orderRows = concatOrderRows(row.id);
+      const record: HistoryItem = {
+        id: uniqueId('history_text_'),
+        content: [...row.content, ...orderRows],
+      };
+      swaggerStore.setHistoryTexts([record, ...historyTexts]);
+    } else if (t === 'setting') {
+      onChange(
+        'searchColumn',
+        JSON.stringify({
+          search: row.content.map((v: any) => v.words),
+          column: concatOrderRows(row.id).map((v: any) => v.words),
+        }),
+      );
+    } else if (t === 'delete') {
+      handleDelete(row, index);
+    }
+    setSelectedRowKeys([]);
+  };
+
+  const concatOrderRows = (currentId: string) => {
+    let orderRows: any = [];
+    selectedRowKeys.forEach((v) => {
+      const item = historyTexts.find((o) => v === o.id && v !== currentId);
+      if (item) {
+        orderRows = [...orderRows, ...filterSplitTextTowords(item.content)];
+      }
+    });
+    return orderRows;
+  };
+
+  const handleDelete = (row: HistoryItem, i: number) => {
     const list = [...historyTexts];
     list.splice(i, 1);
     swaggerStore.setHistoryTexts(list);
   };
 
-  const historyTextMenu = useMemo(() => {
+  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
+    setSelectedRowKeys(newSelectedRowKeys);
+  };
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+  };
+
+  const content = useMemo(() => {
     return (
-      <Menu
-        items={historyTexts.map((text: string, i: number) => {
-          const key = JSON.stringify(text);
-          return {
-            label: (
-              <Row justify="space-between" align="middle" style={{ maxWidth: '800px' }}>
-                <span title={key}>{key}</span>
-                <CloseOutlined
-                  className="dropdown-menu-item-icon"
-                  title="删除"
-                  onClick={(e) => {
-                    handleDelete(e, i);
-                  }}
-                />
-              </Row>
-            ),
-            key,
-          };
-        })}
-        onClick={(event) => {
-          onChange(event.key);
-        }}
-      ></Menu>
+      <Table rowSelection={rowSelection} pagination={false} rowKey="id" columns={columns} dataSource={historyTexts} />
     );
-  }, [historyTexts]);
+  }, [historyTexts, selectedRowKeys]);
 
   return (
-    <Dropdown.Button overlay={historyTextMenu} disabled={historyTexts.length <= 0}>
-      历史文本
-    </Dropdown.Button>
+    <Popover content={content} title="">
+      <Button>历史文本</Button>
+    </Popover>
   );
 };
 

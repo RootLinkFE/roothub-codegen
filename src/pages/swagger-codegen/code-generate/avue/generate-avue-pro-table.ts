@@ -11,9 +11,9 @@ export default function generateAvueProTablePageCode(
   selectedData: any,
   api: { api: string; description: string; summary: string },
 ) {
-  let { responseSelectedData: body, transformTextArray } = selectedData;
-  if (transformTextArray) {
-    body = filterTransformArrayByRows(body, transformTextArray);
+  let { responseSelectedData: body, transformTextRecord } = selectedData;
+  if (transformTextRecord) {
+    body = filterTransformArrayByRows(body, transformTextRecord);
   }
   const columnCode = generateAvueTableColumns(body, {}, api);
   const componentName = getApiNameAsPageName(api.api);

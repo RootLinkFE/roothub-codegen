@@ -182,7 +182,7 @@ export default function useApiSwitchModel() {
   // 文本转换配置
   const [transformSate, setTransformSate] = useState<TransformSate>({
     status: true, // 代码转换关联转换文本
-    textArray: [], // 最后文本记录数组
+    textRecord: [], // 最后文本记录
     historyArray: [], // 历史文本转换记录
     baseCode: null,
   });

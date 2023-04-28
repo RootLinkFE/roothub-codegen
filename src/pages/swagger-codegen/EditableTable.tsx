@@ -1,17 +1,5 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
-import {
-  Form,
-  Input,
-  Row,
-  Card,
-  Button,
-  InputNumber,
-  Select,
-  TreeSelect,
-  message,
-  Popconfirm,
-  Table,
-} from 'antd';
+import { Form, Input, Row, Card, Button, InputNumber, Select, TreeSelect, message, Popconfirm, Table } from 'antd';
 const { Option } = Select;
 
 import { FormInstance } from 'antd/lib/form';
@@ -146,11 +134,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
         )}
       </Form.Item>
     ) : (
-      <div
-        className="editable-cell-value-wrap"
-        style={{ paddingRight: 24 }}
-        onClick={toggleEdit}
-      >
+      <div className="editable-cell-value-wrap" style={{ paddingRight: 24 }} onClick={toggleEdit}>
         {children}
       </div>
     );
@@ -183,10 +167,7 @@ interface EditableTableState {
 
 type ColumnTypes = Exclude<EditableTableProps['columns'], undefined>;
 
-class EditableTable extends React.Component<
-  EditableTableProps,
-  EditableTableState
-> {
+class EditableTable extends React.Component<EditableTableProps, EditableTableState> {
   columns: (ColumnTypes[number] & {
     editable?: boolean;
     type: string;
@@ -247,7 +228,6 @@ class EditableTable extends React.Component<
   };
 
   handleData = () => {
-    console.log(this.state, this.props);
     let requestParameters: any = this.props.requestParameters;
     this.setState({
       dataSource: requestParameters,

@@ -12,10 +12,10 @@ export default function generateRhTablePageCode(
   selectedData: any,
   api: { api: string; description: string; summary: string },
 ) {
-  let { responseSelectedData: body, transformTextArray } = selectedData;
+  let { responseSelectedData: body, transformTextRecord } = selectedData;
 
-  if (transformTextArray) {
-    body = filterTransformArrayByRows(body, transformTextArray);
+  if (transformTextRecord) {
+    body = filterTransformArrayByRows(body, transformTextRecord);
   }
   const columnCode = generateTableColumnsProps(body, true);
 

@@ -36,8 +36,8 @@ export default function generateAvueTableColumns(body: any, record?: any, api?: 
   if (selectedData?.baseCode) {
     let code = filterBaseCodeByRows(rows, selectedData.baseCode);
     return typeof code === 'string' ? code : prettyJSON(code);
-  } else if (selectedData?.transformTextArray) {
-    rows = filterTransformArrayByRows(rows, selectedData.transformTextArray);
+  } else if (selectedData?.transformTextRecord) {
+    rows = filterTransformArrayByRows(rows, selectedData.transformTextRecord);
   }
 
   return generateTableColumnsProps(rows, true, (row, index) => {

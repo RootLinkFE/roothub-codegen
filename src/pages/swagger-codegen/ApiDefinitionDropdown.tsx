@@ -85,7 +85,6 @@ const ApiDefinitionDropdown: React.FC<{
           let resultText = '';
           paths.forEach((m: any) => {
             const curRequestParams = m.requestParams || getRequestParams(m, resourceDetail);
-            console.log(m, curRequestParams);
             resultText +=
               apiFn({ ...m, requestParams: curRequestParams }, prefix) +
               `

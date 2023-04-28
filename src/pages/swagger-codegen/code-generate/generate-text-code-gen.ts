@@ -7,14 +7,14 @@ import { prettyJSON, isChinese, indexOfArray } from '@/shared/utils';
 import generateAvueFormColumns from './avue/generate-avue-form-columns';
 
 // 原数组
-export const textCodeGenList = (textArray: any[]) => {
-  return `${prettyJSON(textArray)}`;
+export const textCodeGenList = (textRecord: any[]) => {
+  return `${prettyJSON(textRecord)}`;
 };
 
 // Options
-export const textCodeGenOptions = (textArray: any[]) => {
+export const textCodeGenOptions = (textRecord: any[]) => {
   const columns: any[] = [];
-  textArray.forEach((text, i) => {
+  textRecord.forEach((text, i) => {
     let key = isChinese(text) ? `value${i + 1}` : text;
     columns.push({
       label: text,
@@ -25,10 +25,10 @@ export const textCodeGenOptions = (textArray: any[]) => {
 };
 
 // AvueColumns
-export const textCodeGenAvueColumns = (textArray: any[]) => {
+export const textCodeGenAvueColumns = (textRecord: any[]) => {
   const columns: any[] = [];
   let reg = new RegExp(/[a-zA-Z]+/g);
-  textArray.forEach((text, i) => {
+  textRecord.forEach((text, i) => {
     let key = isChinese(text) ? `prop${i + 1}` : text;
     columns.push({
       label: text,
@@ -47,9 +47,9 @@ export const textCodeGenAvueColumns = (textArray: any[]) => {
 };
 
 // ReactTable
-export const textCodeGenReactTable = (textArray: any[]) => {
+export const textCodeGenReactTable = (textRecord: any[]) => {
   const columns: any[] = [];
-  textArray.forEach((text, i) => {
+  textRecord.forEach((text, i) => {
     let key = isChinese(text) ? `key${i + 1}` : text;
     columns.push({
       key: key,
@@ -61,8 +61,8 @@ export const textCodeGenReactTable = (textArray: any[]) => {
 };
 
 // AvueFormColumns
-export const textCodeGenAvueFormColumns = (textArray: any[]) => {
-  const rows: any = textArray.map((text, i) => ({
+export const textCodeGenAvueFormColumns = (textRecord: any[]) => {
+  const rows: any = textRecord.map((text, i) => ({
     name: isChinese(text) ? `key${i + 1}` : text,
     description: text,
     type: 'string',
@@ -71,9 +71,9 @@ export const textCodeGenAvueFormColumns = (textArray: any[]) => {
 };
 
 // ElementTable
-export const textCodeGenElementTable = (textArray: any[]) => {
+export const textCodeGenElementTable = (textRecord: any[]) => {
   const columns: any[] = [];
-  textArray.forEach((text, i) => {
+  textRecord.forEach((text, i) => {
     let key = isChinese(text) ? `key${i + 1}` : text;
     let reg = new RegExp(/[a-zA-Z]+/g);
 
@@ -90,15 +90,16 @@ export const textCodeGenElementTable = (textArray: any[]) => {
   `;
 };
 
-// AvueSearchColumns
-export const textCodeGenAvueSearchColumns = (textArray: any[]) => {
-  const rows: any = textArray.map((text, i) => {
+const filterAvueSearchColumns = (value: string[], setSearchOrder = false) => {
+  return value.map((text: string, i: number) => {
     let result: any = {
       prop: isChinese(text) ? `key${i + 1}` : text,
       label: text,
       placeholder: '请输入',
-      searchOrder: (textArray.length - i) * 10,
     };
+    if (setSearchOrder) {
+      result.searchOrder = (value.length - i) * 10;
+    }
     if (indexOfArray(text, ['状态', '类型', 'status'])) {
       result.type = 'select';
       result.dicUrl = '';
@@ -133,5 +134,36 @@ export const textCodeGenAvueSearchColumns = (textArray: any[]) => {
 
     return result;
   });
-  return prettyJSON(rows);
+};
+
+// AvueSearchColumns
+export const textCodeGenAvueSearchColumns = (value: any) => {
+  const isCall = Object.prototype.toString.call(value);
+  if (isCall === '[object Array]') {
+    const rows = filterAvueSearchColumns(value, true);
+    return prettyJSON(rows);
+  } else if (isCall === '[object Object]' && value.hasOwnProperty('search')) {
+    // search 搜索部分， column表头部分，结合生成searchOrder
+    const rows = filterAvueSearchColumns(value.column);
+    let baseSearchOrder = -1; // 起始searchOrder记录
+    value.search.forEach((text: string) => {
+      const index = rows.findIndex((v) => v.label === text);
+      if (index !== -1) {
+        rows[index].searchOrder = baseSearchOrder + 1;
+        baseSearchOrder = index; // 记录对应index，用做未匹配插入
+      } else {
+        if (baseSearchOrder === -1) {
+          baseSearchOrder = 0;
+        }
+        rows.splice(baseSearchOrder, 0, {
+          prop: isChinese(text) ? `searchKey${baseSearchOrder + 1}` : text,
+          label: text,
+          placeholder: '请输入',
+          searchOrder: baseSearchOrder + 2,
+        });
+        baseSearchOrder = baseSearchOrder + 1;
+      }
+    });
+    return prettyJSON(rows);
+  }
 };

@@ -4,7 +4,7 @@
  * @Description:
  */
 import getParameterObject from './getParameterObject';
-import { isNil } from 'lodash';
+import { isNil, uniqueId } from 'lodash';
 
 export function cleanParameterDescription(s: string) {
   let s1 = cleanEnumDesc(s);
@@ -88,7 +88,7 @@ export function classifyPathsToTags(tags: any[], pathObj: object) {
  */
 export const indexOfArray = (text: string, arr: string[]) => {
   for (let i = 0; i < arr.length; i++) {
-    if (text.indexOf(arr[i]) !== -1) {
+    if (text?.indexOf(arr[i]) !== -1) {
       return true;
     }
   }
@@ -455,4 +455,53 @@ export const splitImageToBase64 = function (file: any) {
       };
     };
   });
+};
+
+/**
+ * @description: 重置HistoryTexts，增加id
+ * @param {any} list
+ * @return {} array
+ */
+export const filterHasIdByHistoryTexts = function (list: any) {
+  return list.map((k: any) => {
+    if (k instanceof Object && k.hasOwnProperty('id')) {
+      return k;
+    } else {
+      return {
+        id: uniqueId('history_text_'),
+        content: k,
+      };
+    }
+  });
+};
+
+export const filterSplitText = function (value: any) {
+  if (Object.prototype.toString.call(value) === '[object Array]') {
+    return value.map((v: any) => {
+      return v.words;
+    });
+  } else {
+    const isT = /\t/g.test(value);
+    const replaceEndReg = new RegExp(`${isT ? '\t' : ''}\r\n$`);
+    const replaceReg = new RegExp(`${isT ? '\r' : ''}\n`, 'g');
+    const splitReg = new RegExp(isT ? '\t' : '\r');
+    return value.replace(replaceEndReg, '').replace(replaceReg, '').split(splitReg);
+  }
+};
+
+/**
+ * @description: 判断是否OCRapi的文本处理成百度ocr返回格式
+ * @param {string} value
+ * @return {Array}
+ */
+export const filterSplitTextTowords = function (value: string | any[]) {
+  if (Object.prototype.toString.call(value) === '[object String]') {
+    return filterSplitText(value).map((v: string) => {
+      return {
+        words: v,
+      };
+    });
+  } else {
+    return value;
+  }
 };

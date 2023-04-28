@@ -5,7 +5,7 @@
  */
 import { Button, DrawerProps, message, Form, Input, Typography, Select, Row, Col, Upload, Switch } from 'antd';
 import { useEffect, useState, useMemo } from 'react';
-import { languageOptions, ImageTypes } from '@/shared/common';
+import { languageOptions, ImageTypes, HistoryItem } from '@/shared/common';
 import { UploadOutlined } from '@ant-design/icons';
 import { useRequest } from 'ahooks';
 import axios from 'axios';
@@ -36,7 +36,7 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
   const { transformSate, setTransformSate } = useModel('useApiSwitchModel');
 
   const [curState, setCurState] = useState<{
-    storageHistoryTexts: string[];
+    storageHistoryTexts: HistoryItem[];
     extractType: string;
   }>({
     storageHistoryTexts: historyTexts,
@@ -66,7 +66,7 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
   }, []);
 
   useEffect(() => {
-    setParsedText(historyTexts?.length > 0 ? historyTexts[0] : '');
+    setParsedText(historyTexts?.length > 0 ? historyTexts[0].content : '');
     setCurState({
       storageHistoryTexts: historyTexts,
       extractType,
@@ -96,22 +96,31 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
 
     setTransformSate({
       ...transformSate,
-      textArray: splitText,
+      textRecord: splitText,
     });
   };
 
+  // 修改回调
   const splitTextChange = () => {
     const values = textForm.getFieldsValue();
-    if (typeof values.splitText === 'string') {
+    const isValueCall = Object.prototype.toString.call(values.splitText);
+    if (isValueCall === '[object Array]') {
+      // 方法过滤后设置
+      const text = values.splitText.map((v: string) => ({ words: v }));
+      setParsedText(text);
+      setHistoryText(text);
+    } else if (isValueCall === '[object String]') {
+      // 手动修改设置
       setTransformSate({
         ...transformSate,
-        textArray: values.splitText.split(','),
+        textRecord: values.splitText.split(','),
       });
     }
   };
 
   const matchTextChange = () => {
     const oldCode = textForm.getFieldValue('oldCode');
+    if (!oldCode) return;
     let code: any = null;
     try {
       let codeArr = eval(oldCode);
@@ -139,7 +148,7 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
     });
     setTransformSate({
       ...transformSate,
-      textArray: values,
+      textRecord: values,
     });
   };
 
@@ -306,16 +315,18 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
    * @return {*}
    */
   const setHistoryText = (current: string | unknown) => {
-    const storageHistoryTexts: any[] = storage.get('storageHistoryTexts');
-    let newStorageHistoryTexts: any[] = [current];
-    if (storageHistoryTexts) {
-      const index = storageHistoryTexts.findIndex((v: string) => isEqual(v, current));
+    // const storageHistoryTexts: any[] = storage.get('storageHistoryTexts');
+    const { historyTexts } = state.swagger;
+    const currentItem = { id: `history_text_${Date.now()}`, content: current };
+    let newStorageHistoryTexts: any[] = [currentItem];
+    if (historyTexts) {
+      const index = historyTexts.findIndex((v: any) => isEqual(v.content, current));
       if (index !== -1) {
-        storageHistoryTexts.splice(index, 1);
-      } else if (storageHistoryTexts.length === 15) {
-        storageHistoryTexts.splice(14, 1);
+        historyTexts.splice(index, 1);
+      } else if (historyTexts.length === 15) {
+        historyTexts.splice(14, 1);
       }
-      newStorageHistoryTexts = [current, ...storageHistoryTexts];
+      newStorageHistoryTexts = [currentItem, ...historyTexts];
     }
 
     postVSCodeMessage('pushStorage', {
@@ -326,14 +337,25 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
     swaggerStore.setHistoryTexts(newStorageHistoryTexts);
   };
 
-  // 历史文本下拉选取设置
-  const onHistoryTextChange = (text: string) => {
-    let value = text;
-    try {
-      value = JSON.parse(value);
-    } catch (error) {}
-    setParsedText(value);
-    setHistoryText(value);
+  // 历史文本下拉选取、设置
+  const onHistoryTextChange = (type: string, text: string) => {
+    if (type === 'text') {
+      let value = text;
+      try {
+        value = JSON.parse(value);
+      } catch (error) {}
+      setParsedText(value);
+      setHistoryText(value);
+    } else if (type === 'searchColumn') {
+      // 设置searchColumn
+      textForm.setFieldsValue({
+        splitText: text,
+      });
+      setTransformSate({
+        ...transformSate,
+        textRecord: JSON.parse(text),
+      });
+    }
   };
 
   const fileInputClick = (e: any) => {
@@ -505,14 +527,14 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
               <Button type="link" onClick={splitTextChange}>
                 修改
               </Button>
-              <TextTransformDropdown value={transformSate.textArray} onChange={transformTextChange} />
+              <TextTransformDropdown value={transformSate.textRecord} onChange={transformTextChange} />
             </Col>
           </Row>
           <Form.Item wrapperCol={{ offset: 2, span: 12 }}>
             {/* <Button disabled={true}>历史文本</Button> */}
             <HistoryTextDropdown onChange={onHistoryTextChange} />
             <span style={{ marginLeft: '24px' }}>
-              <ApiDefinitionDropdown api={transformSate.textArray} methodType="text" />
+              <ApiDefinitionDropdown api={transformSate.textRecord} methodType="text" />
             </span>
           </Form.Item>
           <Form.Item wrapperCol={{ span: 22 }} label="原始代码" name="oldCode">
