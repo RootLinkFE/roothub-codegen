@@ -331,7 +331,7 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
 
     postVSCodeMessage('pushStorage', {
       key: 'storage',
-      data: { ['storageHistoryTexts']: newStorageHistoryTexts },
+      data: { ['storageHistoryTexts']: JSON.stringify(newStorageHistoryTexts) },
     });
 
     swaggerStore.setHistoryTexts(newStorageHistoryTexts);
@@ -540,7 +540,7 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
           </Row>
           <Row>
             <Col span={2}></Col>
-            <Col span={6}>
+            <Col span={8}>
               <HistoryTextDropdown onChange={onHistoryTextChange} />
               <span style={{ marginLeft: '24px' }}>
                 <ApiDefinitionDropdown api={transformSate.textRecord} methodType="text" />

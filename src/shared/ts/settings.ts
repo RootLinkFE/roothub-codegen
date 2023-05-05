@@ -17,6 +17,7 @@ export interface Settings {
   apiurlPrefixList: apiurlPrefixItem[];
   baiduTransAppid: string;
   baiduTransSecret: string;
+  baiduApiToken: string;
 }
 
 export type TransformSateHistoryArrayItem = {

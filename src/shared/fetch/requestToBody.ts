@@ -1,7 +1,13 @@
 import { fetchInVSCode, isInVSCode } from '@/shared/vscode';
-import axios from 'axios';
+import axios, { AxiosRequestTransformer } from 'axios';
 
-export async function requestToBody(endpoint = '', method: any = 'GET', header?: any, data?: any): Promise<any> {
+export async function requestToBody(
+  endpoint = '',
+  method: any = 'GET',
+  header?: any,
+  data?: any,
+  params?: any,
+): Promise<any> {
   const url = endpoint.toString();
   let headers: any = {};
   if (header) {
@@ -15,7 +21,13 @@ export async function requestToBody(endpoint = '', method: any = 'GET', header?:
   }
 
   if (isInVSCode) {
-    return fetchInVSCode({ url, headers, data });
+    return fetchInVSCode({
+      url,
+      method,
+      headers,
+      data,
+      params,
+    });
   }
 
   try {

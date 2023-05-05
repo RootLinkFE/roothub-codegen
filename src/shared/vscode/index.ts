@@ -95,11 +95,15 @@ export function setupBackgroundManagement() {
 }
 
 export function fetch(option: AxiosRequestConfig & { sessionId?: string }, commandName = 'fetch'): AxiosPromise<any> {
-  option.headers = option.headers || {};
-
-  option.headers['User-Agent'] =
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36';
-  option.headers['Accept-Language'] = 'zh-CN,zh;q=0.9,en;q=0.8';
+  if (option.headers) {
+    option.headers = option.headers;
+  } else {
+    option.headers = {
+      'User-Agent':
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
+      'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+    };
+  }
 
   const sessionId = uniqueId('rh_codegen_');
   option.sessionId = sessionId;

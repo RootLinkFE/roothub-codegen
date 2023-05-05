@@ -11,6 +11,7 @@ import { prettyCode, filterTransformArrayByRows } from '@/shared/utils';
 import generateTableColumnsProps from './generate-table-columns-props';
 import { cleanParameterDescription, filetoBase64 } from '@/shared/utils';
 import generateAvueTableColumns from './avue/generate-avue-table-columns';
+import { requestToBody } from '@/shared/fetch/requestToBody';
 
 export default {
   axios,
@@ -23,4 +24,5 @@ export default {
   cleanParameterDescription,
   filetoBase64,
   generateAvueTableColumns,
+  requestToBody,
 };

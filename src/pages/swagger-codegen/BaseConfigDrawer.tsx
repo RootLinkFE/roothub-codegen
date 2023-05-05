@@ -49,6 +49,9 @@ const ApiurlPrefixDrawer: React.FC<DrawerProps> = (props) => {
         <Form.Item label="百度翻译secrect" name="baiduTransSecret" {...itemCol}>
           <Input></Input>
         </Form.Item>
+        <Form.Item label="百度API-token" name="baiduApiToken" {...itemCol}>
+          <Input></Input>
+        </Form.Item>
         {/* <Form.Item label="主题" name="them">
           <Select style={{ width: '150px' }} options={themOptions}></Select>
         </Form.Item>
