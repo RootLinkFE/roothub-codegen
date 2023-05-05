@@ -16,6 +16,7 @@ import ApiurlPrefixDrawer from './ApiurlPrefixDrawer';
 import DefaultDrawer from '@/components/DefaultDrawer';
 import ExtractTextContext from './ExtractTextContext';
 import ModelCodeDrawer from './ModelCodeDrawer';
+import BaseConfigDrawer from './BaseConfigDrawer';
 
 const { TabPane } = Tabs;
 
@@ -27,6 +28,7 @@ export default function ApiSwitch() {
   const [customMethodsVisible, setCustomMethodsVisible] = useState<boolean | undefined>(false);
   const [apiurlPrefixVisible, setApiurlPrefixVisible] = useState<boolean | undefined>(false);
   const [extractTextVisible, setExtractTextVisible] = useState<boolean | undefined>(false);
+  const [configVisible, setConfigVisible] = useState<boolean | undefined>(false);
 
   const blockContent = useMemo(
     () => (
@@ -45,8 +47,8 @@ export default function ApiSwitch() {
       case 'apiurlPrefix':
         setApiurlPrefixVisible(!apiurlPrefixVisible);
         return;
-      case 'extractText':
-        setExtractTextVisible(!apiurlPrefixVisible);
+      case 'config':
+        setConfigVisible(!configVisible);
         return;
     }
   }, []);
@@ -64,6 +66,11 @@ export default function ApiSwitch() {
           {
             label: 'apiurl默认前缀',
             key: 'apiurlPrefix',
+            children: undefined,
+          },
+          {
+            label: '基础设置',
+            key: 'config',
             children: undefined,
           },
         ]}
@@ -161,6 +168,12 @@ export default function ApiSwitch() {
         >
           <ExtractTextContext></ExtractTextContext>
         </DefaultDrawer>
+        <BaseConfigDrawer
+          visible={configVisible}
+          onClose={() => {
+            setConfigVisible(false);
+          }}
+        />
       </Row>
 
       <ModelCodeDrawer />

@@ -4,7 +4,7 @@
  * @Description:
  */
 import getParameterObject from './getParameterObject';
-import { isNil, uniqueId } from 'lodash';
+import { isNil, uniqueId, camelCase } from 'lodash';
 
 export function cleanParameterDescription(s: string) {
   let s1 = cleanEnumDesc(s);
@@ -504,4 +504,21 @@ export const filterSplitTextTowords = function (value: string | any[]) {
   } else {
     return value;
   }
+};
+
+type TransResult = {
+  src: string;
+  dst: string;
+};
+/**
+ * @description: 百度翻译结果处理为Map
+ * @param {TransResult} trans_result
+ * @return {Map}
+ */
+export const filterTransResult = function (trans_result: TransResult[]) {
+  const result = new Map();
+  trans_result.forEach((item: any) => {
+    result.set(item.src, camelCase(item.dst));
+  });
+  return result;
 };

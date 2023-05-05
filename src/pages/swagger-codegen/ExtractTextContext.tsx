@@ -369,6 +369,13 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
     });
   };
 
+  const isTranslateChange = (checked: boolean) => {
+    setTransformSate({
+      ...transformSate,
+      isTranslate: checked,
+    });
+  };
+
   const itemCol = {
     labelCol: { span: 4 },
     wrapperCol: { span: 20 },
@@ -490,6 +497,7 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
             labelCol: { span: 2 },
             wrapperCol: { span: 22 },
           }}
+          initialValues={{ isTranslate: transformSate.isTranslate }}
           autoComplete="off"
         >
           <Row>
@@ -530,13 +538,26 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
               <TextTransformDropdown value={transformSate.textRecord} onChange={transformTextChange} />
             </Col>
           </Row>
-          <Form.Item wrapperCol={{ offset: 2, span: 12 }}>
-            {/* <Button disabled={true}>历史文本</Button> */}
-            <HistoryTextDropdown onChange={onHistoryTextChange} />
-            <span style={{ marginLeft: '24px' }}>
-              <ApiDefinitionDropdown api={transformSate.textRecord} methodType="text" />
-            </span>
-          </Form.Item>
+          <Row>
+            <Col span={2}></Col>
+            <Col span={6}>
+              <HistoryTextDropdown onChange={onHistoryTextChange} />
+              <span style={{ marginLeft: '24px' }}>
+                <ApiDefinitionDropdown api={transformSate.textRecord} methodType="text" />
+              </span>
+            </Col>
+            <Col span={6}>
+              <Form.Item label="翻译" labelCol={{ span: 4 }} wrapperCol={{ offset: 2, span: 6 }} name="isTranslate">
+                <Switch
+                  checkedChildren="开启"
+                  unCheckedChildren="关闭"
+                  defaultChecked={transformSate.status}
+                  title="文本代码生成传入英文翻译字段"
+                  onChange={isTranslateChange}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
           <Form.Item wrapperCol={{ span: 22 }} label="原始代码" name="oldCode">
             <TextArea style={{ height: '200px' }} />
           </Form.Item>

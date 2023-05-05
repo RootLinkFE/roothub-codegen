@@ -8,10 +8,11 @@ import CodeOutlined from '@ant-design/icons/lib/icons/CodeOutlined';
 import { useModel } from 'umi';
 import { useMemo } from 'react';
 import state from '@/stores/index';
-import { getStringToFn, getRequestParams } from '@/shared/utils';
+import { getStringToFn, getRequestParams, filterTransResult } from '@/shared/utils';
 import { CustomMethodsItem } from '@/shared/ts/custom';
 import { codeGenerateMethods } from './code-generate/index';
 import { observer } from 'mobx-react-lite';
+import { translateZhToEn } from '@/shared/baidu-translate';
 
 const ApiDefinitionDropdown: React.FC<{
   api: any;
@@ -62,7 +63,7 @@ const ApiDefinitionDropdown: React.FC<{
 
   const requestParams = getRequestParams(api, resourceDetail);
 
-  const handleMenuItemClick = ({ key }: any) => {
+  const handleMenuItemClick = async ({ key }: any) => {
     let drawerProps = {
       title: '',
       visible: true,
@@ -107,13 +108,19 @@ const ApiDefinitionDropdown: React.FC<{
         }
         setDefinitionCodeDrawerProps(drawerProps);
       } else if (methodType === 'text') {
-        drawerProps.title = JSON.stringify(api) || '';
+        const value = api;
+        drawerProps.title = JSON.stringify(value) || '';
+        let translateReault = new Map<string, string>();
+        const res = await translateZhToEn(value.join('\n'));
+        if (res) {
+          translateReault = filterTransResult(res?.trans_result || []);
+        }
         if (generateMethod) {
-          drawerProps.generateCode = () => generateMethod.function(api);
+          drawerProps.generateCode = () => generateMethod.function(value, translateReault);
         } else {
           let item: any = CustomMethods.find((v) => v.key === key) ?? {};
           const cutomCodeFn = item?.function ? getStringToFn(item.function) : () => {};
-          drawerProps.generateCode = () => cutomCodeFn(api);
+          drawerProps.generateCode = () => cutomCodeFn(value, translateReault);
         }
         setDefinitionCodeDrawerProps(drawerProps);
       } else {

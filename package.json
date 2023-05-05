@@ -34,6 +34,7 @@
     "react": "17.x",
     "react-copy-to-clipboard": "^5.0.4",
     "react-dom": "17.x",
+    "spark-md5": "^3.0.2",
     "umi": "^3.5.20"
   },
   "devDependencies": {

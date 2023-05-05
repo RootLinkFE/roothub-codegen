@@ -15,6 +15,8 @@ const baseData = {
   language: 'zh-CN',
   theme: 'default',
   apiurlPrefixList: [],
+  baiduTransAppid: '',
+  baiduTransSecret: '',
 };
 
 class SettingsStore {
@@ -34,12 +36,13 @@ class SettingsStore {
   }
 
   updateSettings(data: Settings) {
-    this.Settings = data;
+    const params = { ...this.Settings, ...data };
     if (!isInVSCode) {
-      storage.set('settings', data);
+      storage.set('settings', params);
     } else {
-      postVSCodeMessage('updateCodeGenSettings', JSON.parse(JSON.stringify(data)));
+      postVSCodeMessage('saveCodeGenSettings', JSON.parse(JSON.stringify(params)));
     }
+    this.Settings = params;
   }
 
   setSettingsApiurlPrefixList(list: apiurlPrefixItem[]) {

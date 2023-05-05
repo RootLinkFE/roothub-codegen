@@ -15,6 +15,8 @@ export interface Settings {
   language: string;
   theme: string;
   apiurlPrefixList: apiurlPrefixItem[];
+  baiduTransAppid: string;
+  baiduTransSecret: string;
 }
 
 export type TransformSateHistoryArrayItem = {
@@ -26,4 +28,5 @@ export interface TransformSate {
   textRecord: string[] | { search: string[]; column: string[] }; // 最后文本记录
   historyArray: TransformSateHistoryArrayItem[]; // 历史文本转换记录
   baseCode: any; // 用做匹配的原始代码
+  isTranslate: boolean;
 }

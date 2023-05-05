@@ -185,6 +185,7 @@ export default function useApiSwitchModel() {
     textRecord: [], // 最后文本记录
     historyArray: [], // 历史文本转换记录
     baseCode: null,
+    isTranslate: true,
   });
 
   return {

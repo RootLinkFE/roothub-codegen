@@ -12,10 +12,10 @@ export const textCodeGenList = (textRecord: any[]) => {
 };
 
 // Options
-export const textCodeGenOptions = (textRecord: any[]) => {
+export const textCodeGenOptions = (textRecord: any[], translateReault?: Map<string, string>) => {
   const columns: any[] = [];
   textRecord.forEach((text, i) => {
-    let key = isChinese(text) ? `value${i + 1}` : text;
+    let key = isChinese(text) ? translateReault?.get(text) ?? `value${i + 1}` : text;
     columns.push({
       label: text,
       value: key,
@@ -25,11 +25,11 @@ export const textCodeGenOptions = (textRecord: any[]) => {
 };
 
 // AvueColumns
-export const textCodeGenAvueColumns = (textRecord: any[]) => {
+export const textCodeGenAvueColumns = (textRecord: any[], translateReault?: Map<string, string>) => {
   const columns: any[] = [];
   let reg = new RegExp(/[a-zA-Z]+/g);
   textRecord.forEach((text, i) => {
-    let key = isChinese(text) ? `prop${i + 1}` : text;
+    let key = isChinese(text) ? translateReault?.get(text) ?? `prop${i + 1}` : text;
     columns.push({
       label: text,
       prop: key,
@@ -47,10 +47,10 @@ export const textCodeGenAvueColumns = (textRecord: any[]) => {
 };
 
 // ReactTable
-export const textCodeGenReactTable = (textRecord: any[]) => {
+export const textCodeGenReactTable = (textRecord: any[], translateReault?: Map<string, string>) => {
   const columns: any[] = [];
   textRecord.forEach((text, i) => {
-    let key = isChinese(text) ? `key${i + 1}` : text;
+    let key = isChinese(text) ? translateReault?.get(text) ?? `key${i + 1}` : text;
     columns.push({
       key: key,
       dataIndex: key,
@@ -61,9 +61,9 @@ export const textCodeGenReactTable = (textRecord: any[]) => {
 };
 
 // AvueFormColumns
-export const textCodeGenAvueFormColumns = (textRecord: any[]) => {
+export const textCodeGenAvueFormColumns = (textRecord: any[], translateReault?: Map<string, string>) => {
   const rows: any = textRecord.map((text, i) => ({
-    name: isChinese(text) ? `key${i + 1}` : text,
+    name: isChinese(text) ? translateReault?.get(text) ?? `key${i + 1}` : text,
     description: text,
     type: 'string',
   }));
@@ -71,10 +71,10 @@ export const textCodeGenAvueFormColumns = (textRecord: any[]) => {
 };
 
 // ElementTable
-export const textCodeGenElementTable = (textRecord: any[]) => {
+export const textCodeGenElementTable = (textRecord: any[], translateReault?: Map<string, string>) => {
   const columns: any[] = [];
   textRecord.forEach((text, i) => {
-    let key = isChinese(text) ? `key${i + 1}` : text;
+    let key = isChinese(text) ? translateReault?.get(text) ?? `key${i + 1}` : text;
     let reg = new RegExp(/[a-zA-Z]+/g);
 
     columns.push(
@@ -90,11 +90,11 @@ export const textCodeGenElementTable = (textRecord: any[]) => {
   `;
 };
 
-const filterAvueSearchColumns = (value: string[], setSearchOrder = false) => {
+const filterAvueSearchColumns = (value: string[], setSearchOrder = false, translateReault?: Map<string, string>) => {
   return value.map((text: string, i: number) => {
     let result: any = {
-      prop: isChinese(text) ? `key${i + 1}` : text,
       label: text,
+      prop: isChinese(text) ? translateReault?.get(text) ?? `key${i + 1}` : text,
       placeholder: '请输入',
     };
     if (setSearchOrder) {
@@ -137,14 +137,14 @@ const filterAvueSearchColumns = (value: string[], setSearchOrder = false) => {
 };
 
 // AvueSearchColumns
-export const textCodeGenAvueSearchColumns = (value: any) => {
+export const textCodeGenAvueSearchColumns = (value: any, translateReault?: Map<string, string>) => {
   const isCall = Object.prototype.toString.call(value);
   if (isCall === '[object Array]') {
-    const rows = filterAvueSearchColumns(value, true);
+    const rows = filterAvueSearchColumns(value, true, translateReault);
     return prettyJSON(rows);
   } else if (isCall === '[object Object]' && value.hasOwnProperty('search')) {
     // search 搜索部分， column表头部分，结合生成searchOrder
-    const rows = filterAvueSearchColumns(value.column);
+    const rows = filterAvueSearchColumns(value.column, false, translateReault);
     let baseSearchOrder = -1; // 起始searchOrder记录
     value.search.forEach((text: string) => {
       const index = rows.findIndex((v) => v.label === text);
