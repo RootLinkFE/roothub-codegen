@@ -41,7 +41,7 @@ class SettingsStore {
     if (!isInVSCode) {
       storage.set('settings', params);
     } else {
-      postVSCodeMessage('saveCodeGenSettings', JSON.parse(JSON.stringify(params)));
+      postVSCodeMessage('updateCodeGenSettings', JSON.parse(JSON.stringify(params)));
     }
     this.Settings = params;
   }

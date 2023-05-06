@@ -16,7 +16,7 @@ const ApiurlPrefixDrawer: React.FC<DrawerProps> = (props) => {
   // const themOptions: any = [];
 
   const handleSubmit = (values: Settings) => {
-    state.settings.updateSettings(values);
+    state.settings.setSettings(values);
   };
 
   const itemCol = {
