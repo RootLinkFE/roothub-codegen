@@ -65,19 +65,13 @@ export function transcodingByRows(list: any[], baseCode: any) {
 }
 
 export default function avueColumnTranscoding(body: any, record?: any, api?: any, selectedData?: any) {
-  let baseCode = '';
-  let rows = [];
+  let baseCode = selectedData?.baseCode || body?.baseCode || ''; // baseCode获取
+  let rows = body?.requestSelectedData || record?.children || []; // 处理rows传入
 
-  if (Object.prototype.toString.call(body) === '[object Object]') {
-    baseCode = body.baseCode;
-    rows = body?.requestSelectedData;
-  } else if (selectedData?.baseCode) {
-    baseCode = selectedData.baseCode;
-  } else if (record?.children) {
-    rows = record.children;
-  }
-  if (baseCode === '' || baseCode === undefined || baseCode === null) {
+  if (baseCode === '') {
     return 'no base code';
+  } else if (rows?.length === 0) {
+    return 'no rows';
   }
 
   let code = transcodingByRows(rows, baseCode);
