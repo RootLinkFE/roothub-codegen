@@ -21,7 +21,7 @@ export default function generateNotes(apiData: pathsItem & { requestParams: any 
 
     list.forEach((row: any) => {
       if (row.in === 'body') {
-        if (row.children && row.children.length > 0) {
+        if (row.children?.length > 0) {
           forEachParam(row.children, params);
         }
       } else {
@@ -30,15 +30,14 @@ export default function generateNotes(apiData: pathsItem & { requestParams: any 
             row.description || ''
           }`,
         );
-        if (row.children && row.children.length > 0) {
+        if (row.children?.length > 0) {
           forEachParam(row.children, params, row.name);
         }
       }
     });
   }
   const params: any[] = [];
-
-  forEachParam(requestParams?.length === 1 ? requestParams[0].children || [] : requestParams || [], params);
+  forEachParam(requestParams || [], params);
 
   return `/**
  * @description: ${summary}
