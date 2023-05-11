@@ -330,11 +330,17 @@ export function filterBaseCodeByRows(list: any[], baseCode: any) {
  * @description: 字符串匹配替换；寻找出代码字符串中的label值，并与
  * @param {string} codeStr
  * @param {any} rows
+ * @param {Object} fieldData
  * @return {string}
  */
-export const matchCodeByName = (codeStr: string, rows: any) => {
+export const matchCodeByName = (
+  codeStr: string,
+  rows: any,
+  fieldData?: { propField?: string; labelField?: string },
+) => {
+  const { propField = 'prop', labelField = 'label' } = fieldData ?? {};
   // 提取label的值
-  const labelReg = /label:\s*['"](.+?)['"]/;
+  const labelReg = new RegExp(`${labelField}:\\s*['"](.+?)['"]`);
   const labelMatch = codeStr.match(labelReg);
   let labelText = '';
   if (!labelMatch) {
@@ -346,13 +352,13 @@ export const matchCodeByName = (codeStr: string, rows: any) => {
     const item = rows[i];
     if (item.description === labelText) {
       // 相等匹配，替换返回
-      return replacePropValue(codeStr, item.name);
+      return replacePropValue(codeStr, item.name, propField);
     }
   }
   let item = filterStrRepeat(rows, labelText);
   if (item) {
     // 非等量匹配下，找到与label匹配的子项，替换返回
-    return replacePropValue(codeStr, item.name);
+    return replacePropValue(codeStr, item.name, propField);
   }
   return codeStr;
 };
@@ -363,9 +369,9 @@ export const matchCodeByName = (codeStr: string, rows: any) => {
  * @param {string} value
  * @return {string}
  */
-export function replacePropValue(codeStr: string, value: string) {
+export function replacePropValue(codeStr: string, value: string, propField?: string) {
   // 匹配prop的值并替换
-  const propReg = /(prop:\s*['"])(.+?)(['"])/;
+  const propReg = new RegExp(`(${propField ?? 'prop'}:\\s*['"])(.+?)(['"])`);
   const propMatch = codeStr.match(propReg);
   if (!propMatch) {
     return codeStr;

@@ -8,6 +8,7 @@ import generateApiDefineition from './generate-api-defineition';
 import generateModelClass from './generate-model-class';
 import generateTypeScriptType from './generate-typescript-type';
 import generateRhTablePageCode from './generate-rhtable-page';
+import generateRhTablePageTranscoding from './generate-rhtable-page-transcoding';
 import generateAvueProTablePageCode from './avue/generate-avue-pro-table';
 
 import generateAvueTableColumns from './avue/generate-avue-table-columns';
@@ -148,16 +149,6 @@ export const codeGenerateMethods = [
     function: generateTypeScriptType,
   },
   {
-    key: 'RhTablePage',
-    label: 'RhTablePage 定义',
-    type: 'response',
-    source: 'root',
-    status: 1,
-    sort: 96,
-    language: 'typescript',
-    function: generateRhTablePageCode,
-  },
-  {
     key: 'avue-table-columns',
     label: 'avue-table-columns',
     type: 'model',
@@ -246,6 +237,36 @@ export const codeGenerateMethods = [
     sort: 93,
     language: 'javascript',
     function: generateModelFormItemsCode,
+  },
+  {
+    key: 'RhTablePage',
+    label: 'RhTablePage 定义',
+    type: 'response',
+    source: 'root',
+    status: 1,
+    sort: 76,
+    language: 'typescript',
+    function: generateRhTablePageCode,
+  },
+  {
+    key: 'RhTablePageTranscoding',
+    label: 'RhTablePage代码匹配',
+    type: 'model',
+    source: 'root',
+    status: 1,
+    sort: 76,
+    language: 'typescript',
+    function: generateRhTablePageTranscoding,
+  },
+  {
+    key: 'RhTablePage',
+    label: 'RhTablePage 定义',
+    type: 'model',
+    source: 'root',
+    status: 1,
+    sort: 76,
+    language: 'typescript',
+    function: generateRhTablePageCode,
   },
   {
     key: 'generate-request-enum-code',
