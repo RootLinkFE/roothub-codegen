@@ -6,16 +6,20 @@
 import { replaceDescriptionByRows, filterStrRepeat, matchCodeByName, prettyJSON } from '@/shared/utils';
 import { isNil } from 'lodash';
 
+type FieldData = {
+  labelField: string;
+  propField: string;
+};
+
 /**
  * @description: rhtablePage原始代码与响应参数匹配字段后返回
  * @param {any} list
  * @param {any} baseCode
  * @return {string}
  */
-export function transcodingByRows(list: any[], baseCode: any) {
+export function transcodingByRows(list: any[], baseCode: any, fieldData: FieldData) {
   const rows = replaceDescriptionByRows(list);
-  const labelField = 'title';
-  const propField = 'dataIndex';
+  const { labelField, propField } = fieldData;
   if (Array.isArray(baseCode)) {
     const nextArr: { i: number; codeItem: any }[] = []; // baseCode未比对部分
 
@@ -27,7 +31,7 @@ export function transcodingByRows(list: any[], baseCode: any) {
         );
       });
       if (item) {
-        codeItem.dataIndex = item.name;
+        codeItem[labelField] = item.name;
       } else {
         nextArr.push({ i, codeItem });
       }
@@ -37,16 +41,17 @@ export function transcodingByRows(list: any[], baseCode: any) {
       if (item) {
         baseCode[m.i] = {
           ...m.codeItem,
-          dataIndex: item.name,
+          [labelField]: item.name,
         };
       }
     });
   } else if (typeof baseCode === 'string') {
     const splitReg = '},';
     const splitCodes = baseCode.split(splitReg);
+    const matchReg = new RegExp(`(?=.*${propField}:)(?=.*${labelField}:)`, 's');
     const baseCodeList = splitCodes.map((code, index) => {
       return {
-        isMatch: /(?=.*dataIndex:)(?=.*title:)/s.test(code),
+        isMatch: matchReg.test(code),
         code: code + (index !== splitCodes.length - 1 ? splitReg : ''),
       };
     });
@@ -64,7 +69,7 @@ export function transcodingByRows(list: any[], baseCode: any) {
   return baseCode;
 }
 
-export default function rhtablePageTranscoding(body: any, record?: any, api?: any, selectedData?: any) {
+export function Transcoding(fieldData: FieldData, body: any, record?: any, api?: any, selectedData?: any) {
   let baseCode = selectedData?.baseCode || body?.baseCode || ''; // baseCode获取
   let rows = body?.requestSelectedData || record?.children || []; // 处理rows传入
 
@@ -74,6 +79,18 @@ export default function rhtablePageTranscoding(body: any, record?: any, api?: an
     return 'no rows';
   }
 
-  let code = transcodingByRows(rows, baseCode);
+  let code = transcodingByRows(rows, baseCode, fieldData);
   return typeof code === 'string' ? code : prettyJSON(code);
 }
+
+const rhtablePageTranscoding = (...argetment: [body: any, record?: any, api?: any, selectedData?: any]) => {
+  return Transcoding(
+    {
+      labelField: 'title',
+      propField: 'dataIndex',
+    },
+    ...argetment,
+  );
+};
+
+export default rhtablePageTranscoding;

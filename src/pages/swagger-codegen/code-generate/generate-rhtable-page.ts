@@ -20,7 +20,6 @@ export default function generateRhTablePageCode(
   if (selectedData.transformTextRecord) {
     body = filterTransformArrayByRows(body, selectedData.transformTextRecord);
   }
-  console.log(selectedData, apiData, body, selectedData.properties, Array.isArray(selectedData.properties));
   const columnCode = generateTableColumnsProps(body, true);
 
   const componentName = apiData.api ? getApiNameAsPageName(apiData.api) : 'get';
