@@ -26,7 +26,7 @@ export type TransformSateHistoryArrayItem = {
 };
 export interface TransformSate {
   status: boolean; // 代码转换关联转换文本
-  textRecord: string[] | { search: string[]; column: string[] }; // 最后文本记录
+  textRecord: string[] | { search: string[]; column: string[]; length?: any }; // 最后文本记录
   historyArray: TransformSateHistoryArrayItem[]; // 历史文本转换记录
   baseCode: any; // 用做匹配的原始代码
   isTranslate: boolean;

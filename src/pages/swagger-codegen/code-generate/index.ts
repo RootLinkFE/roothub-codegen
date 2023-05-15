@@ -16,6 +16,7 @@ import generateAvueTablePageCode from './avue/generate-avue-table';
 import generateAvueFormColumns from './avue/generate-avue-form-columns';
 import generateAvueFormCode from './avue/generate-avue-form';
 import generatAvueColumnsTranscoding from './avue/generate-avue-columns-transcoding';
+import generatAvueTranscodeAll from './avue/generate-avue-transcode-all';
 
 import generateTableColumnsProps from './generate-table-columns-props';
 import generateModelFormItemsCode from './generate-model-form-items-code';
@@ -168,6 +169,17 @@ export const codeGenerateMethods = [
     language: 'vue',
     function: generatAvueColumnsTranscoding,
   },
+  {
+    key: 'generate-avue-transcode-all',
+    label: 'avue代码匹配全替换',
+    type: 'model',
+    source: 'root',
+    status: 1,
+    sort: 94,
+    language: 'vue',
+    function: generatAvueTranscodeAll,
+  },
+
   {
     key: 'avue-table',
     label: 'avue-table',

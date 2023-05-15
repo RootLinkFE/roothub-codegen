@@ -364,6 +364,60 @@ export const matchCodeByName = (
 };
 
 /**
+ * @description: 获取匹配prop的key值
+ * @param {string} codeStr
+ * @return {null | string}
+ */
+export function getMatchRowsName(codeStr: string, rows: any, labelField?: string) {
+  // 提取label的值
+  const labelReg = new RegExp(`${labelField}:\\s*['"](.+?)['"]`);
+  const labelMatch = codeStr.match(labelReg);
+  let labelText = '';
+  if (!labelMatch) {
+    return null;
+  } else {
+    labelText = labelMatch[1];
+  }
+  for (let i = 0; i < rows.length; i++) {
+    const item = rows[i];
+    if (item.description === labelText) {
+      return item.name;
+    }
+  }
+  let item = filterStrRepeat(rows, labelText);
+  return item ? item.name : null;
+}
+
+/**
+ * @description: 获取匹配prop的key值
+ * @param {string} codeStr
+ * @return {string}
+ */
+export function getReplacePropKey(codeStr: string, propField?: string) {
+  // 匹配prop的值并替换
+  const propReg = new RegExp(`(${propField ?? 'prop'}:\\s*['"])(.+?)(['"])`);
+  const propMatch = codeStr.match(propReg);
+  // console.log('propMatch', propMatch);
+  if (!propMatch) {
+    return null;
+  } else {
+    return propMatch.length > 2 ? propMatch[2] : null;
+  }
+}
+
+/**
+ * @description: 代码全匹配替换
+ * @param {string} baseCode
+ * @param {string} replaceKey
+ * @param {string} replaceName
+ * @return {string}
+ */
+export function matchCodeReplace(baseCode: string, replaceKey: string, replaceName: string): string {
+  const replaceReg = new RegExp(`(?<=[^\w\d\s])${replaceKey}(?=[^\w\d\s])`, 'g');
+  return baseCode.replace(replaceReg, `${replaceName}`);
+}
+
+/**
  * @description: 将value与代码中的prop值替换并返回
  * @param {string} codeStr
  * @param {string} value
