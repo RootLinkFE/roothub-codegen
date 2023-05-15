@@ -69,7 +69,7 @@ export function transcodingByRows(list: any[], baseCode: any, fieldData: FieldDa
   return baseCode;
 }
 
-export function Transcoding(fieldData: FieldData, body: any, record?: any, api?: any, selectedData?: any) {
+export function transcoding(fieldData: FieldData, body: any, record?: any, api?: any, selectedData?: any) {
   let baseCode = selectedData?.baseCode || body?.baseCode || ''; // baseCode获取
   let rows = body?.requestSelectedData || record?.children || []; // 处理rows传入
 
@@ -84,7 +84,7 @@ export function Transcoding(fieldData: FieldData, body: any, record?: any, api?:
 }
 
 const rhtablePageTranscoding = (...argetment: [body: any, record?: any, api?: any, selectedData?: any]) => {
-  return Transcoding(
+  return transcoding(
     {
       labelField: 'title',
       propField: 'dataIndex',

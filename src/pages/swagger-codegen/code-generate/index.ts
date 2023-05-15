@@ -9,6 +9,7 @@ import generateModelClass from './generate-model-class';
 import generateTypeScriptType from './generate-typescript-type';
 import generateRhTablePageCode from './generate-rhtable-page';
 import generateRhTablePageTranscoding from './generate-rhtable-page-transcoding';
+import generateReactPageTranscodingAll from './generate-react-transcoding-all';
 import generateAvueProTablePageCode from './avue/generate-avue-pro-table';
 
 import generateAvueTableColumns from './avue/generate-avue-table-columns';
@@ -269,6 +270,16 @@ export const codeGenerateMethods = [
     sort: 76,
     language: 'typescript',
     function: generateRhTablePageTranscoding,
+  },
+  {
+    key: 'generate-react-transcoding-all',
+    label: 'ReactPage代码匹配全替换',
+    type: 'model',
+    source: 'root',
+    status: 1,
+    sort: 76,
+    language: 'typescript',
+    function: generateReactPageTranscodingAll,
   },
   {
     key: 'RhTablePage',

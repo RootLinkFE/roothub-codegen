@@ -364,6 +364,22 @@ export const matchCodeByName = (
 };
 
 /**
+ * @description: 将value与代码中的prop值替换并返回
+ * @param {string} codeStr
+ * @param {string} value
+ * @return {string}
+ */
+export function replacePropValue(codeStr: string, value: string, propField?: string) {
+  // 匹配prop的值并替换
+  const propReg = new RegExp(`(${propField ?? 'prop'}:\\s*['"])(.+?)(['"])`);
+  const propMatch = codeStr.match(propReg);
+  if (!propMatch) {
+    return codeStr;
+  }
+  return codeStr.replace(propReg, `$1${value}$3`);
+}
+
+/**
  * @description: 获取匹配prop的key值
  * @param {string} codeStr
  * @return {null | string}
@@ -415,22 +431,6 @@ export function getReplacePropKey(codeStr: string, propField?: string) {
 export function matchCodeReplace(baseCode: string, replaceKey: string, replaceName: string): string {
   const replaceReg = new RegExp(`(?<=[^\w\d\s])${replaceKey}(?=[^\w\d\s])`, 'g');
   return baseCode.replace(replaceReg, `${replaceName}`);
-}
-
-/**
- * @description: 将value与代码中的prop值替换并返回
- * @param {string} codeStr
- * @param {string} value
- * @return {string}
- */
-export function replacePropValue(codeStr: string, value: string, propField?: string) {
-  // 匹配prop的值并替换
-  const propReg = new RegExp(`(${propField ?? 'prop'}:\\s*['"])(.+?)(['"])`);
-  const propMatch = codeStr.match(propReg);
-  if (!propMatch) {
-    return codeStr;
-  }
-  return codeStr.replace(propReg, `$1${value}$3`);
 }
 
 /**
