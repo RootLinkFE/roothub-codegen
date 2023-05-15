@@ -85,7 +85,7 @@ export const textCodeGenElementTable = (textRecord: any[], translateReault?: Map
   });
   return `
 <el-table :data="tableData" border style="width: 100%">
-  ${prettyJSON(columns)}
+  ${columns.reduce((a, b) => a + '\n  ' + b)}
 </el-table>
   `;
 };
