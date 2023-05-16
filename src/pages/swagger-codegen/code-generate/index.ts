@@ -18,6 +18,7 @@ import generateAvueFormColumns from './avue/generate-avue-form-columns';
 import generateAvueFormCode from './avue/generate-avue-form';
 import generatAvueColumnsTranscoding from './avue/generate-avue-columns-transcoding';
 import generatAvueTranscodeAll from './avue/generate-avue-transcode-all';
+import generateElTableColumnTranscoding from './generate-el-table-column-transcoding';
 
 import generateTableColumnsProps from './generate-table-columns-props';
 import generateModelFormItemsCode from './generate-model-form-items-code';
@@ -180,7 +181,16 @@ export const codeGenerateMethods = [
     language: 'vue',
     function: generatAvueTranscodeAll,
   },
-
+  {
+    key: 'el-table-column-transcoding',
+    label: 'el-table-column-代码匹配',
+    type: 'model',
+    source: 'root',
+    status: 1,
+    sort: 94,
+    language: 'vue',
+    function: generateElTableColumnTranscoding,
+  },
   {
     key: 'avue-table',
     label: 'avue-table',

@@ -336,11 +336,11 @@ export function filterBaseCodeByRows(list: any[], baseCode: any) {
 export const matchCodeByName = (
   codeStr: string,
   rows: any,
-  fieldData?: { propField?: string; labelField?: string },
+  fieldData?: { propField?: string; labelField?: string; symbolField?: string },
 ) => {
-  const { propField = 'prop', labelField = 'label' } = fieldData ?? {};
+  const { propField = 'prop', labelField = 'label', symbolField = ':' } = fieldData ?? {};
   // 提取label的值
-  const labelReg = new RegExp(`${labelField}:\\s*['"](.+?)['"]`);
+  const labelReg = new RegExp(`${labelField}${symbolField || ':'}\\s*['"](.+?)['"]`);
   const labelMatch = codeStr.match(labelReg);
   let labelText = '';
   if (!labelMatch) {
@@ -352,13 +352,13 @@ export const matchCodeByName = (
     const item = rows[i];
     if (item.description === labelText) {
       // 相等匹配，替换返回
-      return replacePropValue(codeStr, item.name, propField);
+      return replacePropValue(codeStr, item.name, propField, symbolField);
     }
   }
   let item = filterStrRepeat(rows, labelText);
   if (item) {
     // 非等量匹配下，找到与label匹配的子项，替换返回
-    return replacePropValue(codeStr, item.name, propField);
+    return replacePropValue(codeStr, item.name, propField, symbolField);
   }
   return codeStr;
 };
@@ -369,9 +369,9 @@ export const matchCodeByName = (
  * @param {string} value
  * @return {string}
  */
-export function replacePropValue(codeStr: string, value: string, propField?: string) {
+export function replacePropValue(codeStr: string, value: string, propField: string, symbolField: string) {
   // 匹配prop的值并替换
-  const propReg = new RegExp(`(${propField ?? 'prop'}:\\s*['"])(.+?)(['"])`);
+  const propReg = new RegExp(`(${propField ?? 'prop'}${symbolField || ':'}\\s*['"])(.+?)(['"])`);
   const propMatch = codeStr.match(propReg);
   if (!propMatch) {
     return codeStr;
@@ -384,9 +384,9 @@ export function replacePropValue(codeStr: string, value: string, propField?: str
  * @param {string} codeStr
  * @return {null | string}
  */
-export function getMatchRowsName(codeStr: string, rows: any, labelField?: string) {
+export function getMatchRowsName(codeStr: string, rows: any, labelField?: string, symbolField?: string) {
   // 提取label的值
-  const labelReg = new RegExp(`${labelField}:\\s*['"](.+?)['"]`);
+  const labelReg = new RegExp(`${labelField}${symbolField || ':'}\\s*['"](.+?)['"]`);
   const labelMatch = codeStr.match(labelReg);
   let labelText = '';
   if (!labelMatch) {
@@ -409,9 +409,9 @@ export function getMatchRowsName(codeStr: string, rows: any, labelField?: string
  * @param {string} codeStr
  * @return {string}
  */
-export function getReplacePropKey(codeStr: string, propField?: string) {
+export function getReplacePropKey(codeStr: string, propField?: string, symbolField?: string) {
   // 匹配prop的值并替换
-  const propReg = new RegExp(`(${propField ?? 'prop'}:\\s*['"])(.+?)(['"])`);
+  const propReg = new RegExp(`(${propField ?? 'prop'}${symbolField || ':'}\\s*['"])(.+?)(['"])`);
   const propMatch = codeStr.match(propReg);
   // console.log('propMatch', propMatch);
   if (!propMatch) {
