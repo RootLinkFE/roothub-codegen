@@ -24,7 +24,9 @@ const ApiDefinitionDropdown: React.FC<{
 }> = function (props) {
   const { api, dropdownTitle = '代码生成', methodType = 'api', buttonType = 'link', onChange, isPaths } = props;
 
-  const generateMethods = codeGenerateMethods.filter((v) => v.type === methodType && v.status);
+  const generateMethods = codeGenerateMethods
+    .filter((v) => v.type === methodType && v.status)
+    .sort((a, b) => b.sort - a.sort);
   const { setDefinitionCodeDrawerProps, resourceDetail, apiurlPrefix } = useModel('useApiSwitchModel');
 
   const CustomMethods = useMemo(() => Array.from(state.custom.EnabledCustomMethods), [
