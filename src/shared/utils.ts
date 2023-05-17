@@ -50,7 +50,7 @@ export function prettyJSON(json: object) {
 }
 
 export function formatUrlChar(url: string) {
-  const match = url.match(/\/doc.html/);
+  const match = url.match(/(\/doc.html|\/index.html)/);
   if (match) {
     return url.substr(0, match.index);
   } else {
