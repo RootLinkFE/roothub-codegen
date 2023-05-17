@@ -185,14 +185,13 @@ const ResourcesTree: React.FC<{ labelKey: string } & MenuProps> = ({ labelKey })
             </Button>
           </Row>
           {type === 'api' && (
-            <Row align="middle">
+            <Row align="middle" style={{ flexWrap: 'nowrap' }}>
               <Select
                 value={selectedResourceIndex}
                 onSelect={setSelectedResourceIndex}
                 className="docs-select"
                 options={resources}
                 fieldNames={{ label: 'name', value: 'location' }}
-                style={{ flex: 1 }}
               ></Select>
               <Button
                 type="text"
