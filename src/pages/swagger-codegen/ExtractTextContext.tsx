@@ -118,8 +118,12 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
     }
   };
 
-  const matchTextChange = () => {
-    const oldCode = textForm.getFieldValue('oldCode');
+  const oldCodeChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    matchTextChange(event.target.value);
+  };
+
+  const matchTextChange = (value: string) => {
+    const oldCode = value || textForm.getFieldValue('oldCode');
     if (!oldCode) return;
     let code: any = null;
     try {
@@ -558,8 +562,8 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
               </Form.Item>
             </Col>
           </Row>
-          <Form.Item wrapperCol={{ span: 22 }} label="原始代码" name="oldCode">
-            <TextArea style={{ height: '200px' }} />
+          <Form.Item wrapperCol={{ span: 22 }} label="匹配代码" name="oldCode">
+            <TextArea style={{ height: '200px' }} onChange={oldCodeChange} />
           </Form.Item>
           <Row>
             <Col span={2}></Col>

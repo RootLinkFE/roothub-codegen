@@ -23,7 +23,8 @@ export default function getParameterObject(resourceDetail: any, parameter: any, 
         let result;
         const hasRef = getSwaggerRef(property);
         if (hasRef) {
-          if (hasRef !== $ref) {
+          if (hasRef !== $ref && parent.indexOf(propertyKey) === -1) {
+            // propertyKey - indexOf避免文档不规范出现死循环
             result = {
               name: propertyKey,
               ...getParameterObject(resourceDetail, property, `${parent}${propertyKey}#`),
