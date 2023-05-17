@@ -1,16 +1,34 @@
-<!--
- * @Author: ZtrainWilliams ztrain1224@163.com
- * @Date: 2022-06-14 17:11:39
- * @Description: 
--->
 # roothub-codegen
 
 安装 [RootHub VSCode](https://marketplace.visualstudio.com/items?itemName=giscafer.roothub) 插件，使用 CodeGen 生成代码
+
+## Screenshots
+
+1、类swagger-ui2.0模式查看接口文档，支持快捷复制、当前菜单搜索
+![](./screenshots/image1.jpg)
+
+2、预览生成的前端代码
+![](./screenshots/image2.jpg)
+
+3、api声明代码生产（包含入参注释），可单独、批量生产
+![](./screenshots/image3.jpg)
+
+4、支持 codesandbox 打开预览效果
+![](./screenshots/image4.png)
+
+5、自定义代码生成方法-在线编辑
+![](./screenshots/image5.jpg)
+
+6、图片文字提取、文本代码生产（字段英文翻译）、代码与接口文档匹配
+![](./screenshots/image6.jpg)
+
+
 ## 开发说明文档
 
 ### 页面开发说明
 
 本项目基于 Umi3.x，本地开发和 Umi开发没区别
+
 ### RootHub VSCode插件开发说明
 
 在 vscode-roothub 工程下，git submodule update 代码后，cd 进入 codegen 工程
@@ -53,24 +71,7 @@
 }
 ```
 
-## Screenshots
+### 常见问题汇总
 
-![](./screenshots/image3.jpg)
-
-### 分页列表页代码生成
-
-1、类swagger-ui2.0模式查看接口文档，支持当前菜单搜索
-
-![](./screenshots/image1.jpg)
-
-2、分页接口可以预览生成的列表页面代码
-
-![](./screenshots/image2.jpg)
-
-3、支持 codesandbox 打开预览效果
-
-![](./screenshots/image4.png)
-
-4、自定义代码生成方法-在线编辑
-
-![](./screenshots/image5.png)
+1. 获取失败常见于：输入的文档地址携带不正常后缀；文档在更新；插件更新需重新加载；本地使用了代理工具。
+2. 使用百度文字提取功能、翻译功能（百度翻译），需要在基础配置维护相关appid、screet、token。
