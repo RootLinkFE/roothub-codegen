@@ -61,7 +61,7 @@ export function transcodingAll(fieldData: FieldData, body: any, record?: any, ap
   return typeof code === 'string' ? code : prettyJSON(code);
 }
 
-const generatAvueTranscodeAll = (...argetment: [body: any, record?: any, api?: any, selectedData?: any]) => {
+const generatReactAntdPageTranscodeAll = (...argetment: [body: any, record?: any, api?: any, selectedData?: any]) => {
   return transcodingAll(
     {
       labelField: 'dataIndex',
@@ -71,4 +71,4 @@ const generatAvueTranscodeAll = (...argetment: [body: any, record?: any, api?: a
   );
 };
 
-export default generatAvueTranscodeAll;
+export default generatReactAntdPageTranscodeAll;

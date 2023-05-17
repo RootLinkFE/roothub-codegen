@@ -3,7 +3,7 @@
  * @Date: 2023-05-15 09:17:07
  * @Description: generate-avue-transcode-all
  */
-import { transcodingAll } from '../generate-react-transcoding-all';
+import { transcodingAll } from '../generate-react-antd-page-transcoding-all';
 
 const generatAvueTranscodeAll = (...argetment: [body: any, record?: any, api?: any, selectedData?: any]) => {
   return transcodingAll(

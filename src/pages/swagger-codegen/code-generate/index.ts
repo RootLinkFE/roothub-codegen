@@ -9,7 +9,7 @@ import generateModelClass from './generate-model-class';
 import generateTypeScriptType from './generate-typescript-type';
 import generateRhTablePageCode from './generate-rhtable-page';
 import generateRhTablePageTranscoding from './generate-rhtable-page-transcoding';
-import generateReactPageTranscodingAll from './generate-react-transcoding-all';
+import generateReactAntdPageTranscodingAll from './generate-react-antd-page-transcoding-all';
 import generateAvueProTablePageCode from './avue/generate-avue-pro-table';
 
 import generateAvueTableColumns from './avue/generate-avue-table-columns';
@@ -18,7 +18,7 @@ import generateAvueFormColumns from './avue/generate-avue-form-columns';
 import generateAvueFormCode from './avue/generate-avue-form';
 import generatAvueColumnsTranscoding from './avue/generate-avue-columns-transcoding';
 import generatAvueTranscodeAll from './avue/generate-avue-transcode-all';
-import generateElTableColumnTranscoding from './generate-el-table-column-transcoding';
+import generateElTableOrFromTranscoding from './generate-element-table-form-transcoding';
 
 import generateTableColumnsProps from './generate-table-columns-props';
 import generateModelFormItemsCode from './generate-model-form-items-code';
@@ -42,8 +42,8 @@ import generateTransformTextByForm from './generate-transform-text-by-form';
 
 export const codeGenerateMethods = [
   {
-    key: 'copy-api',
-    label: '复制API',
+    key: 'fetch-api',
+    label: 'fetch-api',
     type: 'api',
     source: 'root',
     status: 1,
@@ -157,13 +157,13 @@ export const codeGenerateMethods = [
     type: 'model',
     source: 'root',
     status: 1,
-    sort: 95,
+    sort: 96,
     language: 'vue',
     function: generateAvueTableColumns,
   },
   {
     key: 'avue-table-columns-transcoding',
-    label: 'avue-table-columns-transcoding',
+    label: 'avue-table-columns-代码匹配',
     type: 'model',
     source: 'root',
     status: 1,
@@ -182,14 +182,44 @@ export const codeGenerateMethods = [
     function: generatAvueTranscodeAll,
   },
   {
-    key: 'el-table-column-transcoding',
-    label: 'el-table-column-代码匹配',
+    key: 'el-table-from-transcoding',
+    label: 'element-table-from-代码匹配',
     type: 'model',
     source: 'root',
     status: 1,
     sort: 94,
     language: 'vue',
-    function: generateElTableColumnTranscoding,
+    function: generateElTableOrFromTranscoding,
+  },
+  {
+    key: 'avue-table-columns-transcoding',
+    label: 'avue-table-columns-代码匹配',
+    type: 'response',
+    source: 'root',
+    status: 1,
+    sort: 95,
+    language: 'vue',
+    function: generatAvueColumnsTranscoding,
+  },
+  {
+    key: 'generate-avue-transcode-all',
+    label: 'avue代码匹配全替换',
+    type: 'response',
+    source: 'root',
+    status: 1,
+    sort: 94,
+    language: 'vue',
+    function: generatAvueTranscodeAll,
+  },
+  {
+    key: 'el-table-from-transcoding',
+    label: 'element-table-from-代码匹配',
+    type: 'response',
+    source: 'root',
+    status: 1,
+    sort: 94,
+    language: 'vue',
+    function: generateElTableOrFromTranscoding,
   },
   {
     key: 'avue-table',
@@ -289,7 +319,27 @@ export const codeGenerateMethods = [
     status: 1,
     sort: 76,
     language: 'typescript',
-    function: generateReactPageTranscodingAll,
+    function: generateReactAntdPageTranscodingAll,
+  },
+  {
+    key: 'RhTablePageTranscoding',
+    label: 'RhTablePage代码匹配',
+    type: 'response',
+    source: 'root',
+    status: 1,
+    sort: 76,
+    language: 'typescript',
+    function: generateRhTablePageTranscoding,
+  },
+  {
+    key: 'generate-react-transcoding-all',
+    label: 'ReactPage代码匹配全替换',
+    type: 'response',
+    source: 'root',
+    status: 1,
+    sort: 76,
+    language: 'typescript',
+    function: generateReactAntdPageTranscodingAll,
   },
   {
     key: 'RhTablePage',
