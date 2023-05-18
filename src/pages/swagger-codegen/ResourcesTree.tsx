@@ -4,7 +4,7 @@
  * @Description: 侧边菜单
  */
 import { Col, Select, Menu, MenuProps, Input, Row, Spin, Button, Badge } from 'antd';
-import { DownloadOutlined, ReloadOutlined } from '@ant-design/icons';
+import { DownloadOutlined, ReloadOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import React, { useCallback, useState } from 'react';
 import { useMemo } from 'react';
 import { useModel } from 'umi';
@@ -13,6 +13,7 @@ import { MethodColors } from '@/shared/common';
 import { dataSaveToJSON } from '@/shared/utils';
 import ApiDefinitionDropdown from './ApiDefinitionDropdown';
 import state from '@/stores/index';
+import { observer } from 'mobx-react';
 
 const { Search } = Input;
 
@@ -46,6 +47,8 @@ const ResourcesTree: React.FC<{ labelKey: string } & MenuProps> = ({ labelKey })
     type,
     selectedApi,
     setItemSelectedApi,
+    collapsed,
+    setCollapsed,
   } = useModel('useApiSwitchModel');
 
   const { urlValue } = state.swagger;
@@ -166,12 +169,14 @@ const ResourcesTree: React.FC<{ labelKey: string } & MenuProps> = ({ labelKey })
     return null;
   } else {
     return (
-      <Col flex="20%" className="resources-tree">
-        <div>
-          <Row align="middle" justify="center">
-            <div style={{ flex: 1 }}>
-              <Search placeholder="搜索接口（名称、api）" allowClear enterButton onSearch={onSearch} />
-            </div>
+      <Col flex="20%" className={`resources-tree ${collapsed ? 'resources-tree-collapsed' : ''}`}>
+        <Row justify="center">
+          <Row align="middle" justify="center" className="input-row">
+            {!collapsed && (
+              <div style={{ flex: 1 }}>
+                <Search placeholder="搜索接口（名称、api）" allowClear enterButton onSearch={onSearch} />
+              </div>
+            )}
             <Button
               type="text"
               size="small"
@@ -185,14 +190,16 @@ const ResourcesTree: React.FC<{ labelKey: string } & MenuProps> = ({ labelKey })
             </Button>
           </Row>
           {type === 'api' && (
-            <Row align="middle" style={{ flexWrap: 'nowrap' }}>
-              <Select
-                value={selectedResourceIndex}
-                onSelect={setSelectedResourceIndex}
-                className="docs-select"
-                options={resources}
-                fieldNames={{ label: 'name', value: 'location' }}
-              ></Select>
+            <Row align="middle" style={{ flexWrap: 'nowrap' }} className="input-row">
+              {!collapsed && (
+                <Select
+                  value={selectedResourceIndex}
+                  onSelect={setSelectedResourceIndex}
+                  className="docs-select"
+                  options={resources}
+                  fieldNames={{ label: 'name', value: 'location' }}
+                ></Select>
+              )}
               <Button
                 type="text"
                 size="small"
@@ -206,17 +213,32 @@ const ResourcesTree: React.FC<{ labelKey: string } & MenuProps> = ({ labelKey })
               </Button>
             </Row>
           )}
-        </div>
+        </Row>
         {resourceDetailLoading ? (
           <Row align="middle" justify="center" style={{ width: '100%', height: '100px' }}>
             <Spin />
           </Row>
         ) : (
-          <Menu mode="inline" items={menuItems} defaultSelectedKeys={defaultSelectedKeys} onClick={onItemSelect}></Menu>
+          <Menu
+            mode="inline"
+            items={menuItems}
+            defaultSelectedKeys={defaultSelectedKeys}
+            selectedKeys={defaultSelectedKeys}
+            onClick={onItemSelect}
+            inlineCollapsed={collapsed}
+          ></Menu>
         )}
+
+        <div
+          className="tree-collapse-box"
+          title={collapsed ? '展开侧边栏' : '收起侧边栏'}
+          onClick={() => setCollapsed(!collapsed)}
+        >
+          {collapsed ? <RightOutlined /> : <LeftOutlined />}
+        </div>
       </Col>
     );
   }
 };
 
-export default ResourcesTree;
+export default observer(ResourcesTree);
