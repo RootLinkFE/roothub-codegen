@@ -31,6 +31,7 @@ const { TextArea } = Input;
 const { Text } = Typography;
 
 const ExtractTextContext: React.FC<DrawerProps> = (props) => {
+  const storeBaseCode = state.settings.baseCode ?? '';
   const swaggerStore = state.swagger;
   const { historyTexts, extractType } = swaggerStore;
   const { transformSate, setTransformSate } = useModel('useApiSwitchModel');
@@ -118,27 +119,24 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
     }
   };
 
-  const oldCodeChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const baseCodeChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     matchTextChange(event.target.value);
   };
 
   const matchTextChange = (value: string) => {
-    const oldCode = value || textForm.getFieldValue('oldCode');
-    if (!oldCode) return;
+    const baseCode = value || textForm.getFieldValue('baseCode');
+    if (!baseCode) return;
     let code: any = null;
     try {
-      let codeArr = eval(oldCode);
+      let codeArr = eval(baseCode);
       if (codeArr) {
         code = codeArr;
       }
     } catch (err) {
-      code = oldCode;
+      code = baseCode;
       console.error(err, code);
     }
-    setTransformSate({
-      ...transformSate,
-      baseCode: code,
-    });
+    state.settings.setBaseCode(code);
   };
 
   /**
@@ -501,7 +499,7 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
             labelCol: { span: 2 },
             wrapperCol: { span: 22 },
           }}
-          initialValues={{ isTranslate: transformSate.isTranslate }}
+          initialValues={{ isTranslate: transformSate.isTranslate, baseCode: storeBaseCode }}
           autoComplete="off"
         >
           <Row>
@@ -562,13 +560,19 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
               </Form.Item>
             </Col>
           </Row>
-          <Form.Item wrapperCol={{ span: 22 }} label="匹配代码" name="oldCode">
-            <TextArea style={{ height: '200px' }} onChange={oldCodeChange} />
+          <Form.Item wrapperCol={{ span: 22 }} label="匹配代码" name="baseCode">
+            <TextArea style={{ height: '200px' }} onChange={baseCodeChange} />
           </Form.Item>
           <Row>
             <Col span={2}></Col>
             <Col span={22}>
-              <Button type="primary" title="代码匹配接口文档" onClick={matchTextChange}>
+              <Button
+                type="primary"
+                title="代码匹配接口文档"
+                onClick={() => {
+                  matchTextChange('');
+                }}
+              >
                 匹配
               </Button>
             </Col>

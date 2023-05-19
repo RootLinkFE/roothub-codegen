@@ -18,6 +18,8 @@ import { MethodColors } from '@/shared/common';
 import { getStringToFn, flatChildren, getHeaderParams, getRequestParams, dataSaveToJSON } from '@/shared/utils';
 import ApiDefinitionDropdown from './ApiDefinitionDropdown';
 import { CustomMethodsItem } from '@/shared/ts/custom';
+import state from '@/stores/index';
+
 const { Panel } = Collapse;
 
 const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
@@ -189,7 +191,7 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
               resourceDetail,
               transformTextRecord:
                 transformSate.status && transformSate.textRecord?.length > 0 ? transformSate.textRecord : null,
-              baseCode: transformSate.baseCode,
+              baseCode: state.settings.baseCode,
             },
             selectedApi,
           ),

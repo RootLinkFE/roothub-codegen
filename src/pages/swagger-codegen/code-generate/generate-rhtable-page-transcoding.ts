@@ -71,7 +71,7 @@ export function transcodingByRows(list: any[], baseCode: any, fieldData: FieldDa
 
 export function transcoding(fieldData: FieldData, body: any, record?: any, api?: any, selectedData?: any) {
   let baseCode = selectedData?.baseCode || body?.baseCode || ''; // baseCode获取
-  let rows = body?.requestSelectedData || record?.children || []; // 处理rows传入
+  let rows = body?.responseParamsData || body?.requestSelectedData || record?.children || []; // 处理rows传入
 
   if (baseCode === '') {
     return 'no base code';

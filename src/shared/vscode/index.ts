@@ -3,6 +3,7 @@ import { noop, uniqueId } from 'lodash';
 import storage from '../storage';
 import state from '@/stores/index';
 import { message } from 'antd';
+import { dispatch } from '@/shared/useBus';
 
 export const fetchResponsePromiseMap: Record<string, ((r: any) => void)[]> = {};
 
@@ -81,8 +82,14 @@ const CommandHandler: Record<string, (data: any) => any> = {
     state.settings.updateSettings(data || []);
   },
   updateCodeGenCustomMethods(data) {
-    console.log('updateCodeGenCustomMethods: ', data);
     state.custom.updateCustomMethods(data || []);
+  },
+  postActiveTextMatchCode(data) {
+    const { mounted, baseCode } = data;
+    state.settings.setBaseCode(baseCode);
+    if (mounted) {
+      dispatch('activeTextMatchCode');
+    }
   },
 };
 

@@ -4,9 +4,12 @@
  * @Description: 基础设置抽屉弹窗
  */
 import { observer } from 'mobx-react-lite';
-import { Drawer, DrawerProps, Form, Input, Button } from 'antd';
+import { Drawer, DrawerProps, Form, Input, Button, Switch, Select } from 'antd';
 import state from '@/stores/index';
 import { Settings } from '@/shared/ts/settings';
+import { trancodingOptions, CodeGenerateOption } from './code-generate/index';
+
+const { Option } = Select;
 
 const ApiurlPrefixDrawer: React.FC<DrawerProps> = (props) => {
   const { Settings } = state.settings;
@@ -20,8 +23,8 @@ const ApiurlPrefixDrawer: React.FC<DrawerProps> = (props) => {
   };
 
   const itemCol = {
-    labelCol: { span: 4 },
-    wrapperCol: { span: 20 },
+    labelCol: { span: 6 },
+    wrapperCol: { span: 18 },
   };
 
   return (
@@ -36,8 +39,8 @@ const ApiurlPrefixDrawer: React.FC<DrawerProps> = (props) => {
       <Form
         name="basic"
         form={form}
-        labelCol={{ span: 2 }}
-        wrapperCol={{ span: 22 }}
+        labelCol={{ span: 4 }}
+        wrapperCol={{ span: 20 }}
         initialValues={{ ...Settings }}
         onFinish={handleSubmit}
         onFinishFailed={() => {}}
@@ -51,6 +54,20 @@ const ApiurlPrefixDrawer: React.FC<DrawerProps> = (props) => {
         </Form.Item>
         <Form.Item label="百度API-token" name="baiduApiToken" {...itemCol}>
           <Input></Input>
+        </Form.Item>
+        <Form.Item label="代码匹配默认开启" valuePropName="checked" name="matchCodeStatus" {...itemCol}>
+          <Switch></Switch>
+        </Form.Item>
+        <Form.Item label="代码匹配默认方法" name="matchCodeFnKey" {...itemCol}>
+          <Select>
+            {trancodingOptions.map((o: CodeGenerateOption) => {
+              return (
+                <Option value={o.key} key={o.key}>
+                  {o.label}
+                </Option>
+              );
+            })}
+          </Select>
         </Form.Item>
         {/* <Form.Item label="主题" name="them">
           <Select style={{ width: '150px' }} options={themOptions}></Select>

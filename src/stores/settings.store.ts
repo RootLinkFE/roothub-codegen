@@ -18,10 +18,13 @@ const baseData = {
   baiduTransAppid: '',
   baiduTransSecret: '',
   baiduApiToken: '24.314fe09fa0ea4b5f105c276ea9d6e17f.2592000.1685860331.282335-31896638',
+  matchCodeStatus: true,
+  matchCodeFnKey: '',
 };
 
 class SettingsStore {
   Settings: Settings = rhSettings ? rhSettings : baseData;
+  baseCode: string = '';
 
   constructor() {
     makeAutoObservable(this);
@@ -52,6 +55,11 @@ class SettingsStore {
       apiurlPrefixList: list,
     };
     this.setSettings(data);
+  }
+
+  // 更改baseCode
+  setBaseCode(text: string) {
+    this.baseCode = text;
   }
 }
 

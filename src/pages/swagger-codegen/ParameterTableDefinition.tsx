@@ -60,7 +60,7 @@ const ParameterTableDefinition: React.FC<{ definition: any; record: any; api: pa
       generateCode: () => {},
     };
     const textRecord = transformSate.status && transformSate.textRecord?.length > 0 ? transformSate.textRecord : null;
-    const baseCode = transformSate.baseCode;
+    const baseCode = state.settings.baseCode;
     if (generateMethod) {
       drawerProps.generateCode = () =>
         generateMethod.function(definition, record, api, { transformTextRecord: textRecord, baseCode });

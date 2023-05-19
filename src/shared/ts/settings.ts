@@ -18,6 +18,8 @@ export interface Settings {
   baiduTransAppid: string;
   baiduTransSecret: string;
   baiduApiToken: string;
+  matchCodeStatus: boolean;
+  matchCodeFnKey: string;
 }
 
 export type TransformSateHistoryArrayItem = {

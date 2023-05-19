@@ -17,12 +17,55 @@ import DefaultDrawer from '@/components/DefaultDrawer';
 import ExtractTextContext from './ExtractTextContext';
 import ModelCodeDrawer from './ModelCodeDrawer';
 import BaseConfigDrawer from './BaseConfigDrawer';
+import getResponseParams from '@/shared/getResponseParams';
+import state from '@/stores/index';
+import useBus from '@/shared/useBus';
+import { flatChildren } from '@/shared/utils';
+import { trancodingOptions, CodeGenerateOption } from './code-generate/index';
 
 const { TabPane } = Tabs;
 
 export default function ApiSwitch() {
-  const { resources, selectedApi, setSelectedApi, selectedApiMaps, selectedApiRows, setSelectedApiRows } = useModel(
-    'useApiSwitchModel',
+  const {
+    resources,
+    selectedApi,
+    setSelectedApi,
+    selectedApiMaps,
+    selectedApiRows,
+    setSelectedApiRows,
+    resourceDetail,
+    setDefinitionCodeDrawerProps,
+  } = useModel('useApiSwitchModel');
+  const settings = state.settings;
+
+  const handleActiveTextMatchCode = () => {
+    const { baseCode, Settings } = settings;
+    const { matchCodeStatus, matchCodeFnKey } = Settings;
+    if (!selectedApi || !matchCodeStatus || !matchCodeFnKey) return;
+    // 确保已选择api详情，开启方法触发，及已设置处理方法
+
+    let transcodingOption: CodeGenerateOption | undefined = trancodingOptions.find(
+      (v: CodeGenerateOption) => v.key === matchCodeFnKey,
+    );
+    if (transcodingOption) {
+      const transcodingFn = transcodingOption.function;
+      const responseParamsData = flatChildren(getResponseParams(selectedApi, resourceDetail)); // 扁平化ResponseParams
+      setDefinitionCodeDrawerProps({
+        title: transcodingOption.label || '匹配代码生成',
+        visible: true,
+        language: 'javascript',
+        generateCode: () => transcodingFn({ responseParamsData, baseCode }),
+      });
+    }
+  };
+
+  // 事件汇总收集activeTextMatchCode触发
+  useBus(
+    'activeTextMatchCode',
+    () => {
+      handleActiveTextMatchCode();
+    },
+    [selectedApi],
   );
 
   const [customMethodsVisible, setCustomMethodsVisible] = useState<boolean | undefined>(false);

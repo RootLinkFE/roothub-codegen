@@ -40,7 +40,76 @@ import generateTransformTextToZhAndEn from './generate-transform-text';
 import generateSplitTransformTextToZhAndEn from './generate-split-transform-text';
 import generateTransformTextByForm from './generate-transform-text-by-form';
 
+export type CodeGenerateOption = {
+  key: string;
+  label: string;
+  type: string;
+  source: string;
+  status: number;
+  sort: number;
+  language: string;
+  function: any; // funciton
+};
+
+export const trancodingOptions: CodeGenerateOption[] = [
+  {
+    key: 'avue-table-columns-transcoding',
+    label: 'avue-table-columns-代码匹配',
+    type: 'model',
+    source: 'root',
+    status: 1,
+    sort: 95,
+    language: 'vue',
+    function: generatAvueColumnsTranscoding,
+  },
+  {
+    key: 'generate-avue-transcode-all',
+    label: 'avue代码匹配全替换',
+    type: 'model',
+    source: 'root',
+    status: 1,
+    sort: 94,
+    language: 'vue',
+    function: generatAvueTranscodeAll,
+  },
+  {
+    key: 'el-table-from-transcoding',
+    label: 'element-table-from-代码匹配',
+    type: 'model',
+    source: 'root',
+    status: 1,
+    sort: 94,
+    language: 'vue',
+    function: generateElTableOrFromTranscoding,
+  },
+  {
+    key: 'RhTablePageTranscoding',
+    label: 'RhTablePage代码匹配',
+    type: 'model',
+    source: 'root',
+    status: 1,
+    sort: 76,
+    language: 'typescript',
+    function: generateRhTablePageTranscoding,
+  },
+  {
+    key: 'generate-react-transcoding-all',
+    label: 'ReactPage代码匹配全替换',
+    type: 'model',
+    source: 'root',
+    status: 1,
+    sort: 76,
+    language: 'typescript',
+    function: generateReactAntdPageTranscodingAll,
+  },
+];
+
 export const codeGenerateMethods = [
+  ...trancodingOptions,
+  ...trancodingOptions.map((v) => ({
+    ...v,
+    type: 'response',
+  })),
   {
     key: 'fetch-api',
     label: 'fetch-api',
@@ -162,66 +231,6 @@ export const codeGenerateMethods = [
     function: generateAvueTableColumns,
   },
   {
-    key: 'avue-table-columns-transcoding',
-    label: 'avue-table-columns-代码匹配',
-    type: 'model',
-    source: 'root',
-    status: 1,
-    sort: 95,
-    language: 'vue',
-    function: generatAvueColumnsTranscoding,
-  },
-  {
-    key: 'generate-avue-transcode-all',
-    label: 'avue代码匹配全替换',
-    type: 'model',
-    source: 'root',
-    status: 1,
-    sort: 94,
-    language: 'vue',
-    function: generatAvueTranscodeAll,
-  },
-  {
-    key: 'el-table-from-transcoding',
-    label: 'element-table-from-代码匹配',
-    type: 'model',
-    source: 'root',
-    status: 1,
-    sort: 94,
-    language: 'vue',
-    function: generateElTableOrFromTranscoding,
-  },
-  {
-    key: 'avue-table-columns-transcoding',
-    label: 'avue-table-columns-代码匹配',
-    type: 'response',
-    source: 'root',
-    status: 1,
-    sort: 95,
-    language: 'vue',
-    function: generatAvueColumnsTranscoding,
-  },
-  {
-    key: 'generate-avue-transcode-all',
-    label: 'avue代码匹配全替换',
-    type: 'response',
-    source: 'root',
-    status: 1,
-    sort: 94,
-    language: 'vue',
-    function: generatAvueTranscodeAll,
-  },
-  {
-    key: 'el-table-from-transcoding',
-    label: 'element-table-from-代码匹配',
-    type: 'response',
-    source: 'root',
-    status: 1,
-    sort: 94,
-    language: 'vue',
-    function: generateElTableOrFromTranscoding,
-  },
-  {
     key: 'avue-table',
     label: 'avue-table',
     type: 'response',
@@ -250,16 +259,6 @@ export const codeGenerateMethods = [
     sort: 94,
     language: 'vue',
     function: generateAvueFormColumns,
-  },
-  {
-    key: 'avue-form-columns-transcoding',
-    label: 'avue-form-columns-transcoding',
-    type: 'request',
-    source: 'root',
-    status: 1,
-    sort: 95,
-    language: 'vue',
-    function: generatAvueColumnsTranscoding,
   },
   {
     key: 'avue-form-request',
@@ -301,46 +300,7 @@ export const codeGenerateMethods = [
     language: 'typescript',
     function: generateRhTablePageCode,
   },
-  {
-    key: 'RhTablePageTranscoding',
-    label: 'RhTablePage代码匹配',
-    type: 'model',
-    source: 'root',
-    status: 1,
-    sort: 76,
-    language: 'typescript',
-    function: generateRhTablePageTranscoding,
-  },
-  {
-    key: 'generate-react-transcoding-all',
-    label: 'ReactPage代码匹配全替换',
-    type: 'model',
-    source: 'root',
-    status: 1,
-    sort: 76,
-    language: 'typescript',
-    function: generateReactAntdPageTranscodingAll,
-  },
-  {
-    key: 'RhTablePageTranscoding',
-    label: 'RhTablePage代码匹配',
-    type: 'response',
-    source: 'root',
-    status: 1,
-    sort: 76,
-    language: 'typescript',
-    function: generateRhTablePageTranscoding,
-  },
-  {
-    key: 'generate-react-transcoding-all',
-    label: 'ReactPage代码匹配全替换',
-    type: 'response',
-    source: 'root',
-    status: 1,
-    sort: 76,
-    language: 'typescript',
-    function: generateReactAntdPageTranscodingAll,
-  },
+
   {
     key: 'RhTablePage',
     label: 'RhTablePage 定义',
