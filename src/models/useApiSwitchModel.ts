@@ -18,7 +18,10 @@ import { classifyPathsToTags } from '@/shared/utils';
 const yaml = require('js-yaml');
 
 export default function useApiSwitchModel() {
-  const [collapsed, setCollapsed] = useState<boolean | undefined>(false);
+  const [collapsed, setCollapsed] = useState<boolean | undefined>(false); // 左侧菜单选项收起
+  const [searchTextFixed, setSearchTextFixed] = useState<boolean | undefined>(false); // 搜索text框显示
+  const [apiSearchText, setapiSearchText] = useState<string>(''); // api详情搜索文本
+
   // 类型 api | json
   const [type, setType] = useState('api');
 
@@ -192,6 +195,10 @@ export default function useApiSwitchModel() {
   return {
     collapsed,
     setCollapsed,
+    searchTextFixed,
+    setSearchTextFixed,
+    apiSearchText,
+    setapiSearchText,
     type,
     setType,
     selectedResourceIndex,

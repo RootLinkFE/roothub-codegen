@@ -84,11 +84,16 @@ const CommandHandler: Record<string, (data: any) => any> = {
   updateCodeGenCustomMethods(data) {
     state.custom.updateCustomMethods(data || []);
   },
-  postActiveTextMatchCode(data) {
-    const { mounted, baseCode } = data;
-    state.settings.setBaseCode(baseCode);
-    if (mounted) {
-      dispatch('activeTextMatchCode');
+  postWebviewActiveText(data) {
+    const { mounted, activeText, type } = data;
+    if (type === 'AutoMatchActiveText') {
+      state.settings.setBaseCode(activeText);
+      if (mounted) {
+        dispatch('activeTextMatchCode');
+      }
+    } else if (type === 'SearchFixedText') {
+      state.settings.setSearchFixedText(activeText);
+      dispatch('activeSearchFixedText');
     }
   },
 };

@@ -122,3 +122,20 @@ img {
   max-width: inherit !important;
   max-height: inherit !important;
 }
+
+.search-fixed-box {
+  width: 340px;
+  border-radius: 4px;
+  position: fixed;
+  z-index: 9;
+  right: 18px;
+  top: 154px;
+  .search-fixed-close {
+    cursor: pointer;
+  }
+}
+
+::highlight(search-results) {
+  background-color: #f06;
+  color: white;
+}

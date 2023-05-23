@@ -25,6 +25,7 @@ const baseData = {
 class SettingsStore {
   Settings: Settings = rhSettings ? rhSettings : baseData;
   baseCode: string = '';
+  searchFixedText: string = '';
 
   constructor() {
     makeAutoObservable(this);
@@ -60,6 +61,10 @@ class SettingsStore {
   // 更改baseCode
   setBaseCode(text: string) {
     this.baseCode = text;
+  }
+
+  setSearchFixedText(text: string) {
+    this.searchFixedText = text;
   }
 }
 

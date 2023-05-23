@@ -5,7 +5,7 @@
  */
 import { SettingOutlined } from '@ant-design/icons';
 import { Col, Button, Row, Tabs, Dropdown, Menu } from 'antd';
-import React, { useCallback, useState, useMemo } from 'react';
+import React, { useCallback, useState, useMemo, useEffect } from 'react';
 import { useModel } from 'umi';
 import ApiDetail from './ApiDetail';
 import ApiSwitchHeader from './useHeader';
@@ -22,6 +22,7 @@ import state from '@/stores/index';
 import useBus from '@/shared/useBus';
 import { flatChildren } from '@/shared/utils';
 import { trancodingOptions, CodeGenerateOption } from './code-generate/index';
+import SearchFixedBox from './components/SearchFixedBox';
 
 const { TabPane } = Tabs;
 
@@ -180,7 +181,13 @@ export default function ApiSwitch() {
         {/* 资源列表 */}
         {resources && <ResourcesTree labelKey="name" />}
         <Col flex="auto">
-          <Tabs activeKey={tabActiveKey} type="editable-card" onChange={tabChange} onEdit={tabEdit}>
+          <Tabs
+            activeKey={tabActiveKey}
+            type="editable-card"
+            onChange={tabChange}
+            onEdit={tabEdit}
+            className="api-detail-tabs"
+          >
             {selectedApiRows.map((item: pathsItem) => {
               return (
                 <TabPane tab={item.summary} key={item.uuid}>
@@ -220,6 +227,8 @@ export default function ApiSwitch() {
       </Row>
 
       <ModelCodeDrawer />
+
+      <SearchFixedBox />
     </Row>
   );
 }
