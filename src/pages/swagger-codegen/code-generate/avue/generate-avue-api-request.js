@@ -14,6 +14,7 @@ function generateApiDefineition(apiData, prefix) {
   let apiParams = 'params';
   let apiPath = prefix + api;
   const apiStrReg = /\{([\d\D]*)\}/g;
+  let responseType = '';
   let argumentsData = ['params'];
   let inBody = false;
   let inQuery = false;
@@ -38,6 +39,9 @@ function generateApiDefineition(apiData, prefix) {
   let packTableData = '';
   if (/(page|list)$/.test(api) || /列表|分页/.test(summary)) {
     packTableData = '.then(packTableData)';
+  } else if (/导出/.test(summary)) {
+    responseType = 'responseType: blob,';
+    packTableData = '';
   }
 
   const matchPathId = apiStrReg.exec(api);
@@ -55,7 +59,8 @@ function generateApiDefineition(apiData, prefix) {
       {
         url: ${'`'}${apiPath}${'`'},
         method: '${method}',
-        ${apiParams}
+        ${apiParams},
+        ${responseType}
       }
     ).then(responseHandle)${packTableData};
   };
