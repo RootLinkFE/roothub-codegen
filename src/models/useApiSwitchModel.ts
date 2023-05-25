@@ -12,7 +12,7 @@ import storage from '@/shared/storage';
 import { postVSCodeMessage } from '@/shared/vscode';
 import state from '@/stores/index';
 import { message } from 'antd';
-import { resourceItems, pathsItem } from '@/shared/ts/api-interface';
+import { resourceItems, pathsItem, tagsItem } from '@/shared/ts/api-interface';
 import { TransformSate } from '@/shared/ts/settings';
 import { classifyPathsToTags } from '@/shared/utils';
 const yaml = require('js-yaml');
@@ -21,6 +21,8 @@ export default function useApiSwitchModel() {
   const [collapsed, setCollapsed] = useState<boolean | undefined>(false); // 左侧菜单选项收起
   const [searchTextFixed, setSearchTextFixed] = useState<boolean | undefined>(false); // 搜索text框显示
   const [apiSearchText, setapiSearchText] = useState<string>(''); // api详情搜索文本
+  // 搜索显示tags
+  const [searchTags, setSearchTags] = useState<tagsItem[] | null>(null);
 
   // 类型 api | json
   const [type, setType] = useState('api');
@@ -199,6 +201,8 @@ export default function useApiSwitchModel() {
     setSearchTextFixed,
     apiSearchText,
     setapiSearchText,
+    searchTags,
+    setSearchTags,
     type,
     setType,
     selectedResourceIndex,

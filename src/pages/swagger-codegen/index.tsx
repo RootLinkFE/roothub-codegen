@@ -5,12 +5,12 @@
  */
 import { SettingOutlined } from '@ant-design/icons';
 import { Col, Button, Row, Tabs, Dropdown, Menu } from 'antd';
-import React, { useCallback, useState, useMemo, useEffect } from 'react';
+import React, { useCallback, useState, useMemo, useEffect, useRef } from 'react';
 import { useModel } from 'umi';
 import ApiDetail from './ApiDetail';
 import ApiSwitchHeader from './useHeader';
 import ResourcesTree from './ResourcesTree';
-import { pathsItem } from '@/shared/ts/api-interface';
+import { pathsItem, tagsItem } from '@/shared/ts/api-interface';
 import CustomMethodsDrawer from './CustomMethodsDrawer';
 import ApiurlPrefixDrawer from './ApiurlPrefixDrawer';
 import DefaultDrawer from '@/components/DefaultDrawer';
@@ -31,11 +31,14 @@ export default function ApiSwitch() {
     resources,
     selectedApi,
     setSelectedApi,
+    setItemSelectedApi,
     selectedApiMaps,
     selectedApiRows,
     setSelectedApiRows,
     resourceDetail,
+    searchTags,
     setDefinitionCodeDrawerProps,
+    apiurlPrefix,
   } = useModel('useApiSwitchModel');
   const settings = state.settings;
 
@@ -73,6 +76,40 @@ export default function ApiSwitch() {
   const [apiurlPrefixVisible, setApiurlPrefixVisible] = useState<boolean | undefined>(false);
   const [extractTextVisible, setExtractTextVisible] = useState<boolean | undefined>(false);
   const [configVisible, setConfigVisible] = useState<boolean | undefined>(false);
+
+  // ResourcesTree-当前显示tags
+  const currentResourceTags: tagsItem[] = useMemo(() => {
+    return searchTags ? searchTags : resourceDetail?.tags ?? [];
+  }, [resourceDetail, searchTags]);
+
+  // 即时搜索匹配url字符，触发自动查找api功能并选中
+  const handleUrlTextChange = (urlText: string): boolean => {
+    let reg = new RegExp(`^${apiurlPrefix}`);
+    if (reg.test(urlText)) {
+      // 去除api默认前缀
+      urlText = urlText.replace(reg, '');
+    }
+
+    if (selectedApi?.api === urlText) {
+      return true;
+    } else {
+      const item = selectedApiRows.find((v) => v.api === urlText);
+      if (item) {
+        tabChange(item.uuid);
+        return true;
+      } else {
+        const paths = currentResourceTags.reduce((pre: any, cur: any) => {
+          return [...pre, ...cur?.paths];
+        }, []);
+        const pathItem = paths.find((v) => v.api === urlText);
+        if (pathItem) {
+          setItemSelectedApi(pathItem);
+        }
+      }
+    }
+
+    return true;
+  };
 
   const blockContent = useMemo(
     () => (
@@ -228,7 +265,7 @@ export default function ApiSwitch() {
 
       <ModelCodeDrawer />
 
-      <SearchFixedBox />
+      <SearchFixedBox onUrlTextChange={handleUrlTextChange} />
     </Row>
   );
 }

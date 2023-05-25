@@ -5,7 +5,7 @@
  */
 import { Col, Select, Menu, MenuProps, Input, Row, Spin, Button, Badge } from 'antd';
 import { DownloadOutlined, ReloadOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useMemo } from 'react';
 import { useModel } from 'umi';
 import { pathsItem, tagsItem } from '@/shared/ts/api-interface';
@@ -37,6 +37,8 @@ function getItem(
 
 const ResourcesTree: React.FC<{ labelKey: string } & MenuProps> = ({ labelKey }) => {
   const {
+    searchTags,
+    setSearchTags,
     selectedResourceIndex,
     setSelectedResourceIndex,
     selectedResource,
@@ -52,9 +54,6 @@ const ResourcesTree: React.FC<{ labelKey: string } & MenuProps> = ({ labelKey })
   } = useModel('useApiSwitchModel');
 
   const { urlValue } = state.swagger;
-
-  // 搜索显示tags
-  const [searchTags, setSearchTags] = useState<tagsItem[] | null>(null);
 
   // 当前显示tags
   const currentResourceTags: tagsItem[] = useMemo(() => {

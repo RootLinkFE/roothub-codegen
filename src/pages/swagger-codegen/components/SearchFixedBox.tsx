@@ -14,10 +14,17 @@ import useBus from '@/shared/useBus';
 import state from '@/stores/index';
 import { debounce } from 'lodash';
 
-const SearchFixedBox: React.FC<any> = () => {
-  const { searchTextFixed, setSearchTextFixed, apiSearchText, setapiSearchText, selectedApi } = useModel(
-    'useApiSwitchModel',
-  );
+const SearchFixedBox: React.FC<{ onUrlTextChange: (urlText: string) => boolean }> = (props) => {
+  const { onUrlTextChange } = props;
+  const {
+    searchTextFixed,
+    setSearchTextFixed,
+    apiSearchText,
+    setapiSearchText,
+    selectedApi,
+    resourceDetail,
+    searchTags,
+  } = useModel('useApiSwitchModel');
   const { clearHighlights, setTextNodeRange, setNewTextNodes } = useSearchPageText(
     '.api-detail-tabs .ant-tabs-content',
   );
@@ -39,7 +46,6 @@ const SearchFixedBox: React.FC<any> = () => {
       setSearchTextFixed(true);
       setTimeout(() => {
         requestAnimationFrame(() => {
-          console.log('inputRef', inputRef, inputRef.current?.focus);
           inputRef.current?.focus({
             cursor: isKeyPress ? 'all' : 'end',
           });
@@ -56,10 +62,19 @@ const SearchFixedBox: React.FC<any> = () => {
   const handleActiveSearchText = () => {
     const { searchFixedText } = state.settings;
     if (searchFixedText !== '') {
-      state.settings.setSearchFixedText(''); // 即时清空
-      setapiSearchText(searchFixedText); // 设置当前值
-      handleFixed(); // 弹起，focus
-      handleSetNewText(searchFixedText);
+      const urlReg = /^\/[a-z0-9-]+(?:\/[a-zA-Z0-9-${}]+)*$/;
+      if (urlReg.test(searchFixedText)) {
+        // 如果匹配为接口url
+        onUrlTextChange(searchFixedText);
+      }
+
+      selectedApi &&
+        requestAnimationFrame(() => {
+          state.settings.setSearchFixedText(''); // 即时清空
+          setapiSearchText(searchFixedText); // 设置当前值
+          handleFixed(); // 弹起，focus
+          handleSetNewText(searchFixedText);
+        });
     }
   };
 
@@ -83,7 +98,7 @@ const SearchFixedBox: React.FC<any> = () => {
     () => {
       handleActiveSearchText();
     },
-    [selectedApi],
+    [selectedApi, resourceDetail, searchTags],
   );
 
   if (searchTextFixed) {
