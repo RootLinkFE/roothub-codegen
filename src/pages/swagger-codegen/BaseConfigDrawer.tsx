@@ -55,6 +55,12 @@ const ApiurlPrefixDrawer: React.FC<DrawerProps> = (props) => {
         <Form.Item label="百度API-token" name="baiduApiToken" {...itemCol}>
           <Input></Input>
         </Form.Item>
+        <Form.Item label="百度ORC-appid" name="baiduOCRAppid" {...itemCol}>
+          <Input></Input>
+        </Form.Item>
+        <Form.Item label="百度ORC-secrect" name="baiduOCRSecret" {...itemCol}>
+          <Input></Input>
+        </Form.Item>
         <Form.Item label="代码匹配默认开启" valuePropName="checked" name="matchCodeStatus" {...itemCol}>
           <Switch></Switch>
         </Form.Item>

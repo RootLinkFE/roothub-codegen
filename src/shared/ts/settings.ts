@@ -18,6 +18,9 @@ export interface Settings {
   baiduTransAppid: string;
   baiduTransSecret: string;
   baiduApiToken: string;
+  baiduApiTokenExpires: number;
+  baiduOCRAppid: string;
+  baiduOCRSecret: string;
   matchCodeStatus: boolean;
   matchCodeFnKey: string;
 }

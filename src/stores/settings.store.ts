@@ -17,7 +17,10 @@ const baseData = {
   apiurlPrefixList: [],
   baiduTransAppid: '',
   baiduTransSecret: '',
-  baiduApiToken: '24.314fe09fa0ea4b5f105c276ea9d6e17f.2592000.1685860331.282335-31896638',
+  baiduApiToken: '24.ba24da4592cdd39ac59057f1dc836656.2592000.1687513296.282335-31896638',
+  baiduApiTokenExpires: 1684924027509, // 过期时间戳
+  baiduOCRAppid: '',
+  baiduOCRSecret: '',
   matchCodeStatus: true,
   matchCodeFnKey: '',
 };

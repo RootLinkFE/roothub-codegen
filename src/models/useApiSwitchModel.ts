@@ -49,7 +49,10 @@ export default function useApiSwitchModel() {
       }
 
       let res = await requestToBody(swaggerUrl);
-
+      if (typeof res === 'string') {
+        console.log('res', res);
+        return [];
+      }
       if (res) {
         handleStorageUrl();
         if (['json', 'yaml'].includes(urlType)) {
@@ -96,7 +99,7 @@ export default function useApiSwitchModel() {
   // 当前选择的资源key
   const [selectedResourceIndex, setSelectedResourceIndex] = useState<string>('');
   const resourcesMap: Map<string, resourceItems> = useMemo(() => {
-    return resources?.length
+    return Array.isArray(resources) && resources?.length
       ? resources?.reduce((p: Map<string, resourceItems>, item: resourceItems) => {
           p.set(item.location || item.url, item);
           return p;

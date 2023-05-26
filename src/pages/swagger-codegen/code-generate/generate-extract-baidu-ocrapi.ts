@@ -20,6 +20,43 @@
  */
 import state from '@/stores/index';
 
+/**
+ * @description: 获取baiduOCR-token
+ * @return {string}
+ */
+const getBaiDuApiToken = async () => {
+  const Settings = state.settings.Settings;
+  const { baiduApiTokenExpires, baiduOCRAppid, baiduOCRSecret } = Settings;
+  let baiduApiToken = null;
+  const nowTime = Date.now();
+  if (baiduApiToken && baiduApiTokenExpires > nowTime) {
+    // 判断token是否过期，有效期30天
+    return baiduApiToken;
+  } else {
+    if (!baiduOCRAppid || !baiduOCRSecret) {
+      console.error('baiduOCRAppid or baiduOCRSecret is empty');
+      return baiduApiToken;
+    }
+    const utilsFn: any = (window as any).utilsFn ?? {};
+    const res = await utilsFn.requestToBody(
+      `https://aip.baidubce.com/oauth/2.0/token?client_id=${baiduOCRAppid}&client_secret=${baiduOCRSecret}&grant_type=client_credentials`, // 获取AccessToken
+      'POST',
+      { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' },
+    );
+    if (res.access_token) {
+      state.settings.updateSettings({
+        ...Settings,
+        baiduApiToken: res.access_token,
+        baiduApiTokenExpires: nowTime + res.expires_in,
+      });
+      return res.access_token;
+    } else {
+      console.log('baiduOCR-token-error', res);
+      return baiduApiToken;
+    }
+  }
+};
+
 export default function generateExtractBaiduOcrapi(file: any, base64Image: any) {
   async function generateExtract(file: any, base64Image: any) {
     const utilsFn: any = (window as any).utilsFn ?? {};
@@ -29,7 +66,7 @@ export default function generateExtractBaiduOcrapi(file: any, base64Image: any) 
       });
     };
     const imageBase64 = base64Image || (await getFiletoBase64(file));
-    const token = state.settings.Settings.baiduApiToken;
+    const token = await getBaiDuApiToken();
     const res = await utilsFn.requestToBody(
       `https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic?access_token=${token}`, // 通用文字识别（高精度版） - https://ai.baidu.com/ai-doc/OCR/1k3h7y3db
       'POST',
@@ -44,6 +81,7 @@ export default function generateExtractBaiduOcrapi(file: any, base64Image: any) 
         detect_direction: false, // 是否检测图像朝向
       },
     );
+    console.log('baiduOCR-res', res);
     if (res.status === 200 && res?.data.words_result?.length > 0) {
       return res.data;
     } else {
