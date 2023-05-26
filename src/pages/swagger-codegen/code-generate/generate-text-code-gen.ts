@@ -11,6 +11,19 @@ export const textCodeGenList = (textRecord: any[]) => {
   return `${prettyJSON(textRecord)}`;
 };
 
+// 基础对象
+export const textCodeGenObject = (textRecord: any[], translateReault?: Map<string, string>) => {
+  const columns: any[] = [];
+
+  textRecord.map((text, i) => {
+    let key = isChinese(text) ? translateReault?.get(text) ?? `value${i + 1}` : text;
+    columns.push(`${key}: null, // ${text}`);
+  });
+  return `{
+  ${columns.reduce((a, b) => a + '\n  ' + b)}
+}`;
+};
+
 // Options
 export const textCodeGenOptions = (textRecord: any[], translateReault?: Map<string, string>) => {
   const columns: any[] = [];
@@ -87,6 +100,70 @@ export const textCodeGenElementTable = (textRecord: any[], translateReault?: Map
 <el-table :data="tableData" border style="width: 100%">
   ${columns.reduce((a, b) => a + '\n  ' + b)}
 </el-table>
+  `;
+};
+
+// Element-From
+export const textCodeGenElementFrom = (textRecord: any[], translateReault?: Map<string, string>) => {
+  const columns: any[] = [];
+  textRecord.forEach((text, i) => {
+    let key = isChinese(text) ? translateReault?.get(text) ?? `key${i + 1}` : text;
+    let itemComponent = `<el-input v-model="ruleForm.${key}" />`;
+    if (/(类型|状态)/.test(text)) {
+      itemComponent = `<el-select v-model="ruleForm.${key}" ></el-select>`;
+    } else if (/(时间|日期|月份)/.test(text)) {
+      itemComponent = `<el-date-picker v-model="ruleForm.${key}" type="date" ></el-date-picker>`;
+    } else if (/(是否)/.test(text)) {
+      itemComponent = `<el-switch v-model="ruleForm.${key}" ></el-switch>`;
+    }
+
+    columns.push(
+      `<el-form-item label="${text}" prop="${key}">
+        ${itemComponent}
+      </el-form-item>`,
+    );
+  });
+  return `
+<el-from
+  ref="ruleFormRef"
+  :model="ruleForm"
+  :rules="rules"
+  label-width="120px">
+  ${columns.reduce((a, b) => a + '\n  ' + b)}
+</el-from>
+  `;
+};
+
+// antd-From
+export const textCodeGenAntdFrom = (textRecord: any[], translateReault?: Map<string, string>) => {
+  const columns: any[] = [];
+  textRecord.forEach((text, i) => {
+    let key = isChinese(text) ? translateReault?.get(text) ?? `key${i + 1}` : text;
+    let itemComponent = `<Input />`;
+    if (/(类型|状态)/.test(text)) {
+      itemComponent = `<Select></Select>`;
+    } else if (/(时间|日期|月份)/.test(text)) {
+      itemComponent = `<DatePicker></DatePicker>`;
+    } else if (/(是否)/.test(text)) {
+      itemComponent = `<Switch></Switch>`;
+    }
+
+    columns.push(
+      `<Form.Item label="${text}" name="${key}">
+      ${itemComponent}
+    </Form.Item>`,
+    );
+  });
+  return `
+<From
+  name="wrap"
+  labelCol={{ flex: '110px' }}
+  labelAlign="left"
+  labelWrap
+  wrapperCol={{ flex: 1 }}
+  colon={false}
+  ${columns.reduce((a, b) => a + '\n  ' + b)}
+</From>
   `;
 };
 

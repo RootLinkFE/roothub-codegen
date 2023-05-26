@@ -25,6 +25,7 @@ import generateModelFormItemsCode from './generate-model-form-items-code';
 import { generateEnumCode } from './generate-enum-code';
 
 import {
+  textCodeGenObject,
   textCodeGenList,
   textCodeGenOptions,
   textCodeGenAvueColumns,
@@ -32,6 +33,8 @@ import {
   textCodeGenAvueFormColumns,
   textCodeGenElementTable,
   textCodeGenAvueSearchColumns,
+  textCodeGenElementFrom,
+  textCodeGenAntdFrom,
 } from './generate-text-code-gen';
 
 import generateExtractBaiduOcrapi from './generate-extract-baidu-ocrapi';
@@ -51,6 +54,7 @@ export type CodeGenerateOption = {
   function: any; // funciton
 };
 
+// 代码匹配Options
 export const trancodingOptions: CodeGenerateOption[] = [
   {
     key: 'avue-table-columns-transcoding',
@@ -104,6 +108,7 @@ export const trancodingOptions: CodeGenerateOption[] = [
   },
 ];
 
+// 代码生成方法Options
 export const codeGenerateMethods = [
   ...trancodingOptions,
   ...trancodingOptions.map((v) => ({
@@ -129,6 +134,16 @@ export const codeGenerateMethods = [
     sort: 101,
     language: 'typescript',
     function: textCodeGenOptions,
+  },
+  {
+    key: 'textCodeGenObject',
+    label: 'object',
+    type: 'text',
+    source: 'root',
+    status: 1,
+    sort: 100,
+    language: 'typescript',
+    function: textCodeGenObject,
   },
   {
     key: 'list',
@@ -161,6 +176,16 @@ export const codeGenerateMethods = [
     function: textCodeGenReactTable,
   },
   {
+    key: 'AntdFrom',
+    label: 'AntdFrom',
+    type: 'text',
+    source: 'root',
+    status: 1,
+    sort: 86,
+    language: 'typescript',
+    function: textCodeGenAntdFrom,
+  },
+  {
     key: 'AvueFormColumns',
     label: 'AvueFormColumns',
     type: 'text',
@@ -171,16 +196,6 @@ export const codeGenerateMethods = [
     function: textCodeGenAvueFormColumns,
   },
   {
-    key: 'ElementTable',
-    label: 'ElementTable',
-    type: 'text',
-    source: 'root',
-    status: 1,
-    sort: 96,
-    language: 'typescript',
-    function: textCodeGenElementTable,
-  },
-  {
     key: 'AvueSearchColumns',
     label: 'AvueSearchColumns',
     type: 'text',
@@ -189,6 +204,26 @@ export const codeGenerateMethods = [
     sort: 95,
     language: 'typescript',
     function: textCodeGenAvueSearchColumns,
+  },
+  {
+    key: 'ElementTable',
+    label: 'ElementTable',
+    type: 'text',
+    source: 'root',
+    status: 1,
+    sort: 76,
+    language: 'typescript',
+    function: textCodeGenElementTable,
+  },
+  {
+    key: 'ElementFrom',
+    label: 'ElementFrom',
+    type: 'text',
+    source: 'root',
+    status: 1,
+    sort: 76,
+    language: 'typescript',
+    function: textCodeGenElementFrom,
   },
   {
     key: 'ExtractBaiduOcrapi',
@@ -333,6 +368,7 @@ export const codeGenerateMethods = [
   },
 ];
 
+// 文本过滤Options
 export const orderCodeGenerateMethods = [
   {
     key: 'generate-transform-text-zh-en',
