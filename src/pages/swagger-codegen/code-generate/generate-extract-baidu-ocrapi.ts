@@ -26,8 +26,7 @@ import state from '@/stores/index';
  */
 const getBaiDuApiToken = async () => {
   const Settings = state.settings.Settings;
-  const { baiduApiTokenExpires, baiduOCRAppid, baiduOCRSecret } = Settings;
-  let baiduApiToken = null;
+  const { baiduApiToken, baiduApiTokenExpires, baiduOCRAppid, baiduOCRSecret } = Settings;
   const nowTime = Date.now();
   if (baiduApiToken && baiduApiTokenExpires > nowTime) {
     // 判断token是否过期，有效期30天
