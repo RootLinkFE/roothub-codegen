@@ -54,13 +54,48 @@ body {
   display: flex;
   flex-direction: column;
   min-width: 300px !important;
+  position: relative;
   .ant-menu-root {
     overflow-y: auto;
     overflow-x: hidden;
   }
   .docs-select {
     padding: 4px 0;
+    flex: 1;
+    & ~ .ant-button {
+      width: 24px;
+    }
+  }
+  .tree-collapse-box {
+    position: absolute;
+    right: -10px;
+    top: 76px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0px 2px 6px 0px rgb(0 0 0 / 20%);
+    border-radius: 50%;
+    border: 1px solid #e9e7e7;
+    z-index: 9;
+    background-color: #fff;
+    .anticon {
+      font-size: 14px;
+    }
+  }
+  .input-row {
     width: 100%;
+  }
+}
+.resources-tree-collapsed {
+  width: 80px !important;
+  min-width: 80px !important;
+  flex: none !important;
+  text-align: center;
+  .input-row {
+    width: inherit;
   }
 }
 
@@ -80,4 +115,27 @@ body {
   position: absolute;
   top: 100%;
   font-size: 12px;
+}
+
+// 重置vscode中的img默认样式，不影响生成base64图片的大小
+img {
+  max-width: inherit !important;
+  max-height: inherit !important;
+}
+
+.search-fixed-box {
+  width: 340px;
+  border-radius: 4px;
+  position: fixed;
+  z-index: 9;
+  right: 18px;
+  top: 154px;
+  .search-fixed-close {
+    cursor: pointer;
+  }
+}
+
+::highlight(search-results) {
+  background-color: #f06;
+  color: white;
 }

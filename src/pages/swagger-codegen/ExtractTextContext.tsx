@@ -5,7 +5,7 @@
  */
 import { Button, DrawerProps, message, Form, Input, Typography, Select, Row, Col, Upload, Switch } from 'antd';
 import { useEffect, useState, useMemo } from 'react';
-import { languageOptions, ImageTypes } from '@/shared/common';
+import { languageOptions, ImageTypes, HistoryItem } from '@/shared/common';
 import { UploadOutlined } from '@ant-design/icons';
 import { useRequest } from 'ahooks';
 import axios from 'axios';
@@ -31,12 +31,13 @@ const { TextArea } = Input;
 const { Text } = Typography;
 
 const ExtractTextContext: React.FC<DrawerProps> = (props) => {
+  const storeBaseCode = state.settings.baseCode ?? '';
   const swaggerStore = state.swagger;
   const { historyTexts, extractType } = swaggerStore;
   const { transformSate, setTransformSate } = useModel('useApiSwitchModel');
 
   const [curState, setCurState] = useState<{
-    storageHistoryTexts: string[];
+    storageHistoryTexts: HistoryItem[];
     extractType: string;
   }>({
     storageHistoryTexts: historyTexts,
@@ -66,7 +67,7 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
   }, []);
 
   useEffect(() => {
-    setParsedText(historyTexts?.length > 0 ? historyTexts[0] : '');
+    setParsedText(historyTexts?.length > 0 ? historyTexts[0].content : '');
     setCurState({
       storageHistoryTexts: historyTexts,
       extractType,
@@ -96,35 +97,46 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
 
     setTransformSate({
       ...transformSate,
-      textArray: splitText,
+      textRecord: splitText,
     });
   };
 
+  // 修改回调
   const splitTextChange = () => {
     const values = textForm.getFieldsValue();
-    if (typeof values.splitText === 'string') {
+    const isValueCall = Object.prototype.toString.call(values.splitText);
+    if (isValueCall === '[object Array]') {
+      // 方法过滤后设置
+      const text = values.splitText.map((v: string) => ({ words: v }));
+      setParsedText(text);
+      setHistoryText(text);
+    } else if (isValueCall === '[object String]') {
+      // 手动修改设置
       setTransformSate({
         ...transformSate,
-        textArray: values.splitText.split(','),
+        textRecord: values.splitText.split(','),
       });
     }
   };
 
-  const matchTextChange = () => {
-    const oldCode = textForm.getFieldValue('oldCode');
+  const baseCodeChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    matchTextChange(event.target.value);
+  };
+
+  const matchTextChange = (value: string) => {
+    const baseCode = value || textForm.getFieldValue('baseCode');
+    if (!baseCode) return;
     let code: any = null;
     try {
-      let codeArr = eval(oldCode);
+      let codeArr = eval(baseCode);
       if (codeArr) {
         code = codeArr;
       }
     } catch (err) {
-      console.error(err);
+      code = baseCode;
+      console.error(err, code);
     }
-    setTransformSate({
-      ...transformSate,
-      baseCode: code,
-    });
+    state.settings.setBaseCode(code);
   };
 
   /**
@@ -138,7 +150,7 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
     });
     setTransformSate({
       ...transformSate,
-      textArray: values,
+      textRecord: values,
     });
   };
 
@@ -159,9 +171,10 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
       return false;
     },
     onChange(info: any) {
-      splitImageToBase64(info.file).then((list: any) => {
-        setBase64ImageList(list);
-      });
+      info.file &&
+        splitImageToBase64(info.file).then((list: any) => {
+          setBase64ImageList(list);
+        });
       setFileList(info.fileList);
     },
   };
@@ -174,9 +187,10 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
       const file = items.getAsFile();
       const fileItem: any = { file, name: file.name };
       form.setFieldValue('file', fileItem);
-      splitImageToBase64(file).then((list: any) => {
-        setBase64ImageList(list);
-      });
+      file &&
+        splitImageToBase64(file).then((list: any) => {
+          setBase64ImageList(list);
+        });
       setFileList([fileItem]);
     }
   };
@@ -239,28 +253,27 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
         }
         // 存在base64列表则需分别调用接口后拼接输出
         if (base64ImageList && base64ImageList.length > 0) {
-          let pAll = [];
-          for (let i = 0; i < base64ImageList.length; i++) {
-            pAll.push(cutomCodeFn(null, base64ImageList[i]));
-          }
-          try {
-            Promise.all(pAll)
-              .then((res) => {
-                let wordsResult: any = [];
-                res.forEach((v) => {
-                  wordsResult = [...wordsResult, ...(v.words_result || [])];
-                });
-                wordsResult = filterWordsResult(wordsResult);
-                setParsedText(wordsResult);
-                setHistoryText(wordsResult);
-                message.success('提取文本成功!');
-              })
-              .catch(() => {
-                message.error('提取文本失败!');
-              });
-          } catch (error) {}
+          let wordsResult: any = [];
+          (async () => {
+            // 避免接口并发
+            for (let i = 0; i < base64ImageList.length; i++) {
+              let res = await cutomCodeFn(null, base64ImageList[i]);
+              if (res.words_result?.length > 0) {
+                wordsResult = [...wordsResult, ...(res.words_result || [])];
+              }
+            }
+            if (wordsResult.length > 0) {
+              wordsResult = filterWordsResult(wordsResult);
+              setParsedText(wordsResult);
+              setHistoryText(wordsResult);
+              message.success('提取文本成功!');
+            } else {
+              message.error('提取文本失败!');
+              return false;
+            }
+          })();
         } else if (values.file.file) {
-          const data = await cutomCodeFn(values.file.file, values);
+          const data = await cutomCodeFn(values.file.file, null);
           if (data.words_result?.length > 0) {
             const wordsResult = filterWordsResult(data.words_result);
             setParsedText(wordsResult);
@@ -284,15 +297,15 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
    * @param {any} words
    * @return {*}
    */
-  const filterWordsResult = function (words: any) {
+  const filterWordsResult = function (wordList: any) {
     const result = [];
-    for (let i = 0; i < words.length; i++) {
-      if (words[i].words.length === 1) {
+    for (let i = 0; i < wordList.length; i++) {
+      if (wordList[i].words.length === 1) {
         if (i !== 0) {
-          result[result.length - 1].words = result[result.length - 1].words + words[i].words;
+          result[result.length - 1].words = result[result.length - 1].words + wordList[i].words;
         }
       } else {
-        result.push(words[i]);
+        result.push(wordList[i]);
       }
     }
     return result;
@@ -304,34 +317,47 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
    * @return {*}
    */
   const setHistoryText = (current: string | unknown) => {
-    const storageHistoryTexts: any[] = storage.get('storageHistoryTexts');
-    let newStorageHistoryTexts: any[] = [current];
-    if (storageHistoryTexts) {
-      const index = storageHistoryTexts.findIndex((v: string) => isEqual(v, current));
+    // const storageHistoryTexts: any[] = storage.get('storageHistoryTexts');
+    const { historyTexts } = state.swagger;
+    const currentItem = { id: `history_text_${Date.now()}`, content: current };
+    let newStorageHistoryTexts: any[] = [currentItem];
+    if (historyTexts) {
+      const index = historyTexts.findIndex((v: any) => isEqual(v.content, current));
       if (index !== -1) {
-        storageHistoryTexts.splice(index, 1);
-      } else if (storageHistoryTexts.length === 15) {
-        storageHistoryTexts.splice(14, 1);
+        historyTexts.splice(index, 1);
+      } else if (historyTexts.length === 15) {
+        historyTexts.splice(14, 1);
       }
-      newStorageHistoryTexts = [current, ...storageHistoryTexts];
+      newStorageHistoryTexts = [currentItem, ...historyTexts];
     }
 
     postVSCodeMessage('pushStorage', {
       key: 'storage',
-      data: { ['storageHistoryTexts']: newStorageHistoryTexts },
+      data: { ['storageHistoryTexts']: JSON.stringify(newStorageHistoryTexts) },
     });
 
     swaggerStore.setHistoryTexts(newStorageHistoryTexts);
   };
 
-  // 历史文本下拉选取设置
-  const onHistoryTextChange = (text: string) => {
-    let value = text;
-    try {
-      value = JSON.parse(value);
-    } catch (error) {}
-    setParsedText(value);
-    setHistoryText(value);
+  // 历史文本下拉选取、设置
+  const onHistoryTextChange = (type: string, text: string) => {
+    if (type === 'text') {
+      let value = text;
+      try {
+        value = JSON.parse(value);
+      } catch (error) {}
+      setParsedText(value);
+      setHistoryText(value);
+    } else if (type === 'searchColumn') {
+      // 设置searchColumn
+      textForm.setFieldsValue({
+        splitText: text,
+      });
+      setTransformSate({
+        ...transformSate,
+        textRecord: JSON.parse(text),
+      });
+    }
   };
 
   const fileInputClick = (e: any) => {
@@ -345,10 +371,10 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
     });
   };
 
-  const onIsBaseCodeChange = (checked: boolean) => {
+  const isTranslateChange = (checked: boolean) => {
     setTransformSate({
       ...transformSate,
-      isBaseCode: checked,
+      isTranslate: checked,
     });
   };
 
@@ -387,34 +413,38 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
               </Upload>
             </Form.Item>
           </Col>
-          <Col span={6}>
-            <Form.Item
-              label="图片类型"
-              name="filetype"
-              labelCol={{ span: 8 }}
-              rules={[{ required: true, message: '请选择图片类型' }]}
-            >
-              <Select style={{ width: '150px' }}>
-                {ImageTypes.map((v: string) => {
-                  return (
-                    <Option value={v} key={v}>
-                      {v}
-                    </Option>
-                  );
-                })}
-              </Select>
-            </Form.Item>
-          </Col>
-          <Col span={6}>
-            <Form.Item
-              label="识别语言"
-              name="language"
-              labelCol={{ span: 8 }}
-              rules={[{ required: true, message: '请选择识别语言' }]}
-            >
-              <Select style={{ width: '150px' }} options={languageOptions}></Select>
-            </Form.Item>
-          </Col>
+          {curState.extractType === 'ocrapi' ? (
+            <>
+              <Col span={6}>
+                <Form.Item
+                  label="图片类型"
+                  name="filetype"
+                  labelCol={{ span: 8 }}
+                  rules={[{ required: true, message: '请选择图片类型' }]}
+                >
+                  <Select style={{ width: '150px' }}>
+                    {ImageTypes.map((v: string) => {
+                      return (
+                        <Option value={v} key={v}>
+                          {v}
+                        </Option>
+                      );
+                    })}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={6}>
+                <Form.Item
+                  label="识别语言"
+                  name="language"
+                  labelCol={{ span: 8 }}
+                  rules={[{ required: true, message: '请选择识别语言' }]}
+                >
+                  <Select style={{ width: '150px' }} options={languageOptions}></Select>
+                </Form.Item>
+              </Col>
+            </>
+          ) : null}
         </Row>
         <Row>
           <Col span={12}>
@@ -425,10 +455,16 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
                 </Button>
               </Row>
               <Text type="secondary">
-                default: 提取方法来源
-                <a href="https://ocr.space/OCRAPI#PostParameters" target="_blank">
-                  ORCAPI
-                </a>
+                提取方法API来源
+                {curState.extractType === 'ExtractBaiduOcrapi' ? (
+                  <a href="https://ai.baidu.com/ai-doc/OCR/1k3h7y3db" target="_blank">
+                    通用文字识别（高精度版）api
+                  </a>
+                ) : (
+                  <a href="https://ocr.space/OCRAPI#PostParameters" target="_blank">
+                    ORCAPI
+                  </a>
+                )}
               </Text>
             </Form.Item>
           </Col>
@@ -437,9 +473,7 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
               <Select options={extractTypeOptions} style={{ width: '88%' }}></Select>
             </Form.Item>
             <Row>
-              <Text type="secondary">
-                设置不同的提取方法，调用对应自定义方法（首页-设置-设置自定义方法），默认方法除外
-              </Text>
+              <Text type="secondary">设置不同的提取方法，调用对应自定义方法（首页-设置-设置自定义方法）</Text>
             </Row>
           </Col>
         </Row>
@@ -458,7 +492,6 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
         </span>
       </h2>
       <div>
-        <Text type="secondary">提取文本后得到文本内容</Text>
         <Form
           name="basic"
           form={textForm}
@@ -466,11 +499,30 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
             labelCol: { span: 2 },
             wrapperCol: { span: 22 },
           }}
+          initialValues={{ isTranslate: transformSate.isTranslate, baseCode: storeBaseCode }}
           autoComplete="off"
         >
-          <Form.Item label="原始文本" wrapperCol={{ span: 20 }} name="originalText">
-            <TextArea />
-          </Form.Item>
+          <Row>
+            <Col span={22}>
+              <Form.Item
+                label={<span title="提取文本后得到文本内容">原始文本</span>}
+                labelCol={{ span: 2 }}
+                name="originalText"
+              >
+                <TextArea />
+              </Form.Item>
+            </Col>
+            <Col span={2}>
+              <Button
+                type="link"
+                onClick={() => {
+                  setParsedText(textForm.getFieldValue('parsedText'));
+                }}
+              >
+                还原
+              </Button>
+            </Col>
+          </Row>
           <Row>
             <Col span={22}>
               <Form.Item
@@ -485,34 +537,44 @@ const ExtractTextContext: React.FC<DrawerProps> = (props) => {
               <Button type="link" onClick={splitTextChange}>
                 修改
               </Button>
-              <TextTransformDropdown value={transformSate.textArray} onChange={transformTextChange} />
+              <TextTransformDropdown value={transformSate.textRecord} onChange={transformTextChange} />
             </Col>
           </Row>
-          <Form.Item wrapperCol={{ offset: 2, span: 12 }}>
-            {/* <Button disabled={true}>历史文本</Button> */}
-            <HistoryTextDropdown onChange={onHistoryTextChange} />
-            <span style={{ marginLeft: '24px' }}>
-              <ApiDefinitionDropdown api={transformSate.textArray} methodType="text" />
-            </span>
-          </Form.Item>
-          <Form.Item wrapperCol={{ span: 22 }} label="原始代码" name="oldCode">
-            <TextArea style={{ height: '200px' }} />
+          <Row>
+            <Col span={2}></Col>
+            <Col span={8}>
+              <HistoryTextDropdown onChange={onHistoryTextChange} />
+              <span style={{ marginLeft: '24px' }}>
+                <ApiDefinitionDropdown api={transformSate.textRecord} methodType="text" />
+              </span>
+            </Col>
+            <Col span={6}>
+              <Form.Item label="翻译" labelCol={{ span: 4 }} wrapperCol={{ offset: 2, span: 6 }} name="isTranslate">
+                <Switch
+                  checkedChildren="开启"
+                  unCheckedChildren="关闭"
+                  defaultChecked={transformSate.status}
+                  title="文本代码生成传入英文翻译字段"
+                  onChange={isTranslateChange}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item wrapperCol={{ span: 22 }} label="匹配代码" name="baseCode">
+            <TextArea style={{ height: '200px' }} onChange={baseCodeChange} />
           </Form.Item>
           <Row>
             <Col span={2}></Col>
             <Col span={22}>
-              <Button type="link" onClick={matchTextChange}>
+              <Button
+                type="primary"
+                title="代码匹配接口文档"
+                onClick={() => {
+                  matchTextChange('');
+                }}
+              >
                 匹配
               </Button>
-              <span style={{ marginLeft: '16px', fontSize: '14px' }}>
-                <Switch
-                  defaultChecked={transformSate.isBaseCode}
-                  size="small"
-                  onChange={onIsBaseCodeChange}
-                  style={{ marginRight: '8px' }}
-                />
-                代码生成是否关联原始代码数组
-              </span>
             </Col>
           </Row>
         </Form>

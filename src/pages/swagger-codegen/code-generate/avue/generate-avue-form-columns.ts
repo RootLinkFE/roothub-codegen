@@ -3,13 +3,13 @@
  * @Date: 2022-07-26 16:18:42
  * @Description: generateAvueFormColumns
  */
-import generateTableColumnsProps from './generate-table-columns-props';
+import generateTableColumnsProps from '../generate-table-columns-props';
 import { cleanParameterDescription } from '@/shared/utils';
 
 export default function generateAvueFormColumns(body: any, record?: any, api?: any) {
   const TypeMap: Record<string, string> = {
     integer: 'number',
-    string: 'input',
+    // string: 'input',
   };
 
   function getFieldType(prop: any): string {
@@ -20,7 +20,7 @@ export default function generateAvueFormColumns(body: any, record?: any, api?: a
     if (type === 'string' && format === 'date-time') {
       return 'datetime';
     }
-    return `${TypeMap[type] || prop.type}`;
+    return TypeMap[type] || (prop.type === 'string' ? null : prop.type);
   }
 
   const rows = Array.isArray(body) ? body : record?.children || body?.requestSelectedData || [];
@@ -60,11 +60,15 @@ export default function generateAvueFormColumns(body: any, record?: any, api?: a
       row.description?.indexOf('原因') !== -1
     ) {
       result.maxLength = 200;
-      result.type = type;
       result.row = 3;
+      if (type) {
+        result.type = type;
+      }
     } else {
       result.maxLength = 50;
-      result.type = type;
+      if (type) {
+        result.type = type;
+      }
     }
     return result;
   });

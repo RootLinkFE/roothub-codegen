@@ -84,3 +84,8 @@ export const CodeMirrorTypes: string[] = [
   'swift',
   'markdown',
 ];
+
+export type HistoryItem = {
+  id: string;
+  content: any[] | string;
+};

@@ -39,7 +39,7 @@ export class ${title} extends Model {
   constructor() {
     super({
       fields:[
-        ${fields.join(',\n')}
+        ${fields.join(',\n  ')}
       ]
     })
   }

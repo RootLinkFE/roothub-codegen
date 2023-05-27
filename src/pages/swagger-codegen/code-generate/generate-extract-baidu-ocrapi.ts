@@ -18,6 +18,44 @@
   },
  * @return {string}
  */
+import state from '@/stores/index';
+
+/**
+ * @description: 获取baiduOCR-token
+ * @return {string}
+ */
+const getBaiDuApiToken = async () => {
+  const Settings = state.settings.Settings;
+  const { baiduApiTokenExpires, baiduOCRAppid, baiduOCRSecret } = Settings;
+  let baiduApiToken = null;
+  const nowTime = Date.now();
+  if (baiduApiToken && baiduApiTokenExpires > nowTime) {
+    // 判断token是否过期，有效期30天
+    return baiduApiToken;
+  } else {
+    if (!baiduOCRAppid || !baiduOCRSecret) {
+      console.error('baiduOCRAppid or baiduOCRSecret is empty');
+      return baiduApiToken;
+    }
+    const utilsFn: any = (window as any).utilsFn ?? {};
+    const res = await utilsFn.requestToBody(
+      `https://aip.baidubce.com/oauth/2.0/token?client_id=${baiduOCRAppid}&client_secret=${baiduOCRSecret}&grant_type=client_credentials`, // 获取AccessToken
+      'POST',
+      { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' },
+    );
+    if (res.access_token) {
+      state.settings.updateSettings({
+        ...Settings,
+        baiduApiToken: res.access_token,
+        baiduApiTokenExpires: nowTime + res.expires_in,
+      });
+      return res.access_token;
+    } else {
+      console.log('baiduOCR-token-error', res);
+      return baiduApiToken;
+    }
+  }
+};
 
 export default function generateExtractBaiduOcrapi(file: any, base64Image: any) {
   async function generateExtract(file: any, base64Image: any) {
@@ -28,27 +66,24 @@ export default function generateExtractBaiduOcrapi(file: any, base64Image: any) 
       });
     };
     const imageBase64 = base64Image || (await getFiletoBase64(file));
-    const formData = new FormData();
-    formData.append('image', imageBase64);
-    formData.append('language_type', 'CHN_ENG');
-    formData.append('detect_language', 'false'); // 是否检测语言
-    formData.append('paragraph', 'false'); // 是否输出段落信息
-    formData.append('probability', 'false'); // 是否返回识别结果中每一行的置信度
-    formData.append('detect_direction', 'false'); // 是否检测图像朝向
-
-    const res = await utilsFn.axios({
-      method: 'POST',
-      url: 'https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic',
-      // 通用文字识别（高精度版） - https://ai.baidu.com/ai-doc/OCR/1k3h7y3db
-      headers: { 'content-type': 'application/x-www-form-urlencoded' },
-      params: {
-        access_token: '24.38fa33748c5dd7740905f992d8c8541e.2592000.1682945835.282335-31896638',
+    const token = await getBaiDuApiToken();
+    const res = await utilsFn.requestToBody(
+      `https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic?access_token=${token}`, // 通用文字识别（高精度版） - https://ai.baidu.com/ai-doc/OCR/1k3h7y3db
+      'POST',
+      { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' },
+      {},
+      {
+        image: imageBase64,
+        language_type: 'CHN_ENG',
+        detect_language: false, // 是否检测语言
+        paragraph: false, // 是否输出段落信息
+        probability: false, // 是否返回识别结果中每一行的置信度
+        detect_direction: false, // 是否检测图像朝向
       },
-      data: formData,
-    });
-    const { data } = res;
-    if (res.status === 200 && data.words_result?.length > 0) {
-      return data;
+    );
+    console.log('baiduOCR-res', res);
+    if (res.status === 200 && res?.data.words_result?.length > 0) {
+      return res.data;
     } else {
       return res;
     }

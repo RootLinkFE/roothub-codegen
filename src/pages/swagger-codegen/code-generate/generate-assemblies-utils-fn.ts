@@ -5,15 +5,18 @@
  */
 import axios from 'axios';
 import generateApiNotes from './generate-api-notes';
+import generateApiConstName from './generate-api-const-name';
 import getApiNameAsPageName from '@/shared/getApiNameAsPageName';
 import { prettyCode, filterTransformArrayByRows } from '@/shared/utils';
 import generateTableColumnsProps from './generate-table-columns-props';
 import { cleanParameterDescription, filetoBase64 } from '@/shared/utils';
-import generateAvueTableColumns from './generate-avue-table-columns';
+import generateAvueTableColumns from './avue/generate-avue-table-columns';
+import { requestToBody } from '@/shared/fetch/requestToBody';
 
 export default {
   axios,
   generateApiNotes,
+  generateApiConstName,
   getApiNameAsPageName,
   prettyCode,
   filterTransformArrayByRows,
@@ -21,4 +24,5 @@ export default {
   cleanParameterDescription,
   filetoBase64,
   generateAvueTableColumns,
+  requestToBody,
 };

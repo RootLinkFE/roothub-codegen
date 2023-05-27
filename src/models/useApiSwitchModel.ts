@@ -12,12 +12,18 @@ import storage from '@/shared/storage';
 import { postVSCodeMessage } from '@/shared/vscode';
 import state from '@/stores/index';
 import { message } from 'antd';
-import { resourceItems, pathsItem } from '@/shared/ts/api-interface';
+import { resourceItems, pathsItem, tagsItem } from '@/shared/ts/api-interface';
 import { TransformSate } from '@/shared/ts/settings';
 import { classifyPathsToTags } from '@/shared/utils';
 const yaml = require('js-yaml');
 
 export default function useApiSwitchModel() {
+  const [collapsed, setCollapsed] = useState<boolean | undefined>(false); // 左侧菜单选项收起
+  const [searchTextFixed, setSearchTextFixed] = useState<boolean | undefined>(false); // 搜索text框显示
+  const [apiSearchText, setapiSearchText] = useState<string>(''); // api详情搜索文本
+  // 搜索显示tags
+  const [searchTags, setSearchTags] = useState<tagsItem[] | null>(null);
+
   // 类型 api | json
   const [type, setType] = useState('api');
 
@@ -43,7 +49,10 @@ export default function useApiSwitchModel() {
       }
 
       let res = await requestToBody(swaggerUrl);
-
+      if (typeof res === 'string') {
+        console.log('res', res);
+        return [];
+      }
       if (res) {
         handleStorageUrl();
         if (['json', 'yaml'].includes(urlType)) {
@@ -90,7 +99,7 @@ export default function useApiSwitchModel() {
   // 当前选择的资源key
   const [selectedResourceIndex, setSelectedResourceIndex] = useState<string>('');
   const resourcesMap: Map<string, resourceItems> = useMemo(() => {
-    return resources?.length
+    return Array.isArray(resources) && resources?.length
       ? resources?.reduce((p: Map<string, resourceItems>, item: resourceItems) => {
           p.set(item.location || item.url, item);
           return p;
@@ -102,7 +111,7 @@ export default function useApiSwitchModel() {
   }, [selectedResourceIndex, resourcesMap]);
 
   // 当前选中的资源 Key 获取详情
-  const { data: requestResourceDetail, loading: resourceDetailLoading } = useRequest(
+  const { data: requestResourceDetail, loading: resourceDetailLoading, run: fetchSelectedResource } = useRequest(
     async () => {
       if (selectedResourceIndex) {
         const formatUrl = formatUrlChar(state.swagger.urlValue);
@@ -182,18 +191,27 @@ export default function useApiSwitchModel() {
   // 文本转换配置
   const [transformSate, setTransformSate] = useState<TransformSate>({
     status: true, // 代码转换关联转换文本
-    textArray: [], // 最后文本记录数组
+    textRecord: [], // 最后文本记录
     historyArray: [], // 历史文本转换记录
-    isBaseCode: false, // 是否原始代码
-    baseCode: [],
+    baseCode: null,
+    isTranslate: true,
   });
 
   return {
+    collapsed,
+    setCollapsed,
+    searchTextFixed,
+    setSearchTextFixed,
+    apiSearchText,
+    setapiSearchText,
+    searchTags,
+    setSearchTags,
     type,
     setType,
     selectedResourceIndex,
     setSelectedResourceIndex,
     selectedResource,
+    fetchSelectedResource,
     fetchResources,
     resources,
     resourcesLoading,

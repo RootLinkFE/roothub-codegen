@@ -15,6 +15,14 @@ export interface Settings {
   language: string;
   theme: string;
   apiurlPrefixList: apiurlPrefixItem[];
+  baiduTransAppid: string;
+  baiduTransSecret: string;
+  baiduApiToken: string;
+  baiduApiTokenExpires: number;
+  baiduOCRAppid: string;
+  baiduOCRSecret: string;
+  matchCodeStatus: boolean;
+  matchCodeFnKey: string;
 }
 
 export type TransformSateHistoryArrayItem = {
@@ -23,8 +31,8 @@ export type TransformSateHistoryArrayItem = {
 };
 export interface TransformSate {
   status: boolean; // 代码转换关联转换文本
-  textArray: string[]; // 最后文本记录数组
+  textRecord: string[] | { search: string[]; column: string[]; length?: any }; // 最后文本记录
   historyArray: TransformSateHistoryArrayItem[]; // 历史文本转换记录
-  isBaseCode: boolean; // 是否原始代码
-  baseCode: any[];
+  baseCode: any; // 用做匹配的原始代码
+  isTranslate: boolean;
 }

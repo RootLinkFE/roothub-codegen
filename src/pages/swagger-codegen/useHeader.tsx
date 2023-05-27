@@ -108,7 +108,7 @@ const ApiSwitchHeader: React.FC = () => {
       </Col>
       <Col flex="none">
         <Dropdown.Button overlay={menu} disabled={apiUrls.length <= 0}>
-          历史接口
+          历史地址
         </Dropdown.Button>
       </Col>
     </Row>

@@ -59,16 +59,16 @@ const ParameterTableDefinition: React.FC<{ definition: any; record: any; api: pa
       language: 'javascript',
       generateCode: () => {},
     };
-    const textArray = transformSate.status && transformSate.textArray.length > 0 ? transformSate.textArray : null;
-    const baseCode = transformSate.isBaseCode && transformSate.baseCode.length > 0 ? transformSate.baseCode : null;
+    const textRecord = transformSate.status && transformSate.textRecord?.length > 0 ? transformSate.textRecord : null;
+    const baseCode = state.settings.baseCode;
     if (generateMethod) {
       drawerProps.generateCode = () =>
-        generateMethod.function(definition, record, api, { transformTextArray: textArray, baseCode });
+        generateMethod.function(definition, record, api, { transformTextRecord: textRecord, baseCode });
     } else {
       let item: any = CustomMethods.find((v) => v.key === key) ?? {};
       const cutomCodeFn = item?.function ? getStringToFn(item.function) : () => {};
       drawerProps.generateCode = () =>
-        cutomCodeFn({ definition, record }, api, { transformTextArray: textArray, baseCode });
+        cutomCodeFn({ definition, record }, api, { transformTextRecord: textRecord, baseCode });
     }
     setSelectedDefinition(params);
     setDefinitionCodeDrawerProps(drawerProps);

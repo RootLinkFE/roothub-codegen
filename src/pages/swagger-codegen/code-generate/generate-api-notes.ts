@@ -12,15 +12,32 @@ import { pathsItem } from '@/shared/ts/api-interface';
  */
 export default function generateNotes(apiData: pathsItem & { requestParams: any }) {
   const { summary, requestParams } = apiData;
+  function forEachParam(list: any[], params: string[], parentName?: string) {
+    const FieldTypeMap: Record<string, string> = {
+      integer: 'number',
+      parseFloat: 'number',
+      float: 'number',
+    };
 
-  const FieldTypeMap: Record<string, string> = {
-    integer: 'number',
-  };
-
+    list.forEach((row: any) => {
+      if (row.in === 'body') {
+        if (row.children?.length > 0) {
+          forEachParam(row.children, params);
+        }
+      } else {
+        params.push(
+          `* @param {${FieldTypeMap[row.type] || row.type}} ${parentName ? `${parentName}.` : ''}${row.name || ''} ${
+            row.description || ''
+          }`,
+        );
+        if (row.children?.length > 0) {
+          forEachParam(row.children, params, row.name);
+        }
+      }
+    });
+  }
   const params: any[] = [];
-  (requestParams || []).forEach((row: any) => {
-    params.push(`* @param {${FieldTypeMap[row.type] || row.type}} ${row.name} ${row.description}`);
-  });
+  forEachParam(requestParams || [], params);
 
   return `/**
  * @description: ${summary}

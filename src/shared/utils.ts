@@ -4,7 +4,7 @@
  * @Description:
  */
 import getParameterObject from './getParameterObject';
-import { isNil } from 'lodash';
+import { isNil, uniqueId, camelCase } from 'lodash';
 
 export function cleanParameterDescription(s: string) {
   let s1 = cleanEnumDesc(s);
@@ -50,7 +50,7 @@ export function prettyJSON(json: object) {
 }
 
 export function formatUrlChar(url: string) {
-  const match = url.match(/\/doc.html/);
+  const match = url.match(/(\/doc.html|\/index.html)/);
   if (match) {
     return url.substr(0, match.index);
   } else {
@@ -79,6 +79,21 @@ export function classifyPathsToTags(tags: any[], pathObj: object) {
     });
   });
 }
+
+/**
+ * @description: text 模糊匹配数组项
+ * @param {string} text
+ * @param {string[]} arr
+ * @return {boolean}
+ */
+export const indexOfArray = (text: string, arr: string[]) => {
+  for (let i = 0; i < arr.length; i++) {
+    if (text?.indexOf(arr[i]) !== -1) {
+      return true;
+    }
+  }
+  return false;
+};
 
 /**
  * @description: 字符串函数转换成js函数
@@ -154,11 +169,12 @@ export function dataSaveToJSON(data: any, filename: string = 'openapi') {
 
 /**
  * @description: 对比两个数组，获取rows中description的与transformArray相近内容，返回数组
- * @param {any[]} rows
+ * @param {any[]} list
  * @param {string[]} transformArray
  * @return {any[]}
  */
-export function filterTransformArrayByRows(rows: any[], transformArray: string[]) {
+export function filterTransformArrayByRows(list: any[], transformArray: string[]) {
+  const rows = replaceDescriptionByRows(list);
   const result: any = [];
   const resultArr: any[] = [];
   resultArr.length = transformArray.length;
@@ -239,12 +255,27 @@ export function strRepeat(preStr: string, nextStr: string): string {
 }
 
 /**
- * @description: 原始代码与响应参数匹配字段后返回
+ * @description: description集中处理#
  * @param {any} rows
- * @param {any} baseCode
- * @return {*}
+ * @return {any}rows
  */
-export function filterBaseCodeByRows(rows: any[], baseCode: any) {
+export const replaceDescriptionByRows = (rows: any[]) => {
+  return rows.map((row) => {
+    return {
+      ...row,
+      description: row.description ? row.description?.replace(/#/g, '') : '',
+    };
+  });
+};
+
+/**
+ * @description: 原始代码与响应参数匹配字段后返回
+ * @param {any} list
+ * @param {any} baseCode
+ * @return {string}
+ */
+export function filterBaseCodeByRows(list: any[], baseCode: any) {
+  const rows = replaceDescriptionByRows(list);
   if (Array.isArray(baseCode)) {
     const nextArr: { i: number; codeItem: any }[] = []; // baseCode未比对部分
     const labelField = 'label';
@@ -256,7 +287,6 @@ export function filterBaseCodeByRows(rows: any[], baseCode: any) {
           (v.description === codeItem[labelField] || v.description.indexOf(codeItem[labelField]) !== -1)
         );
       });
-
       if (item) {
         codeItem.prop = item.name;
       } else {
@@ -272,9 +302,135 @@ export function filterBaseCodeByRows(rows: any[], baseCode: any) {
         };
       }
     });
-    // 未匹配项原样输出
+  } else if (typeof baseCode === 'string') {
+    const splitReg = '},';
+    const splitCodes = baseCode.split(splitReg);
+    const baseCodeList = splitCodes.map((code, index) => {
+      return {
+        isMatch: /(?=.*prop:)(?=.*label:)/s.test(code),
+        // /label:/.test(code) && /prop:/.test(code),
+        code: code + (index !== splitCodes.length - 1 ? splitReg : ''),
+      };
+    });
+
+    const newCodeList: string[] = baseCodeList.map((codeItem) => {
+      if (codeItem.isMatch) {
+        return matchCodeByName(codeItem.code, rows);
+      } else {
+        return codeItem.code;
+      }
+    });
+    return newCodeList.join('');
   }
+  // 未匹配项原样输出
   return baseCode;
+}
+
+/**
+ * @description: 字符串匹配替换；寻找出代码字符串中的label值，并与
+ * @param {string} codeStr
+ * @param {any} rows
+ * @param {Object} fieldData
+ * @return {string}
+ */
+export const matchCodeByName = (
+  codeStr: string,
+  rows: any,
+  fieldData?: { propField?: string; labelField?: string; symbolField?: string },
+) => {
+  const { propField = 'prop', labelField = 'label', symbolField = ':' } = fieldData ?? {};
+  // 提取label的值
+  const labelReg = new RegExp(`${labelField}${symbolField || ':'}\\s*['"](.+?)['"]`);
+  const labelMatch = codeStr.match(labelReg);
+  let labelText = '';
+  if (!labelMatch) {
+    return codeStr;
+  } else {
+    labelText = labelMatch[1];
+  }
+  for (let i = 0; i < rows.length; i++) {
+    const item = rows[i];
+    if (item.description === labelText) {
+      // 相等匹配，替换返回
+      return replacePropValue(codeStr, item.name, propField, symbolField);
+    }
+  }
+  let item = filterStrRepeat(rows, labelText);
+  if (item) {
+    // 非等量匹配下，找到与label匹配的子项，替换返回
+    return replacePropValue(codeStr, item.name, propField, symbolField);
+  }
+  return codeStr;
+};
+
+/**
+ * @description: 将value与代码中的prop值替换并返回
+ * @param {string} codeStr
+ * @param {string} value
+ * @return {string}
+ */
+export function replacePropValue(codeStr: string, value: string, propField: string, symbolField: string) {
+  // 匹配prop的值并替换
+  const propReg = new RegExp(`(${propField ?? 'prop'}${symbolField || ':'}\\s*['"])(.+?)(['"])`);
+  const propMatch = codeStr.match(propReg);
+  if (!propMatch) {
+    return codeStr;
+  }
+  return codeStr.replace(propReg, `$1${value}$3`);
+}
+
+/**
+ * @description: 获取匹配prop的key值
+ * @param {string} codeStr
+ * @return {null | string}
+ */
+export function getMatchRowsName(codeStr: string, rows: any, labelField?: string, symbolField?: string) {
+  // 提取label的值
+  const labelReg = new RegExp(`${labelField}${symbolField || ':'}\\s*['"](.+?)['"]`);
+  const labelMatch = codeStr.match(labelReg);
+  let labelText = '';
+  if (!labelMatch) {
+    return null;
+  } else {
+    labelText = labelMatch[1];
+  }
+  for (let i = 0; i < rows.length; i++) {
+    const item = rows[i];
+    if (item.description === labelText) {
+      return item.name;
+    }
+  }
+  let item = filterStrRepeat(rows, labelText);
+  return item ? item.name : null;
+}
+
+/**
+ * @description: 获取匹配prop的key值
+ * @param {string} codeStr
+ * @return {string}
+ */
+export function getReplacePropKey(codeStr: string, propField?: string, symbolField?: string) {
+  // 匹配prop的值并替换
+  const propReg = new RegExp(`(${propField ?? 'prop'}${symbolField || ':'}\\s*['"])(.+?)(['"])`);
+  const propMatch = codeStr.match(propReg);
+  // console.log('propMatch', propMatch);
+  if (!propMatch) {
+    return null;
+  } else {
+    return propMatch.length > 2 ? propMatch[2] : null;
+  }
+}
+
+/**
+ * @description: 代码全匹配替换
+ * @param {string} baseCode
+ * @param {string} replaceKey
+ * @param {string} replaceName
+ * @return {string}
+ */
+export function matchCodeReplace(baseCode: string, replaceKey: string, replaceName: string): string {
+  const replaceReg = new RegExp(`(?<=[^\w\d\s])${replaceKey}(?=[^\w\d\s])`, 'g');
+  return baseCode.replace(replaceReg, `${replaceName}`);
 }
 
 /**
@@ -318,11 +474,12 @@ export const splitImageToBase64 = function (file: any) {
   return new Promise((resolve, reject) => {
     let reader = new FileReader(); // 实例化文件读取对象
     reader.readAsDataURL(file);
-    reader.onload = function () {
+    reader.onload = function (e: any) {
       let oImg: any = new Image();
-      oImg.src = this.result;
+      const imgResult = e.target.result;
+      oImg.src = imgResult;
       document.body.appendChild(oImg);
-
+      // 会受到当前浏览器样式影响
       oImg.onload = function () {
         let imgWidth = oImg.offsetWidth;
         let imgHeight = oImg.offsetHeight;
@@ -339,6 +496,10 @@ export const splitImageToBase64 = function (file: any) {
             let x = i * splitWidth;
             let y = 0;
             let w = i === splitCount - 1 ? imgWidth - x : splitWidth;
+            if (w < 10) {
+              // 边界宽度不解析
+              continue;
+            }
             let h = imgHeight;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(oImg, x, y, w, h, 0, 0, w, h);
@@ -349,9 +510,75 @@ export const splitImageToBase64 = function (file: any) {
           console.log('imgDataArr', imgDataArr);
           document.body.removeChild(oImg);
         } else {
-          resolve([]);
+          resolve([imgResult]);
         }
       };
     };
   });
+};
+
+/**
+ * @description: 重置HistoryTexts，增加id
+ * @param {any} list
+ * @return {} array
+ */
+export const filterHasIdByHistoryTexts = function (list: any) {
+  return list.map((k: any) => {
+    if (k instanceof Object && k.hasOwnProperty('id')) {
+      return k;
+    } else {
+      return {
+        id: uniqueId('history_text_'),
+        content: k,
+      };
+    }
+  });
+};
+
+export const filterSplitText = function (value: any) {
+  if (Object.prototype.toString.call(value) === '[object Array]') {
+    return value.map((v: any) => {
+      return v.words;
+    });
+  } else {
+    const isT = /\t/g.test(value);
+    const replaceEndReg = new RegExp(`${isT ? '\t' : ''}\r\n$`);
+    const replaceReg = new RegExp(`${isT ? '\r' : ''}\n`, 'g');
+    const splitReg = new RegExp(isT ? '\t' : '\r');
+    return value.replace(replaceEndReg, '').replace(replaceReg, '').split(splitReg);
+  }
+};
+
+/**
+ * @description: 判断是否OCRapi的文本处理成百度ocr返回格式
+ * @param {string} value
+ * @return {Array}
+ */
+export const filterSplitTextTowords = function (value: string | any[]) {
+  if (Object.prototype.toString.call(value) === '[object String]') {
+    return filterSplitText(value).map((v: string) => {
+      return {
+        words: v,
+      };
+    });
+  } else {
+    return value;
+  }
+};
+
+type TransResult = {
+  src: string;
+  dst: string;
+};
+/**
+ * @description: 百度翻译结果处理为Map
+ * @param {TransResult} trans_result
+ * @return {Map}
+ */
+export const filterTransResult = function (trans_result: TransResult[]) {
+  const result = new Map();
+  trans_result.forEach((item: any) => {
+    result.set(item.src, camelCase(item.dst));
+  });
+  return result;
 };

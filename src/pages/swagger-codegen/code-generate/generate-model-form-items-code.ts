@@ -59,13 +59,13 @@ export default function generateModelFormItemsCode(
   selectedData: {
     requestSelectedData: any[];
     responseSelectedData: any[];
-    transformTextArray?: any[];
+    transformTextRecord?: any[];
   },
   api: any = {},
 ) {
-  let { requestSelectedData: rows, transformTextArray } = selectedData;
-  if (transformTextArray) {
-    rows = filterTransformArrayByRows(rows, transformTextArray);
+  let { requestSelectedData: rows, transformTextRecord } = selectedData;
+  if (transformTextRecord) {
+    rows = filterTransformArrayByRows(rows, transformTextRecord);
   }
 
   return prettyCode(

@@ -15,10 +15,20 @@ const baseData = {
   language: 'zh-CN',
   theme: 'default',
   apiurlPrefixList: [],
+  baiduTransAppid: '',
+  baiduTransSecret: '',
+  baiduApiToken: '24.ba24da4592cdd39ac59057f1dc836656.2592000.1687513296.282335-31896638',
+  baiduApiTokenExpires: 1684924027509, // 过期时间戳
+  baiduOCRAppid: '',
+  baiduOCRSecret: '',
+  matchCodeStatus: true,
+  matchCodeFnKey: '',
 };
 
 class SettingsStore {
   Settings: Settings = rhSettings ? rhSettings : baseData;
+  baseCode: string = '';
+  searchFixedText: string = '';
 
   constructor() {
     makeAutoObservable(this);
@@ -34,12 +44,13 @@ class SettingsStore {
   }
 
   updateSettings(data: Settings) {
-    this.Settings = data;
+    const params = { ...this.Settings, ...data };
     if (!isInVSCode) {
-      storage.set('settings', data);
+      storage.set('settings', params);
     } else {
-      postVSCodeMessage('updateCodeGenSettings', JSON.parse(JSON.stringify(data)));
+      postVSCodeMessage('updateCodeGenSettings', JSON.parse(JSON.stringify(params)));
     }
+    this.Settings = params;
   }
 
   setSettingsApiurlPrefixList(list: apiurlPrefixItem[]) {
@@ -48,6 +59,15 @@ class SettingsStore {
       apiurlPrefixList: list,
     };
     this.setSettings(data);
+  }
+
+  // 更改baseCode
+  setBaseCode(text: string) {
+    this.baseCode = text;
+  }
+
+  setSearchFixedText(text: string) {
+    this.searchFixedText = text;
   }
 }
 

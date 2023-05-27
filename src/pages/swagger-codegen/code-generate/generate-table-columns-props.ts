@@ -23,8 +23,8 @@ export default function generateTableColumnsProps(
     rows = selectedData;
   } else {
     rows = selectedData.responseSelectedData;
-    if (selectedData?.transformTextArray) {
-      rows = filterTransformArrayByRows(rows, selectedData.transformTextArray);
+    if (selectedData?.transformTextRecord) {
+      rows = filterTransformArrayByRows(rows, selectedData.transformTextRecord);
     }
   }
 

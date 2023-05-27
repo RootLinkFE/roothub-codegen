@@ -5,28 +5,111 @@
  */
 import { SettingOutlined } from '@ant-design/icons';
 import { Col, Button, Row, Tabs, Dropdown, Menu } from 'antd';
-import React, { useCallback, useState, useMemo } from 'react';
+import React, { useCallback, useState, useMemo, useEffect, useRef } from 'react';
 import { useModel } from 'umi';
 import ApiDetail from './ApiDetail';
 import ApiSwitchHeader from './useHeader';
 import ResourcesTree from './ResourcesTree';
-import { pathsItem } from '@/shared/ts/api-interface';
+import { pathsItem, tagsItem } from '@/shared/ts/api-interface';
 import CustomMethodsDrawer from './CustomMethodsDrawer';
 import ApiurlPrefixDrawer from './ApiurlPrefixDrawer';
 import DefaultDrawer from '@/components/DefaultDrawer';
 import ExtractTextContext from './ExtractTextContext';
 import ModelCodeDrawer from './ModelCodeDrawer';
+import BaseConfigDrawer from './BaseConfigDrawer';
+import getResponseParams from '@/shared/getResponseParams';
+import state from '@/stores/index';
+import useBus from '@/shared/useBus';
+import { flatChildren } from '@/shared/utils';
+import { trancodingOptions, CodeGenerateOption } from './code-generate/index';
+import SearchFixedBox from './components/SearchFixedBox';
 
 const { TabPane } = Tabs;
 
 export default function ApiSwitch() {
-  const { resources, selectedApi, setSelectedApi, selectedApiMaps, selectedApiRows, setSelectedApiRows } = useModel(
-    'useApiSwitchModel',
+  const {
+    resources,
+    selectedApi,
+    setSelectedApi,
+    setItemSelectedApi,
+    selectedApiMaps,
+    selectedApiRows,
+    setSelectedApiRows,
+    resourceDetail,
+    searchTags,
+    setDefinitionCodeDrawerProps,
+    apiurlPrefix,
+  } = useModel('useApiSwitchModel');
+  const settings = state.settings;
+
+  const handleActiveTextMatchCode = () => {
+    const { baseCode, Settings } = settings;
+    const { matchCodeStatus, matchCodeFnKey } = Settings;
+    if (!selectedApi || !matchCodeStatus || !matchCodeFnKey) return;
+    // 确保已选择api详情，开启方法触发，及已设置处理方法
+
+    let transcodingOption: CodeGenerateOption | undefined = trancodingOptions.find(
+      (v: CodeGenerateOption) => v.key === matchCodeFnKey,
+    );
+    if (transcodingOption) {
+      const transcodingFn = transcodingOption.function;
+      const responseParamsData = flatChildren(getResponseParams(selectedApi, resourceDetail)); // 扁平化ResponseParams
+      setDefinitionCodeDrawerProps({
+        title: transcodingOption.label || '匹配代码生成',
+        visible: true,
+        language: 'javascript',
+        generateCode: () => transcodingFn({ responseParamsData, baseCode }),
+      });
+    }
+  };
+
+  // 事件汇总收集activeTextMatchCode触发
+  useBus(
+    'activeTextMatchCode',
+    () => {
+      handleActiveTextMatchCode();
+    },
+    [selectedApi],
   );
 
   const [customMethodsVisible, setCustomMethodsVisible] = useState<boolean | undefined>(false);
   const [apiurlPrefixVisible, setApiurlPrefixVisible] = useState<boolean | undefined>(false);
   const [extractTextVisible, setExtractTextVisible] = useState<boolean | undefined>(false);
+  const [configVisible, setConfigVisible] = useState<boolean | undefined>(false);
+
+  // ResourcesTree-当前显示tags
+  const currentResourceTags: tagsItem[] = useMemo(() => {
+    return searchTags ? searchTags : resourceDetail?.tags ?? [];
+  }, [resourceDetail, searchTags]);
+
+  // 即时搜索匹配url字符，触发自动查找api功能并选中
+  const handleUrlTextChange = (urlText: string): boolean => {
+    let reg = new RegExp(`^${apiurlPrefix}`);
+    if (reg.test(urlText)) {
+      // 去除api默认前缀
+      urlText = urlText.replace(reg, '');
+    }
+
+    if (selectedApi?.api === urlText) {
+      return true;
+    } else {
+      const item = selectedApiRows.find((v) => v.api === urlText);
+      if (item) {
+        tabChange(item.uuid);
+        return true;
+      } else {
+        const paths = currentResourceTags.reduce((pre: any, cur: any) => {
+          return [...pre, ...cur?.paths];
+        }, []);
+        const pathItem = paths.find((v) => v.api === urlText);
+        if (pathItem) {
+          setItemSelectedApi(pathItem);
+        }
+      }
+    }
+
+    return true;
+  };
 
   const blockContent = useMemo(
     () => (
@@ -45,8 +128,8 @@ export default function ApiSwitch() {
       case 'apiurlPrefix':
         setApiurlPrefixVisible(!apiurlPrefixVisible);
         return;
-      case 'extractText':
-        setExtractTextVisible(!apiurlPrefixVisible);
+      case 'config':
+        setConfigVisible(!configVisible);
         return;
     }
   }, []);
@@ -64,6 +147,11 @@ export default function ApiSwitch() {
           {
             label: 'apiurl默认前缀',
             key: 'apiurlPrefix',
+            children: undefined,
+          },
+          {
+            label: '基础设置',
+            key: 'config',
             children: undefined,
           },
         ]}
@@ -130,7 +218,13 @@ export default function ApiSwitch() {
         {/* 资源列表 */}
         {resources && <ResourcesTree labelKey="name" />}
         <Col flex="auto">
-          <Tabs activeKey={tabActiveKey} type="editable-card" onChange={tabChange} onEdit={tabEdit}>
+          <Tabs
+            activeKey={tabActiveKey}
+            type="editable-card"
+            onChange={tabChange}
+            onEdit={tabEdit}
+            className="api-detail-tabs"
+          >
             {selectedApiRows.map((item: pathsItem) => {
               return (
                 <TabPane tab={item.summary} key={item.uuid}>
@@ -161,9 +255,17 @@ export default function ApiSwitch() {
         >
           <ExtractTextContext></ExtractTextContext>
         </DefaultDrawer>
+        <BaseConfigDrawer
+          visible={configVisible}
+          onClose={() => {
+            setConfigVisible(false);
+          }}
+        />
       </Row>
 
       <ModelCodeDrawer />
+
+      <SearchFixedBox onUrlTextChange={handleUrlTextChange} />
     </Row>
   );
 }

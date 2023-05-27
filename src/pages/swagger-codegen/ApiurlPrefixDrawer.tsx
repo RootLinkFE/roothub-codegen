@@ -11,18 +11,16 @@ const ApiurlPrefixDrawer: React.FC<DrawerProps> = (props) => {
   const { ...drawerProps } = props;
 
   return (
-    <>
-      <Drawer
-        width="90%"
-        bodyStyle={{ padding: 16 }}
-        title="apiurl前缀列表"
-        {...drawerProps}
-        zIndex={200}
-        destroyOnClose={true}
-      >
-        <ApiurlPrefixEditTable />
-      </Drawer>
-    </>
+    <Drawer
+      width="90%"
+      bodyStyle={{ padding: 16 }}
+      title="apiurl前缀列表"
+      {...drawerProps}
+      zIndex={200}
+      destroyOnClose={true}
+    >
+      <ApiurlPrefixEditTable />
+    </Drawer>
   );
 };
 

@@ -11,9 +11,9 @@ export default function generateAvueFormCode(
   selectedData: any,
   api: { api: string; description: string; summary: string },
 ) {
-  let { requestSelectedData: body, transformTextArray } = selectedData;
-  if (transformTextArray) {
-    body = filterTransformArrayByRows(body, transformTextArray);
+  let { requestSelectedData: body, transformTextRecord } = selectedData;
+  if (transformTextRecord) {
+    body = filterTransformArrayByRows(body, transformTextRecord);
   }
   const columnCode = generateAvueFormColumns(body);
   const componentName = getApiNameAsPageName(api.api);

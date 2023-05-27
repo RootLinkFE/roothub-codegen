@@ -1,25 +1,28 @@
 /*
  * @Author: ZtrainWilliams ztrain1224@163.com
  * @Date: 2022-06-14 17:11:40
- * @Description:
+ * @Description:generate-rhtable-page
  */
 import getApiNameAsPageName from '@/shared/getApiNameAsPageName';
-import { defaultSwaggerUrl } from '@/shared/swaggerUrl';
 import { prettyCode, filterTransformArrayByRows } from '@/shared/utils';
 import generateTableColumnsProps from './generate-table-columns-props';
+import state from '@/stores/index';
 
 export default function generateRhTablePageCode(
   selectedData: any,
-  api: { api: string; description: string; summary: string },
+  apiData: { api: string; description: string; summary: string; children: any[] },
 ) {
-  let { responseSelectedData: body, transformTextArray } = selectedData;
+  let body: any[] = Array.isArray(selectedData) ? selectedData : apiData?.children || [];
 
-  if (transformTextArray) {
-    body = filterTransformArrayByRows(body, transformTextArray);
+  const { urlValue } = state.swagger;
+  const { apiurlPrefixList } = state.settings.Settings;
+  const prefix = apiurlPrefixList.find((v) => v.status && v.url === urlValue)?.prefix || '';
+  if (selectedData.transformTextRecord) {
+    body = filterTransformArrayByRows(body, selectedData.transformTextRecord);
   }
   const columnCode = generateTableColumnsProps(body, true);
 
-  const componentName = getApiNameAsPageName(api.api);
+  const componentName = apiData.api ? getApiNameAsPageName(apiData.api) : 'get';
 
   const columnCodeBlock = `
   const columns: any[] = ${columnCode}
@@ -28,7 +31,7 @@ export default function generateRhTablePageCode(
   const getListBlock = `
     const getList =  useCallback(
       async (params) => {
-        return fetch('${defaultSwaggerUrl}${api.api}', {
+        return fetch('${urlValue + prefix}${apiData.api ?? ''}', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -43,7 +46,7 @@ export default function generateRhTablePageCode(
 
   return prettyCode(`
   /**
-   * ${api.description ?? api.summary}
+   * ${apiData.description ?? apiData.summary}
    */
     import React, { useCallback } from 'react';
      import { RhTable } from '@roothub/components';

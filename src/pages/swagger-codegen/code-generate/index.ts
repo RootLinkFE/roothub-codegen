@@ -8,22 +8,33 @@ import generateApiDefineition from './generate-api-defineition';
 import generateModelClass from './generate-model-class';
 import generateTypeScriptType from './generate-typescript-type';
 import generateRhTablePageCode from './generate-rhtable-page';
-import generateAvueProTablePageCode from './generate-avue-pro-table';
+import generateRhTablePageTranscoding from './generate-rhtable-page-transcoding';
+import generateReactAntdPageTranscodingAll from './generate-react-antd-page-transcoding-all';
+import generateAvueProTablePageCode from './avue/generate-avue-pro-table';
 
-import generateAvueTableColumns from './generate-avue-table-columns';
-import generateAvueTablePageCode from './generate-avue-table';
-import generateAvueFormColumns from './generate-avue-form-columns';
-import generateAvueFormCode from './generate-avue-form';
+import generateAvueTableColumns from './avue/generate-avue-table-columns';
+import generateAvueTablePageCode from './avue/generate-avue-table';
+import generateAvueFormColumns from './avue/generate-avue-form-columns';
+import generateAvueFormCode from './avue/generate-avue-form';
+import generatAvueColumnsTranscoding from './avue/generate-avue-columns-transcoding';
+import generatAvueTranscodeAll from './avue/generate-avue-transcode-all';
+import generateElTableOrFromTranscoding from './generate-element-table-form-transcoding';
 
 import generateTableColumnsProps from './generate-table-columns-props';
 import generateModelFormItemsCode from './generate-model-form-items-code';
 import { generateEnumCode } from './generate-enum-code';
 
 import {
+  textCodeGenObject,
   textCodeGenList,
   textCodeGenOptions,
   textCodeGenAvueColumns,
   textCodeGenReactTable,
+  textCodeGenAvueFormColumns,
+  textCodeGenElementTable,
+  textCodeGenAvueSearchColumns,
+  textCodeGenElementFrom,
+  textCodeGenAntdFrom,
 } from './generate-text-code-gen';
 
 import generateExtractBaiduOcrapi from './generate-extract-baidu-ocrapi';
@@ -32,10 +43,81 @@ import generateTransformTextToZhAndEn from './generate-transform-text';
 import generateSplitTransformTextToZhAndEn from './generate-split-transform-text';
 import generateTransformTextByForm from './generate-transform-text-by-form';
 
-export const codeGenerateMethods = [
+export type CodeGenerateOption = {
+  key: string;
+  label: string;
+  type: string;
+  source: string;
+  status: number;
+  sort: number;
+  language: string;
+  function: any; // funciton
+};
+
+// 代码匹配Options
+export const trancodingOptions: CodeGenerateOption[] = [
   {
-    key: 'copy-api',
-    label: '复制API',
+    key: 'avue-table-columns-transcoding',
+    label: 'avue-table-columns-代码匹配',
+    type: 'model',
+    source: 'root',
+    status: 1,
+    sort: 95,
+    language: 'vue',
+    function: generatAvueColumnsTranscoding,
+  },
+  {
+    key: 'generate-avue-transcode-all',
+    label: 'avue代码匹配全替换',
+    type: 'model',
+    source: 'root',
+    status: 1,
+    sort: 94,
+    language: 'vue',
+    function: generatAvueTranscodeAll,
+  },
+  {
+    key: 'el-table-from-transcoding',
+    label: 'element-table-from-代码匹配',
+    type: 'model',
+    source: 'root',
+    status: 1,
+    sort: 94,
+    language: 'vue',
+    function: generateElTableOrFromTranscoding,
+  },
+  {
+    key: 'RhTablePageTranscoding',
+    label: 'RhTablePage代码匹配',
+    type: 'model',
+    source: 'root',
+    status: 1,
+    sort: 76,
+    language: 'typescript',
+    function: generateRhTablePageTranscoding,
+  },
+  {
+    key: 'generate-react-transcoding-all',
+    label: 'ReactPage代码匹配全替换',
+    type: 'model',
+    source: 'root',
+    status: 1,
+    sort: 76,
+    language: 'typescript',
+    function: generateReactAntdPageTranscodingAll,
+  },
+];
+
+// 代码生成方法Options
+export const codeGenerateMethods = [
+  ...trancodingOptions,
+  ...trancodingOptions.map((v) => ({
+    ...v,
+    type: 'response',
+  })),
+  {
+    key: 'fetch-api',
+    label: 'fetch-api',
     type: 'api',
     source: 'root',
     status: 1,
@@ -49,9 +131,29 @@ export const codeGenerateMethods = [
     type: 'text',
     source: 'root',
     status: 1,
-    sort: 97,
+    sort: 101,
     language: 'typescript',
     function: textCodeGenOptions,
+  },
+  {
+    key: 'textCodeGenObject',
+    label: 'object',
+    type: 'text',
+    source: 'root',
+    status: 1,
+    sort: 100,
+    language: 'typescript',
+    function: textCodeGenObject,
+  },
+  {
+    key: 'list',
+    label: 'list',
+    type: 'text',
+    source: 'root',
+    status: 1,
+    sort: 100,
+    language: 'typescript',
+    function: textCodeGenList,
   },
   {
     key: 'AvueColumns',
@@ -74,18 +176,58 @@ export const codeGenerateMethods = [
     function: textCodeGenReactTable,
   },
   {
-    key: 'list',
-    label: 'list',
+    key: 'AntdFrom',
+    label: 'AntdFrom',
     type: 'text',
     source: 'root',
     status: 1,
-    sort: 100,
+    sort: 86,
     language: 'typescript',
-    function: textCodeGenList,
+    function: textCodeGenAntdFrom,
+  },
+  {
+    key: 'AvueFormColumns',
+    label: 'AvueFormColumns',
+    type: 'text',
+    source: 'root',
+    status: 1,
+    sort: 97,
+    language: 'typescript',
+    function: textCodeGenAvueFormColumns,
+  },
+  {
+    key: 'AvueSearchColumns',
+    label: 'AvueSearchColumns',
+    type: 'text',
+    source: 'root',
+    status: 1,
+    sort: 95,
+    language: 'typescript',
+    function: textCodeGenAvueSearchColumns,
+  },
+  {
+    key: 'ElementTable',
+    label: 'ElementTable',
+    type: 'text',
+    source: 'root',
+    status: 1,
+    sort: 76,
+    language: 'typescript',
+    function: textCodeGenElementTable,
+  },
+  {
+    key: 'ElementFrom',
+    label: 'ElementFrom',
+    type: 'text',
+    source: 'root',
+    status: 1,
+    sort: 76,
+    language: 'typescript',
+    function: textCodeGenElementFrom,
   },
   {
     key: 'ExtractBaiduOcrapi',
-    label: 'ExtractBaiduOcrapi', // 百度通用文字识别
+    label: '百度高精度文字识别', // 百度通用文字识别
     type: 'extract',
     source: 'root',
     status: 1,
@@ -114,22 +256,12 @@ export const codeGenerateMethods = [
     function: generateTypeScriptType,
   },
   {
-    key: 'RhTablePage',
-    label: 'RhTablePage 定义',
-    type: 'response',
-    source: 'root',
-    status: 1,
-    sort: 96,
-    language: 'typescript',
-    function: generateRhTablePageCode,
-  },
-  {
     key: 'avue-table-columns',
     label: 'avue-table-columns',
     type: 'model',
     source: 'root',
     status: 1,
-    sort: 95,
+    sort: 96,
     language: 'vue',
     function: generateAvueTableColumns,
   },
@@ -194,6 +326,27 @@ export const codeGenerateMethods = [
     function: generateModelFormItemsCode,
   },
   {
+    key: 'RhTablePage',
+    label: 'RhTablePage 定义',
+    type: 'response',
+    source: 'root',
+    status: 1,
+    sort: 76,
+    language: 'typescript',
+    function: generateRhTablePageCode,
+  },
+
+  {
+    key: 'RhTablePage',
+    label: 'RhTablePage 定义',
+    type: 'model',
+    source: 'root',
+    status: 1,
+    sort: 76,
+    language: 'typescript',
+    function: generateRhTablePageCode,
+  },
+  {
     key: 'generate-request-enum-code',
     label: '生成枚举',
     type: 'request',
@@ -215,6 +368,7 @@ export const codeGenerateMethods = [
   },
 ];
 
+// 文本过滤Options
 export const orderCodeGenerateMethods = [
   {
     key: 'generate-transform-text-zh-en',
