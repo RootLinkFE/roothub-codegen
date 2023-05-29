@@ -19,6 +19,7 @@ import generateAvueFormCode from './avue/generate-avue-form';
 import generatAvueColumnsTranscoding from './avue/generate-avue-columns-transcoding';
 import generatAvueTranscodeAll from './avue/generate-avue-transcode-all';
 import generateElTableOrFromTranscoding from './generate-element-table-form-transcoding';
+import generateCodeGenObject from './generate-base-object';
 
 import generateTableColumnsProps from './generate-table-columns-props';
 import generateModelFormItemsCode from './generate-model-form-items-code';
@@ -244,6 +245,16 @@ export const codeGenerateMethods = [
     sort: 96,
     language: 'typescript',
     function: generateModelClass,
+  },
+  {
+    key: 'generateCodeGenObject',
+    label: '基础对象',
+    type: 'model',
+    source: 'root',
+    status: 1,
+    sort: 96,
+    language: 'typescript',
+    function: generateCodeGenObject,
   },
   {
     key: 'typescript-definitions',
