@@ -4,10 +4,11 @@
  * @Description: 基础设置抽屉弹窗
  */
 import { observer } from 'mobx-react-lite';
-import { Drawer, DrawerProps, Form, Input, Button, Switch, Select } from 'antd';
+import { Drawer, DrawerProps, Form, Input, Button, Switch, Select, Typography } from 'antd';
 import state from '@/stores/index';
 import { Settings } from '@/shared/ts/settings';
 import { trancodingOptions, CodeGenerateOption } from './code-generate/index';
+import { storeTips } from '@/shared/vscode';
 
 const { Option } = Select;
 
@@ -81,10 +82,11 @@ const ApiurlPrefixDrawer: React.FC<DrawerProps> = (props) => {
         <Form.Item label="识别语言" name="language" labelCol={{ span: 8 }}>
           <Input></Input>
         </Form.Item> */}
-        <Form.Item wrapperCol={{ offset: 4, span: 16 }}>
-          <Button type="primary" htmlType="submit">
+        <Form.Item wrapperCol={{ offset: 6, span: 18 }}>
+          <Button type="primary" htmlType="submit" style={{ margin: '0 16px 0 0' }}>
             保存
           </Button>
+          <Typography.Text type="secondary">{storeTips}</Typography.Text>
         </Form.Item>
       </Form>
     </Drawer>

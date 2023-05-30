@@ -4,6 +4,7 @@ import storage from '../storage';
 import state from '@/stores/index';
 import { message } from 'antd';
 import { dispatch } from '@/shared/useBus';
+import { storeTipsInVscode, storeTipsInBrowser } from '@/shared/config.json';
 
 export const fetchResponsePromiseMap: Record<string, ((r: any) => void)[]> = {};
 
@@ -136,3 +137,5 @@ export function fetchInVSCode(option: AxiosRequestConfig, commandName = 'fetch')
   option.headers = option.headers || {};
   return fetch(option, commandName);
 }
+
+export const storeTips = isInVSCode ? storeTipsInVscode : storeTipsInBrowser;

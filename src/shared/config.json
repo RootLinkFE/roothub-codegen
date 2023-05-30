@@ -2,5 +2,7 @@
   "ocrApi": {
     "url": "https://api.ocr.space/parse/image",
     "apikey": "K84668927688957"
-  }
+  },
+  "storeTipsInVscode": "数据存储于vscode.config",
+  "storeTipsInBrowser": "数据存储于localStorage"
 }

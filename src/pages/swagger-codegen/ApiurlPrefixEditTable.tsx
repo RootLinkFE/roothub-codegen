@@ -8,6 +8,7 @@ import React, { useState, useMemo } from 'react';
 import { apiurlPrefixItem } from '@/shared/ts/settings';
 import state from '@/stores/index';
 import { uniqueId } from 'lodash';
+import { storeTips } from '@/shared/vscode';
 
 interface Item extends apiurlPrefixItem {}
 
@@ -204,10 +205,11 @@ const ApiurlPrefixEditTable: React.FC = () => {
           title="添加"
           disabled={editingKey !== ''}
           onClick={handleAdd}
-          style={{ marginBottom: '16px' }}
+          style={{ margin: '0 16px 16px 0' }}
         >
           添加
         </Button>
+        <Typography.Text type="secondary">{storeTips}</Typography.Text>
       </Space>
       <Table
         components={{
