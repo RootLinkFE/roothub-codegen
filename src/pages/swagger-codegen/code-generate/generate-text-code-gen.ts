@@ -5,6 +5,7 @@
  */
 import { prettyJSON, isChinese, indexOfArray } from '@/shared/utils';
 import generateAvueFormColumns from './avue/generate-avue-form-columns';
+import { snakeCase } from 'lodash';
 
 // 原数组
 export const textCodeGenList = (textRecord: any[]) => {
@@ -243,4 +244,45 @@ export const textCodeGenAvueSearchColumns = (value: any, translateReault?: Map<s
     });
     return prettyJSON(rows);
   }
+};
+
+// EamTable
+export const textCodeGenEamTable = (textRecord: any[], translateReault?: Map<string, string>) => {
+  const columns: any[] = [];
+  textRecord.forEach((text, i) => {
+    let key = isChinese(text)
+      ? translateReault?.get(text)
+        ? snakeCase(translateReault?.get(text)) // 'snake_case'
+        : `key${i + 1}`
+      : text;
+    let item: any = {
+      key: key,
+      label: text,
+    };
+    if (text.indexOf('时间') !== -1) {
+      item.type = 'dateMin';
+    }
+    columns.push(item);
+  });
+  return `{
+    funId: "Eam",
+    idStr: '',
+    title: '',
+    queryParams: {
+    },
+    query_name: 'query__fault_code',
+    ccHeader: {
+      show: true,
+      type: { value: 'input', func: ['scan'], placeholder: '请输入', likeList: [] },
+    },
+    cardInfo: {
+      idStr: "",
+      lLabel: '', rLabel: '',
+      hideStateLabel: true,
+      stateLabel: '',
+      stateDictionayId: '',
+      label:${prettyJSON(columns)}
+},
+filterData: {},
+  `;
 };
