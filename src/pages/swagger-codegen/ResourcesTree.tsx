@@ -82,7 +82,10 @@ const ResourcesTree: React.FC<{ labelKey: string } & MenuProps> = ({ labelKey })
     } else {
       const list: tagsItem[] = [];
       (resourceDetail?.tags ?? []).forEach((tag: tagsItem) => {
-        const pathList = tag.paths.filter((v: pathsItem) => v.api.includes(val) || v.summary.includes(val));
+        const reg = new RegExp(val, 'i');
+        const pathList = tag.paths.filter((v: pathsItem) => {
+          return reg.test(v.api) || reg.test(v.summary);
+        });
         if (pathList.length > 0) {
           list.push({
             ...tag,
