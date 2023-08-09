@@ -3,11 +3,11 @@
  * @Date: 2023-05-21 17:11:40
  * @Description: SearchFixedBox
  */
-import { Row, Input, message } from 'antd';
+import { Row, Input } from 'antd';
 import type { InputRef } from 'antd';
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useModel } from 'umi';
-import { CloseOutlined } from '@ant-design/icons';
+import { UpOutlined, DownOutlined, CloseOutlined } from '@ant-design/icons';
 import { useKeyPress } from 'ahooks';
 import useSearchPageText from '@/shared/searchPageText';
 import useBus from '@/shared/useBus';
@@ -25,14 +25,23 @@ const SearchFixedBox: React.FC<{ onUrlTextChange: (urlText: string) => boolean }
     resourceDetail,
     searchTags,
   } = useModel('useApiSwitchModel');
-  const { clearHighlights, setTextNodeRange, setNewTextNodes } = useSearchPageText(
-    '.api-detail-tabs .ant-tabs-content',
-  );
+  const {
+    clearHighlights,
+    setTextNodeRange,
+    setNewTextNodes,
+    rangeIndexAdd,
+    rangeIndexSubtract,
+    rangeIndexText,
+  } = useSearchPageText('.api-detail-tabs .ant-tabs-content', '.api-detail-content');
   const inputRef = useRef<InputRef>(null);
 
-  const inputChange = debounce((e: any) => {
+  const inputChange = (e: any) => {
     const value = e.target.value;
     setapiSearchText(value);
+    debounceValueChange(value);
+  };
+
+  const debounceValueChange = debounce((value: string) => {
     if (value === '') {
       clearHighlights();
     } else {
@@ -105,21 +114,40 @@ const SearchFixedBox: React.FC<{ onUrlTextChange: (urlText: string) => boolean }
     return (
       <Row className="search-fixed-box">
         <Input
-          defaultValue={apiSearchText}
+          value={apiSearchText}
           onChange={inputChange}
           size="large"
           ref={inputRef}
           onPressEnter={inputChange}
           addonAfter={
-            <span
-              onClick={() => {
-                setSearchTextFixed(false);
-                clearHighlights();
-              }}
-              className="search-fixed-close"
-            >
-              <CloseOutlined />
-            </span>
+            <Row className="search-fixed-option-box">
+              <span className="search-fixed-option">{rangeIndexText}</span>
+              <span
+                onClick={() => {
+                  rangeIndexSubtract();
+                }}
+                className="search-fixed-option search-fixed-sub"
+              >
+                <UpOutlined />
+              </span>
+              <span
+                onClick={() => {
+                  rangeIndexAdd();
+                }}
+                className="search-fixed-option search-fixed-add"
+              >
+                <DownOutlined />
+              </span>
+              <span
+                onClick={() => {
+                  setSearchTextFixed(false);
+                  clearHighlights();
+                }}
+                className="search-fixed-option search-fixed-close"
+              >
+                <CloseOutlined />
+              </span>
+            </Row>
           }
         />
       </Row>

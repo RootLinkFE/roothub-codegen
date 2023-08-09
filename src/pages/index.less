@@ -130,12 +130,27 @@ img {
   z-index: 9;
   right: 18px;
   top: 154px;
-  .search-fixed-close {
+  .search-fixed-option-box {
+    flex-wrap: nowrap;
+  }
+  .search-fixed-option {
     cursor: pointer;
+    margin: 0 4px;
+    border-radius: 50%;
+    &:hover {
+      background-color: #fff;
+    }
   }
 }
 
+// 高亮对象设置class
 ::highlight(search-results) {
   background-color: #f06;
+  color: white;
+}
+
+::highlight(search-results-current) {
+  // background-color: #ff0;
+  background-color: #eded03;
   color: white;
 }

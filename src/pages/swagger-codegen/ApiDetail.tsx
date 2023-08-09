@@ -252,7 +252,7 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
           </p>
           <p>接口描述：{selectedApi.description}</p>
         </div>
-        <div style={{ flex: 1, overflow: 'auto' }}>
+        <div style={{ flex: 1, overflow: 'auto' }} className="api-detail-content">
           <Row align="middle" justify="space-between">
             <h2 className={styles.h2BorderTitle}>
               请求参数
