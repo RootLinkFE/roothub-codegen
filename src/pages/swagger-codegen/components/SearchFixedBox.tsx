@@ -32,7 +32,7 @@ const SearchFixedBox: React.FC<{ onUrlTextChange: (urlText: string) => boolean }
     rangeIndexAdd,
     rangeIndexSubtract,
     rangeIndexText,
-  } = useSearchPageText('.api-detail-tabs .ant-tabs-content', '.api-detail-content');
+  } = useSearchPageText('.api-detail-tabs .ant-tabs-content .ant-tabs-tabpane-active', '.api-detail-content');
   const inputRef = useRef<InputRef>(null);
 
   const inputChange = (e: any) => {
