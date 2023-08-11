@@ -101,6 +101,13 @@ const SearchFixedBox: React.FC<{ onUrlTextChange: (urlText: string) => boolean }
     };
   }, [selectedApi]);
 
+  useKeyPress('esc', () => {
+    if (searchTextFixed) {
+      setSearchTextFixed(false);
+      clearHighlights();
+    }
+  });
+
   // 事件汇总收集activeSearchText触发
   useBus(
     'activeSearchFixedText',

@@ -74,7 +74,7 @@ const useSearchPageText = (selectorKey: string, scrollElementClass?: string): us
       // 查找所有文本节点是否包含搜索词
       const curRanges: any[] = allTextNodes
         .map((el) => {
-          return { el, text: el.textContent.toLowerCase() };
+          return { el, text: el.textContent };
         })
         .map(({ text, el }) => {
           const indices = [];
@@ -104,7 +104,9 @@ const useSearchPageText = (selectorKey: string, scrollElementClass?: string): us
       // 注册高亮
       CSS.highlights.set('search-results', searchResultsHighlight);
       setTimeout(() => {
-        handleScrollToRange(0);
+        requestAnimationFrame(() => {
+          handleScrollToRange(0);
+        });
       }, 0);
     }
   };
