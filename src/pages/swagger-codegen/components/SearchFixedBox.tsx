@@ -101,12 +101,18 @@ const SearchFixedBox: React.FC<{ onUrlTextChange: (urlText: string) => boolean }
     };
   }, [selectedApi]);
 
-  useKeyPress('esc', () => {
-    if (searchTextFixed) {
-      setSearchTextFixed(false);
-      clearHighlights();
-    }
-  });
+  useKeyPress(
+    'esc',
+    () => {
+      if (searchTextFixed) {
+        setSearchTextFixed(false);
+        clearHighlights();
+      }
+    },
+    {
+      target: document.getElementById('search-fixed-box'),
+    },
+  );
 
   // 事件汇总收集activeSearchText触发
   useBus(
@@ -119,7 +125,7 @@ const SearchFixedBox: React.FC<{ onUrlTextChange: (urlText: string) => boolean }
 
   if (searchTextFixed) {
     return (
-      <Row className="search-fixed-box">
+      <Row className="search-fixed-box" id="search-fixed-box">
         <Input
           value={apiSearchText}
           onChange={inputChange}
