@@ -40,7 +40,7 @@ function generateApiDefineition(apiData, prefix) {
   if (/(page|list)$/.test(api) || /列表|分页/.test(summary)) {
     packTableData = '.then(packTableData)';
   } else if (/导出/.test(summary)) {
-    responseType = 'responseType: blob,';
+    responseType = `responseType: 'blob',`;
     packTableData = '';
   }
 

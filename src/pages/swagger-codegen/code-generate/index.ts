@@ -5,6 +5,7 @@
  */
 
 import generateApiDefineition from './generate-api-defineition';
+import generateApiAxiosRequest from './generate-api-axios-request';
 import generateModelClass from './generate-model-class';
 import generateTypeScriptType from './generate-typescript-type';
 import generateRhTablePageCode from './generate-rhtable-page';
@@ -122,9 +123,19 @@ export const codeGenerateMethods = [
     type: 'api',
     source: 'root',
     status: 1,
-    sort: 96,
+    sort: 30,
     language: 'typescript',
     function: generateApiDefineition,
+  },
+  {
+    key: 'axios-request',
+    label: 'axios-request',
+    type: 'api',
+    source: 'root',
+    status: 1,
+    sort: 31,
+    language: 'typescript',
+    function: generateApiAxiosRequest,
   },
   {
     key: 'options',
