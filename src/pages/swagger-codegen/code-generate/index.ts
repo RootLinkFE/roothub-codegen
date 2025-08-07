@@ -5,6 +5,7 @@
  */
 
 import generateApiDefineition from './generate-api-defineition';
+import generateApiGroupObject from './generate-api-group-object';
 import generateApiAxiosRequest from './generate-api-axios-request';
 import generateModelClass from './generate-model-class';
 import generateTypeScriptType from './generate-typescript-type';
@@ -67,6 +68,16 @@ export const trancodingOptions: CodeGenerateOption[] = [
     sort: 95,
     language: 'vue',
     function: generatAvueColumnsTranscoding,
+  },
+  {
+    key: 'api-group-object',
+    label: 'API组基础对象生成',
+    type: 'api',
+    source: 'root',
+    status: 1,
+    sort: 29,
+    language: 'typescript',
+    function: generateApiGroupObject,
   },
   {
     key: 'generate-avue-transcode-all',

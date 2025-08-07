@@ -9,6 +9,7 @@ import { useModel } from 'umi';
 import { useMemo } from 'react';
 import state from '@/stores/index';
 import { getStringToFn, getRequestParams, filterTransResult } from '@/shared/utils';
+import getResponseParams from '@/shared/getResponseParams';
 import { CustomMethodsItem } from '@/shared/ts/custom';
 import { codeGenerateMethods } from './code-generate/index';
 import { observer } from 'mobx-react-lite';
@@ -88,8 +89,9 @@ const ApiDefinitionDropdown: React.FC<{
           let resultText = '';
           paths.forEach((m: any) => {
             const curRequestParams = m.requestParams || getRequestParams(m, resourceDetail);
+            const curResponseParams = m.responseParams || getResponseParams(m, resourceDetail);
             resultText +=
-              apiFn({ ...m, requestParams: curRequestParams }, prefix) +
+              apiFn({ ...m, requestParams: curRequestParams, responseParams: curResponseParams }, prefix) +
               `
 `;
           });
