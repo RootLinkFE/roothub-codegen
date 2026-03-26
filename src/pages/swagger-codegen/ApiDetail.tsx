@@ -180,6 +180,7 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
         generateCode: () =>
           cutomCodeFn(
             {
+              ...selectedApi,
               requestSelectedData:
                 selectedRequestRowRef.current.length === 0
                   ? flatChildren(requestParamsData)
@@ -188,6 +189,7 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
                 selectedResponseRowRef.current.length === 0
                   ? flatChildren(responseParamsData)
                   : selectedResponseRowRef.current,
+              apiurlPrefix,
               resourceDetail,
               transformTextRecord:
                 transformSate.status && transformSate.textRecord?.length > 0 ? transformSate.textRecord : null,
@@ -202,7 +204,18 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
 
   const handleCopy = () => {
     copy(apiText);
-    message.success({ key: 'copy-key', content: 'api已复制到剪贴板！' });
+    message.success({ key: 'copy-key', content: 'url已复制到剪贴板！' });
+  };
+
+  const handleCopySelectedApi = () => {
+    const data = {
+      api: apiurlPrefix + selectedApi.api,
+      method: selectedApi.method,
+      requestParams: getRequestParams(selectedApi, resourceDetail),
+      responseParams: getResponseParams(selectedApi, resourceDetail),
+    };
+    copy(JSON.stringify(data, null, 2));
+    message.success({ key: 'copy-selected-api', content: 'selectedApi已复制到剪贴板！' });
   };
 
   const handleDownload = () => {
@@ -235,7 +248,10 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
               {apiText}
             </span>
             <Button type="link" size="small" style={{ marginLeft: '16px' }} onClick={handleCopy}>
-              复制
+              复制URL
+            </Button>
+            <Button type="link" size="small" onClick={handleCopySelectedApi}>
+              复制API_JSON
             </Button>
             <ApiDefinitionDropdown api={selectedApi} />
             <Button

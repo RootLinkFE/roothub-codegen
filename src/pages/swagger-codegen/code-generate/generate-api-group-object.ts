@@ -8,18 +8,26 @@ import { pathsItem } from '@/shared/ts/api-interface';
 import generateApiConstName from './generate-api-const-name';
 
 // API组基础对象生成
-export default function generateApiGroupObject(
-  apiData: pathsItem & { requestParams: any; responseParams: any },
-  prefix: string = '',
-) {
+export default function generateApiGroupObject(apiData: any, prefix: any = '') {
   console.log('apiData', apiData);
-  const { api, summary, method, requestParams, responseParams } = apiData;
-  const apiName = generateApiConstName(apiData) || summary.replace(/\s+/g, '') || 'api';
-  let apiPath = prefix + api;
+  const requestParams = apiData?.requestSelectedData ?? apiData?.requestParams ?? [];
+  const responseParams = apiData?.responseSelectedData ?? apiData?.responseParams ?? [];
+  const api = typeof apiData?.api === 'string' ? apiData.api : '';
+  const summary = typeof apiData?.summary === 'string' ? apiData.summary : '';
+  const method = typeof apiData?.method === 'string' ? apiData.method : '';
+
+  const apiName = generateApiConstName(apiData as pathsItem) || (summary ? summary.replace(/\s+/g, '') : '') || 'api';
+  const prefixStr =
+    typeof prefix === 'string'
+      ? prefix
+      : `${typeof apiData?.apiurlPrefix === 'string' ? apiData.apiurlPrefix : ''}${
+          typeof apiData?.resourceDetail?.basePath === 'string' ? apiData.resourceDetail.basePath : ''
+        }`;
+  let apiPath = `${prefixStr}${api}`;
   const apiStrReg = /\{([\d\D]*)\}/g;
 
   // 处理URL路径参数
-  const matchPathId = apiStrReg.exec(api);
+  const matchPathId = apiStrReg.exec(api || '');
   if (matchPathId) {
     apiPath = apiPath.replace(apiStrReg, function (str) {
       return `$${str}`;
@@ -41,32 +49,29 @@ export default function generateApiGroupObject(
     if (schema && (schema.type === 'object' || schema.type === 'array') && children && children.length > 0) {
       result += `\n${spaces}${name || ''}: `;
 
-      if (type.includes('[]')) {
-        result += `${spaces}[{`;
+      const isArray = (typeof type === 'string' && type.includes('[]')) || schema.type === 'array';
+
+      if (isArray) {
+        result += `[{`;
       } else if (schema.type === 'object') {
-        result += `${spaces}{`;
+        result += `{`;
       }
 
       // 递归处理children
       children.forEach((child: any, childIdx: number) => {
-        // if (child.type.includes('[]')) {
-        //   result += `\n${spaces}  {`;
-        //   result += processParams(child, indent + 2);
-        //   result += `\n${spaces}  }`;
-        // } else {
         result += processParams(child, indent + 2);
-        // }
         result += childIdx < children.length - 1 ? ',' : '';
       });
 
-      if (type.includes('[]')) {
+      if (isArray) {
         result += `\n${spaces}}]`;
-      } else if (type === 'object') {
+      } else if (schema.type === 'object') {
         result += `\n${spaces}}`;
       }
     } else if (name) {
       // 常规类型
-      result += `\n${spaces}${name}: '', // ${type || typeof item} - ${cleanParameterDescription(description || '')}`;
+      const typeStr = typeof type === 'string' ? type : typeof item;
+      result += `\n${spaces}${name}: '', // ${typeStr} - ${cleanParameterDescription(description || '')}`;
     }
 
     return result;
@@ -86,12 +91,12 @@ export default function generateApiGroupObject(
 
   // 返回参数
   if (responseParams && responseParams.length > 0) {
+    const responseDataParam = responseParams.find((p: any) => p?.name === 'data');
+    const responseParamsToProcess = responseDataParam ? [responseDataParam] : responseParams;
     result += '  \nresponseParams: {';
-    responseParams.forEach((param: any, index: number) => {
-      const { name } = param;
-      if (name === 'data') {
-        result += processParams(param);
-      }
+    responseParamsToProcess.forEach((param: any, index: number) => {
+      result += processParams(param);
+      result += index < responseParamsToProcess.length - 1 ? ',' : '';
     });
     result += '  \n}';
   } else {

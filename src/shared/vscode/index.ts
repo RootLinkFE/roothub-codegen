@@ -7,6 +7,7 @@ import { dispatch } from '@/shared/useBus';
 import { storeTipsInVscode, storeTipsInBrowser } from '@/shared/config.json';
 
 export const fetchResponsePromiseMap: Record<string, ((r: any) => void)[]> = {};
+export const saveFileResponsePromiseMap: Record<string, ((r: any) => void)[]> = {};
 
 export let isInVSCode = false;
 
@@ -57,6 +58,19 @@ const CommandHandler: Record<string, (data: any) => any> = {
       reject(data.response);
     }
     delete fetchResponsePromiseMap[data.sessionId];
+  },
+  saveFileResponse(data) {
+    console.log('====================================');
+    console.log('saveFileResponse', data);
+    console.log('====================================');
+    const [resolve, reject] = saveFileResponsePromiseMap[data.sessionId] || [];
+    if (data.success) {
+      resolve?.(data);
+    } else {
+      message.error(data?.message || '保存失败！');
+      reject?.(data);
+    }
+    delete saveFileResponsePromiseMap[data.sessionId];
   },
   updateGlobalStorage(data) {
     const arr = data ? Object.keys(data) : [];
@@ -130,12 +144,30 @@ export function fetch(option: AxiosRequestConfig & { sessionId?: string }, comma
     fetchResponsePromiseMap[sessionId] = [resolve, reject];
   });
   postVSCodeMessage(commandName, option);
+
   return promise as AxiosPromise;
 }
 
 export function fetchInVSCode(option: AxiosRequestConfig, commandName = 'fetch') {
   option.headers = option.headers || {};
   return fetch(option, commandName);
+}
+
+export function saveFileInVSCode(option: { filename: string; content: string; subdir?: string }) {
+  const sessionId = uniqueId('rh_codegen_');
+  const promise = new Promise((resolve, reject) => {
+    saveFileResponsePromiseMap[sessionId] = [
+      (data: any) => {
+        resolve(data);
+      },
+      (err: any) => {
+        reject(err);
+      },
+    ];
+  });
+
+  postVSCodeMessage('saveFile', { ...option, sessionId });
+  return promise;
 }
 
 export const storeTips = isInVSCode ? storeTipsInVscode : storeTipsInBrowser;

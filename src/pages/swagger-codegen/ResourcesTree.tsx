@@ -3,8 +3,8 @@
  * @Date: 2022-07-04 15:39:44
  * @Description: 侧边菜单
  */
-import { Col, Select, Menu, MenuProps, Input, Row, Spin, Button, Badge } from 'antd';
-import { DownloadOutlined, ReloadOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
+import { Col, Select, Menu, MenuProps, Input, Row, Spin, Button, Badge, Dropdown } from 'antd';
+import { DownloadOutlined, ReloadOutlined, LeftOutlined, RightOutlined, DownOutlined } from '@ant-design/icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useMemo } from 'react';
 import { useModel } from 'umi';
@@ -14,6 +14,7 @@ import { dataSaveToJSON } from '@/shared/utils';
 import ApiDefinitionDropdown from './ApiDefinitionDropdown';
 import state from '@/stores/index';
 import { observer } from 'mobx-react';
+import { isInVSCode, saveFileInVSCode } from '@/shared/vscode';
 
 const { Search } = Input;
 
@@ -54,6 +55,49 @@ const ResourcesTree: React.FC<{ labelKey: string } & MenuProps> = ({ labelKey })
   } = useModel('useApiSwitchModel');
 
   const { urlValue } = state.swagger;
+
+  const safeFilename = useCallback((name?: string) => {
+    const base = (name || 'openapi').trim() || 'openapi';
+    return base.replace(/[\\/:*?"<>|]/g, '_');
+  }, []);
+
+  const downloadJSON = async (data: any, filename: string, fallbackName?: string) => {
+    if (isInVSCode) {
+      try {
+        await saveFileInVSCode({ filename, content: JSON.stringify(data ?? {}, null, 2), subdir: 'openapi' });
+        return;
+      } catch (e) {
+        console.log('saveFileInVSCode error', e);
+      }
+    }
+    dataSaveToJSON(data, fallbackName || filename.replace(/\.json$/i, ''));
+  };
+
+  const handleDownloadOpenapi = useCallback(async () => {
+    const base = safeFilename(selectedResource?.name || urlValue || 'openapi');
+    await downloadJSON(resourceDetail, `${base}.json`, base);
+  }, [downloadJSON, resourceDetail, safeFilename, selectedResource?.name, urlValue]);
+
+  const handleDownloadSwaggerResources = useCallback(async () => {
+    await downloadJSON(resources, `swagger-resources.json`, 'swagger-resources');
+  }, [downloadJSON, resources]);
+
+  const downloadMenu = useMemo(() => {
+    return (
+      <Menu
+        onClick={async ({ key }) => {
+          if (key === 'openapi') {
+            await handleDownloadOpenapi();
+          } else if (key === 'swagger-resources') {
+            await handleDownloadSwaggerResources();
+          }
+        }}
+      >
+        <Menu.Item key="openapi">下载 openapi.json</Menu.Item>
+        {type === 'api' ? <Menu.Item key="swagger-resources">下载 swagger-resources.json</Menu.Item> : null}
+      </Menu>
+    );
+  }, [handleDownloadOpenapi, handleDownloadSwaggerResources, type]);
 
   // 当前显示tags
   const currentResourceTags: tagsItem[] = useMemo(() => {
@@ -161,7 +205,35 @@ const ResourcesTree: React.FC<{ labelKey: string } & MenuProps> = ({ labelKey })
         }),
       );
     });
-  }, [currentResourceTags]);
+  }, [currentResourceTags, highlightMenuName, labelKey]);
+
+  const renderMenuNodes = useCallback((items: MenuItem[], parentKey = 'root'): React.ReactNode => {
+    return (items ?? []).map((item: any, index: number) => {
+      if (!item) return null;
+      if (item.type === 'divider') {
+        return <Menu.Divider key={`${parentKey}-divider-${index}`} />;
+      }
+      if (item.type === 'group') {
+        return (
+          <Menu.ItemGroup key={item.key ?? `${parentKey}-group-${index}`} title={item.label}>
+            {renderMenuNodes(item.children ?? [], `${parentKey}-${item.key ?? index}`)}
+          </Menu.ItemGroup>
+        );
+      }
+      if (item.children && item.children.length) {
+        return (
+          <Menu.SubMenu key={item.key} title={item.label} icon={item.icon}>
+            {renderMenuNodes(item.children ?? [], `${parentKey}-${item.key}`)}
+          </Menu.SubMenu>
+        );
+      }
+      return (
+        <Menu.Item key={item.key} icon={item.icon}>
+          {item.label}
+        </Menu.Item>
+      );
+    });
+  }, []);
 
   const defaultSelectedKeys = useMemo(() => {
     return selectedApi?.uuid ? [selectedApi?.uuid] : [];
@@ -179,17 +251,20 @@ const ResourcesTree: React.FC<{ labelKey: string } & MenuProps> = ({ labelKey })
                 <Search placeholder="搜索接口（名称、api）" allowClear enterButton onSearch={onSearch} />
               </div>
             )}
-            <Button
+            {/* <Button
               type="text"
               size="small"
               title="下载openapi.json"
               disabled={resourceDetailLoading}
-              onClick={() => {
-                dataSaveToJSON(resourceDetail, selectedResource?.name || urlValue);
-              }}
+              onClick={handleDownloadOpenapi}
             >
               <DownloadOutlined />
-            </Button>
+            </Button> */}
+            <Dropdown overlay={downloadMenu} trigger={['click']}>
+              <Button type="text" size="small" title="更多下载" disabled={resourceDetailLoading}>
+                <DownloadOutlined />
+              </Button>
+            </Dropdown>
           </Row>
           {type === 'api' && (
             <Row align="middle" style={{ flexWrap: 'nowrap' }} className="input-row">
@@ -223,12 +298,13 @@ const ResourcesTree: React.FC<{ labelKey: string } & MenuProps> = ({ labelKey })
         ) : (
           <Menu
             mode="inline"
-            items={menuItems}
             defaultSelectedKeys={defaultSelectedKeys}
             selectedKeys={defaultSelectedKeys}
             onClick={onItemSelect}
             inlineCollapsed={collapsed}
-          ></Menu>
+          >
+            {renderMenuNodes(menuItems)}
+          </Menu>
         )}
 
         <div

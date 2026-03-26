@@ -17,19 +17,10 @@ const TextTransformDropdown: React.FC<{
 }> = function (props) {
   const { value, dropdownTitle = '过滤', methodType = 'transform', buttonType = 'link', onChange } = props;
   const generateMethods = orderCodeGenerateMethods.filter((v) => v.type === methodType && v.status);
-  const CustomMethods = useMemo(() => Array.from(state.custom.EnabledCustomMethods), [
-    state.custom.EnabledCustomMethods,
-  ]);
-
-  const items = useMemo(() => {
-    // let currentCustomMethods = CustomMethods.filter((v: CustomMethodsItem) => v.type === methodType);
-    return generateMethods.map((v) => {
-      return {
-        key: v.key,
-        label: v.label,
-      };
-    });
-  }, [CustomMethods]);
+  const CustomMethods = useMemo(
+    () => Array.from(state.custom.EnabledCustomMethods),
+    [state.custom.EnabledCustomMethods],
+  );
 
   const handleMenuItemClick = ({ key }: any) => {
     let item: any = generateMethods.find((v) => v.key === key);
@@ -38,7 +29,16 @@ const TextTransformDropdown: React.FC<{
   };
 
   return (
-    <Dropdown overlay={<Menu onClick={handleMenuItemClick} items={items} />} trigger={['hover']}>
+    <Dropdown
+      overlay={
+        <Menu onClick={handleMenuItemClick}>
+          {generateMethods.map((v) => {
+            return <Menu.Item key={v.key}>{v.label}</Menu.Item>;
+          })}
+        </Menu>
+      }
+      trigger={['hover']}
+    >
       <Button type={buttonType}>{dropdownTitle}</Button>
     </Dropdown>
   );

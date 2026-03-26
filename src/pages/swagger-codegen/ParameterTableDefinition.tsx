@@ -74,8 +74,25 @@ const ParameterTableDefinition: React.FC<{ definition: any; record: any; api: pa
     setDefinitionCodeDrawerProps(drawerProps);
   };
 
+  const dropdownMenu = useMemo(() => {
+    return (
+      <Menu onClick={handleMenuItemClick}>
+        {items.map((group: any) => {
+          const children = group?.children ?? [];
+          return (
+            <Menu.ItemGroup key={group.key} title={group.label}>
+              {children.map((child: any) => {
+                return <Menu.Item key={child.key}>{child.label}</Menu.Item>;
+              })}
+            </Menu.ItemGroup>
+          );
+        })}
+      </Menu>
+    );
+  }, [items]);
+
   return (
-    <Dropdown overlay={<Menu items={items} onClick={handleMenuItemClick}></Menu>} trigger={['hover']}>
+    <Dropdown overlay={dropdownMenu} trigger={['hover']}>
       <a className="ant-dropdown-link" onClick={(e) => e.preventDefault()}>
         <CodeOutlined /> {title}
       </a>

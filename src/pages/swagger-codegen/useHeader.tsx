@@ -34,9 +34,13 @@ const ApiSwitchHeader: React.FC = () => {
 
   const menu = (
     <Menu
-      items={apiUrls.map((apiUrl: string, i: number) => {
-        return {
-          label: (
+      onClick={(event) => {
+        swaggerStore.setUrlValue(event.key);
+      }}
+    >
+      {apiUrls.map((apiUrl: string, i: number) => {
+        return (
+          <Menu.Item key={apiUrl}>
             <Row justify="space-between" align="middle">
               <span>{apiUrl}</span>
               <CloseOutlined
@@ -47,14 +51,10 @@ const ApiSwitchHeader: React.FC = () => {
                 }}
               />
             </Row>
-          ),
-          key: apiUrl,
-        };
+          </Menu.Item>
+        );
       })}
-      onClick={(event) => {
-        swaggerStore.setUrlValue(event.key);
-      }}
-    ></Menu>
+    </Menu>
   );
 
   return (

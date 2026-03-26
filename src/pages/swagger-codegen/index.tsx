@@ -136,26 +136,11 @@ export default function ApiSwitch() {
 
   const settingDropdownMenu = useMemo(() => {
     return (
-      <Menu
-        onClick={settingDropdownMenuClick}
-        items={[
-          {
-            label: '设置自定义方法',
-            key: 'customMethods',
-            children: undefined,
-          },
-          {
-            label: 'apiurl默认前缀',
-            key: 'apiurlPrefix',
-            children: undefined,
-          },
-          {
-            label: '基础设置',
-            key: 'config',
-            children: undefined,
-          },
-        ]}
-      />
+      <Menu onClick={settingDropdownMenuClick}>
+        <Menu.Item key="customMethods">设置自定义方法</Menu.Item>
+        <Menu.Item key="apiurlPrefix">apiurl默认前缀</Menu.Item>
+        <Menu.Item key="config">基础设置</Menu.Item>
+      </Menu>
     );
   }, []);
 

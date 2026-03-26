@@ -27,7 +27,19 @@ const CodeGenDropdown: React.FC<{ onChange: (key: string, item?: CustomMethodsIt
   };
 
   const dropdownMenu = useMemo(() => {
-    return <Menu onClick={dropdownMenuClick} items={CustomTypeMethods} />;
+    return (
+      <Menu onClick={dropdownMenuClick}>
+        {CustomTypeMethods.map((group: any) => {
+          return (
+            <Menu.ItemGroup key={group.key} title={group.label}>
+              {(group.children ?? []).map((item: any) => {
+                return <Menu.Item key={item.key}>{item.label}</Menu.Item>;
+              })}
+            </Menu.ItemGroup>
+          );
+        })}
+      </Menu>
+    );
   }, []);
 
   return (

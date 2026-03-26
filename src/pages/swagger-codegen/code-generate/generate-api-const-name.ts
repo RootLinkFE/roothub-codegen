@@ -16,7 +16,7 @@ export default function generateApiConstName(apiData: pathsItem) {
   const apiStrReg = /\{([\d\D]*)\}/;
   const preReg = new RegExp(`^${method}`);
   let resultStr = '';
-  const splitApi = api.split('/');
+  const splitApi = api?.split('/');
   for (let i = splitApi.length - 1; i > splitApi.length - 4; i--) {
     const str = preReg.test(splitApi[i]) ? splitApi[i]?.replace(method, '') : splitApi[i];
     if (!apiStrReg.test(str) && !['v1'].includes(str)) {

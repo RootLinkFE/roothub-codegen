@@ -30,9 +30,10 @@ const ApiDefinitionDropdown: React.FC<{
     .sort((a, b) => b.sort - a.sort);
   const { setDefinitionCodeDrawerProps, resourceDetail, apiurlPrefix } = useModel('useApiSwitchModel');
 
-  const CustomMethods = useMemo(() => Array.from(state.custom.EnabledCustomMethods), [
-    state.custom.EnabledCustomMethods,
-  ]);
+  const CustomMethods = useMemo(
+    () => Array.from(state.custom.EnabledCustomMethods),
+    [state.custom.EnabledCustomMethods],
+  );
 
   const prefix = useMemo(() => {
     // 默认前缀 + basePath
@@ -141,8 +142,26 @@ const ApiDefinitionDropdown: React.FC<{
     }
   };
 
+  const dropdownMenu = useMemo(() => {
+    const validGroups = (items ?? []).filter(Boolean) as any[];
+    return (
+      <Menu onClick={handleMenuItemClick}>
+        {validGroups.map((group: any) => {
+          const children = group?.children ?? [];
+          return (
+            <Menu.ItemGroup key={group.key} title={group.label}>
+              {children.map((child: any) => {
+                return <Menu.Item key={child.key}>{child.label}</Menu.Item>;
+              })}
+            </Menu.ItemGroup>
+          );
+        })}
+      </Menu>
+    );
+  }, [items]);
+
   return (
-    <Dropdown overlay={<Menu onClick={handleMenuItemClick} items={items} />} trigger={['hover']}>
+    <Dropdown overlay={dropdownMenu} trigger={['hover']}>
       {isPaths ? (
         <CodeOutlined title={dropdownTitle} />
       ) : (
