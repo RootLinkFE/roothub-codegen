@@ -214,7 +214,7 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
       requestParams: getRequestParams(selectedApi, resourceDetail),
       responseParams: getResponseParams(selectedApi, resourceDetail),
     };
-    copy(JSON.stringify(data, null, 2));
+    copy(JSON.stringify(data));
     message.success({ key: 'copy-selected-api', content: 'selectedApi已复制到剪贴板！' });
   };
 
