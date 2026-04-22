@@ -83,6 +83,7 @@ const ResourcesTree: React.FC<{ labelKey: string } & MenuProps> = ({ labelKey })
   }, [downloadJSON, resources]);
 
   const downloadMenu = useMemo(() => {
+    const openapiBaseName = selectedResource?.name || urlValue || 'openapi';
     return (
       <Menu
         onClick={async ({ key }) => {
@@ -93,11 +94,11 @@ const ResourcesTree: React.FC<{ labelKey: string } & MenuProps> = ({ labelKey })
           }
         }}
       >
-        <Menu.Item key="openapi">下载 openapi.json</Menu.Item>
+        <Menu.Item key="openapi">下载 {openapiBaseName}.json</Menu.Item>
         {type === 'api' ? <Menu.Item key="swagger-resources">下载 swagger-resources.json</Menu.Item> : null}
       </Menu>
     );
-  }, [handleDownloadOpenapi, handleDownloadSwaggerResources, type]);
+  }, [handleDownloadOpenapi, selectedResource, handleDownloadSwaggerResources, type]);
 
   // 当前显示tags
   const currentResourceTags: tagsItem[] = useMemo(() => {
