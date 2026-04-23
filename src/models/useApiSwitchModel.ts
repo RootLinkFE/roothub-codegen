@@ -36,11 +36,11 @@ export default function useApiSwitchModel() {
     async () => {
       // 保存当前状态到历史（用于相同URL恢复）
       const currentUrl = formatUrlChar(state.swagger.urlValue);
+      const isSameUrl = savedUrlValueRef.current && currentUrl === savedUrlValueRef.current;
       if (selectedApiRows.length > 0 || selectedResourceIndex) {
         savedSelectedApiRowsRef.current = [...selectedApiRows];
         savedSelectedApiMapsRef.current = new Map(selectedApiMaps);
         savedSelectedResourceIndexRef.current = selectedResourceIndex;
-        savedUrlValueRef.current = currentUrl;
       }
 
       // 重置选择
@@ -69,6 +69,7 @@ export default function useApiSwitchModel() {
       }
 
       let res = await requestToBody(swaggerUrl);
+      savedUrlValueRef.current = formatUrlChar(state.swagger.urlValue);
       if (typeof res === 'string') {
         console.log('res', res);
         return [];
@@ -82,16 +83,13 @@ export default function useApiSwitchModel() {
           classifyPathsToTags(res.tags, res.paths);
         } else if (urlType === 'api') {
           // url成功，重置选中的key，兼容处理刷新
-          const currentUrl = formatUrlChar(state.swagger.urlValue);
-          const isSameUrl = savedUrlValueRef.current && currentUrl === savedUrlValueRef.current;
           if (isArray(res) && res.length > 0 && !isSameUrl) {
             setSelectedResourceIndex(res[0].location || res[0].url);
           }
         }
 
         // 相同URL恢复历史选中状态
-        const currentUrl = formatUrlChar(state.swagger.urlValue);
-        if (savedUrlValueRef.current && currentUrl === savedUrlValueRef.current) {
+        if (isSameUrl) {
           isRestoringRef.current = true;
           if (savedSelectedResourceIndexRef.current) {
             setSelectedResourceIndex(savedSelectedResourceIndexRef.current);

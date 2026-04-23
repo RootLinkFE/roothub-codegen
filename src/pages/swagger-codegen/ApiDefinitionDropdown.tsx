@@ -75,7 +75,7 @@ const ApiDefinitionDropdown: React.FC<{
                 key: 'download-json',
                 label: (
                   <span>
-                    <DownloadOutlined /> 下载模块.json
+                    <DownloadOutlined /> {`下载${api.name || '模块'}.json`}
                   </span>
                 ),
               },

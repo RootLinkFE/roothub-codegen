@@ -5,7 +5,7 @@
  */
 import getResponseParams from '@/shared/getResponseParams';
 import { Button, Col, message, Space, Table, TableProps, Tag, Row, Collapse, Switch, Popover } from 'antd';
-import { DownloadOutlined } from '@ant-design/icons';
+import { CopyOutlined, DownloadOutlined } from '@ant-design/icons';
 import { unionBy } from 'lodash';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useModel } from 'umi';
@@ -17,6 +17,7 @@ import copy from 'copy-to-clipboard';
 import { MethodColors } from '@/shared/common';
 import { getStringToFn, flatChildren, getHeaderParams, getRequestParams, dataSaveToJSON } from '@/shared/utils';
 import ApiDefinitionDropdown from './ApiDefinitionDropdown';
+import ApiDebugger from './ApiDebugger';
 import { CustomMethodsItem } from '@/shared/ts/custom';
 import state from '@/stores/index';
 
@@ -24,7 +25,9 @@ const { Panel } = Collapse;
 
 const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
   const { api: selectedApi } = props;
-  const { resourceDetail, setDefinitionCodeDrawerProps, apiurlPrefix, transformSate } = useModel('useApiSwitchModel');
+  const { resourceDetail, setDefinitionCodeDrawerProps, apiurlPrefix, transformSate, type } =
+    useModel('useApiSwitchModel');
+  const [debugMode, setDebugMode] = useState(false);
   const [tableCheck, setTableCheck] = useState({
     requestCheckStrictly: true,
     responseCheckStrictly: true,
@@ -36,6 +39,44 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
   const responseParamsData = useMemo(() => {
     return getResponseParams(selectedApi, resourceDetail) ?? [];
   }, [selectedApi, resourceDetail]);
+
+  const responseExample = useMemo(() => {
+    const lines: { text: string; description: string }[] = [];
+
+    const parseParams = (params: any[], depth = 0) => {
+      const indent = '  '.repeat(depth);
+      params.forEach((item, index) => {
+        const isLast = index === params.length - 1;
+        const comma = isLast ? '' : ',';
+        const desc = item.description || '';
+
+        if (item.children && item.children.length > 0) {
+          if (item.type && item.type.indexOf('[]') !== -1) {
+            lines.push({ text: `${indent}"${item.name}": [`, description: desc });
+            lines.push({ text: `${indent}  {`, description: '' });
+            parseParams(item.children, depth + 2);
+            lines.push({ text: `${indent}  }`, description: '' });
+            lines.push({ text: `${indent}]${comma}`, description: '' });
+          } else {
+            lines.push({ text: `${indent}"${item.name}": {`, description: desc });
+            parseParams(item.children, depth + 1);
+            lines.push({ text: `${indent}}${comma}`, description: '' });
+          }
+        } else {
+          let value = '""';
+          if (item.type === 'integer' || item.type === 'number') value = '0';
+          if (item.type === 'boolean') value = 'true';
+          lines.push({ text: `${indent}"${item.name}": ${value}${comma}`, description: desc });
+        }
+      });
+    };
+
+    lines.push({ text: '{', description: '' });
+    parseParams(responseParamsData, 1);
+    lines.push({ text: '}', description: '' });
+
+    return lines;
+  }, [responseParamsData]);
 
   const apiText = useMemo(() => {
     // 默认前缀 + basePath + api
@@ -230,7 +271,7 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
   } else {
     return (
       <Col
-        flex="80%"
+        flex="auto"
         style={{
           padding: '0 16px',
           display: 'flex',
@@ -240,9 +281,9 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
           border: '1px solid #e9e9eb',
         }}
       >
-        <div>
+        <div style={{ position: 'relative' }}>
           <h2 className={styles.h2BorderTitle}>{selectedApi.summary}</h2>
-          <p>
+          <div>
             <Tag color={MethodColors[selectedApi.method] || '#87d068'}>{selectedApi.method.toUpperCase()}</Tag>{' '}
             <span className="copy-link" onClick={handleCopy}>
               {apiText}
@@ -265,111 +306,177 @@ const ApiDetail: React.FC<{ api: pathsItem }> = (props) => {
               <DownloadOutlined />
               下载
             </Button>
-          </p>
-          <p>接口描述：{selectedApi.description}</p>
-        </div>
-        <div style={{ flex: 1, overflow: 'auto' }} className="api-detail-content">
-          <Row align="middle" justify="space-between">
-            <h2 className={styles.h2BorderTitle}>
-              请求参数
-              <Space align="center" style={{ marginLeft: 16 }}>
-                <Popover placement="topLeft" content="CheckStrictly">
-                  <Switch
-                    checked={tableCheck.requestCheckStrictly}
-                    onChange={(v) => {
-                      setTableCheck({
-                        ...tableCheck,
-                        requestCheckStrictly: v,
-                      });
-                    }}
-                    size="small"
-                  />
-                </Popover>
-              </Space>
-            </h2>
-            <ApiDefinitionDropdown api={selectedApi} methodType="request" onChange={handleDropdownChange} />
-            {/* <div>{tableCheck}</div> */}
-          </Row>
-          <Table
-            bordered
-            sticky
-            rowSelection={{
-              onChange: (keys, rows) => {
-                selectedRequestRowRef.current = rows;
-              },
-              checkStrictly: tableCheck.requestCheckStrictly,
-            }}
-            expandable={{ defaultExpandAllRows: true }}
-            size="small"
-            pagination={false}
-            columns={RequestParamsColumns}
-            rowKey="key"
-            dataSource={getRequestParams(selectedApi, resourceDetail)}
-          />
-
-          <Row align="middle" justify="space-between">
-            <h2 className={styles.h2BorderTitle}>
-              响应参数
-              <Space align="center" style={{ marginLeft: 16 }}>
-                <Popover placement="topLeft" content="CheckStrictly">
-                  <Switch
-                    checked={tableCheck.responseCheckStrictly}
-                    onChange={(v) => {
-                      setTableCheck({
-                        ...tableCheck,
-                        responseCheckStrictly: v,
-                      });
-                    }}
-                    size="small"
-                  />
-                </Popover>
-              </Space>
-            </h2>
-            <ApiDefinitionDropdown api={selectedApi} methodType="response" onChange={handleDropdownChange} />
-          </Row>
-          <Table
-            rowSelection={{
-              onChange: (keys, rows) => {
-                selectedResponseRowRef.current = rows;
-              },
-              checkStrictly: tableCheck.responseCheckStrictly,
-            }}
-            bordered
-            sticky
-            expandable={{ defaultExpandAllRows: true }}
-            size="small"
-            pagination={false}
-            columns={ResponseParamsColumns}
-            rowKey="key"
-            dataSource={responseParamsData}
-          />
-
-          <Collapse expandIconPosition={'end'} style={{ marginTop: '10px' }} ghost>
-            <Panel
-              header={
-                <h2 className={styles.h2BorderTitle} style={{ margin: 0 }}>
-                  请求头参数
-                </h2>
-              }
-              key="1"
+          </div>
+          {type === 'api' && (
+            <div
+              style={{
+                position: 'absolute',
+                right: 0,
+                top: '10px',
+                display: 'flex',
+                flexDirection: 'column',
+                zIndex: 10,
+                gap: '8px',
+              }}
             >
-              {/* <h2 className={styles.h2BorderTitle}>请求头参数</h2> */}
-              <Table
+              <Button
+                type={!debugMode ? 'primary' : 'default'}
                 size="small"
-                bordered
-                pagination={false}
-                columns={HeaderParamsColumns}
-                rowKey="name"
-                dataSource={getHeaderParams(selectedApi)}
-              />
-            </Panel>
-          </Collapse>
+                onClick={() => setDebugMode(false)}
+                style={{ borderRadius: '4px 0 0 4px' }}
+              >
+                文档
+              </Button>
+              <Button
+                type={debugMode ? 'primary' : 'default'}
+                size="small"
+                onClick={() => setDebugMode(true)}
+                style={{ borderRadius: '4px 0 0 4px' }}
+              >
+                调试
+              </Button>
+            </div>
+          )}
         </div>
-        {/* <Space style={{ background: '#fff', padding: '10px' }}>
-          <Button type="primary" onClick={showModelEnumCode}>
-            生成全部枚举
-          </Button>
-        </Space> */}
+        {debugMode ? (
+          <div style={{ flex: 1, overflow: 'hidden' }}>
+            <ApiDebugger api={selectedApi} />
+          </div>
+        ) : (
+          <>
+            <p>接口描述：{selectedApi.description}</p>
+            <div style={{ flex: 1, overflow: 'auto' }} className="api-detail-content">
+              <Row align="middle" justify="space-between">
+                <h2 className={styles.h2BorderTitle}>
+                  请求参数
+                  <Space align="center" style={{ marginLeft: 16 }}>
+                    <Popover placement="topLeft" content="CheckStrictly">
+                      <Switch
+                        checked={tableCheck.requestCheckStrictly}
+                        onChange={(v) => {
+                          setTableCheck({
+                            ...tableCheck,
+                            requestCheckStrictly: v,
+                          });
+                        }}
+                        size="small"
+                      />
+                    </Popover>
+                  </Space>
+                </h2>
+                <ApiDefinitionDropdown api={selectedApi} methodType="request" onChange={handleDropdownChange} />
+              </Row>
+              <Table
+                bordered
+                sticky
+                rowSelection={{
+                  onChange: (keys, rows) => {
+                    selectedRequestRowRef.current = rows;
+                  },
+                  checkStrictly: tableCheck.requestCheckStrictly,
+                }}
+                expandable={{ defaultExpandAllRows: true }}
+                size="small"
+                pagination={false}
+                columns={RequestParamsColumns}
+                rowKey="key"
+                dataSource={getRequestParams(selectedApi, resourceDetail)}
+              />
+
+              <Row align="middle" justify="space-between">
+                <h2 className={styles.h2BorderTitle}>
+                  响应参数
+                  <Space align="center" style={{ marginLeft: 16 }}>
+                    <Popover placement="topLeft" content="CheckStrictly">
+                      <Switch
+                        checked={tableCheck.responseCheckStrictly}
+                        onChange={(v) => {
+                          setTableCheck({
+                            ...tableCheck,
+                            responseCheckStrictly: v,
+                          });
+                        }}
+                        size="small"
+                      />
+                    </Popover>
+                  </Space>
+                </h2>
+                <ApiDefinitionDropdown api={selectedApi} methodType="response" onChange={handleDropdownChange} />
+              </Row>
+              <Table
+                rowSelection={{
+                  onChange: (keys, rows) => {
+                    selectedResponseRowRef.current = rows;
+                  },
+                  checkStrictly: tableCheck.responseCheckStrictly,
+                }}
+                bordered
+                sticky
+                expandable={{ defaultExpandAllRows: true }}
+                size="small"
+                pagination={false}
+                columns={ResponseParamsColumns}
+                rowKey="key"
+                dataSource={responseParamsData}
+              />
+
+              <Collapse expandIconPosition={'end'} style={{ marginTop: '10px' }} ghost defaultActiveKey={['1']}>
+                <Panel
+                  header={
+                    <h2 className={styles.h2BorderTitle} style={{ margin: 0 }}>
+                      响应示例
+                    </h2>
+                  }
+                  key="1"
+                  extra={
+                    <Button
+                      type="link"
+                      size="small"
+                      icon={<CopyOutlined />}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const code = responseExample.map((l) => l.text).join('\n');
+                        copy(code);
+                        message.success('已复制到剪贴板');
+                      }}
+                    >
+                      复制
+                    </Button>
+                  }
+                >
+                  <div
+                    style={{
+                      backgroundColor: '#fafafa',
+                      padding: '16px 24px',
+                      borderRadius: '4px',
+                      border: '1px solid #f0f0f0',
+                      maxHeight: '500px',
+                      overflow: 'auto',
+                    }}
+                  >
+                    {responseExample.map((line, index) => (
+                      <Row
+                        key={index}
+                        wrap={false}
+                        style={{ fontFamily: 'monospace', fontSize: '13px', lineHeight: '22px' }}
+                      >
+                        <Col flex="30px" style={{ color: '#bfbfbf', userSelect: 'none' }}>
+                          {index + 1}
+                        </Col>
+                        <Col flex="auto" style={{ whiteSpace: 'pre', color: '#c41d7f' }}>
+                          {line.text}
+                        </Col>
+                        <Col style={{ color: '#8c8c8c', paddingLeft: '40px', minWidth: '150px' }}>
+                          {line.description}
+                        </Col>
+                      </Row>
+                    ))}
+                  </div>
+                </Panel>
+              </Collapse>
+            </div>
+          </>
+        )}
       </Col>
     );
   }
