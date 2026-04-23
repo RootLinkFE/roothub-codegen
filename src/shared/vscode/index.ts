@@ -49,12 +49,12 @@ const CommandHandler: Record<string, (data: any) => any> = {
   fetchResponse(data) {
     const [resolve, reject] = fetchResponsePromiseMap[data.sessionId];
     console.log('====================================');
-    console.log(data.success);
+    console.log(data);
     console.log('====================================');
     if (data.success) {
       resolve(data.response);
     } else {
-      message.error('获取失败！');
+      message.error('获取失败！' + (data.response.message ?? data.response));
       reject(data.response);
     }
     delete fetchResponsePromiseMap[data.sessionId];

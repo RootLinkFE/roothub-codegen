@@ -30,12 +30,19 @@ export async function requestToBody(
     });
   }
 
+  let requestUrl = url;
+  if (!isInVSCode && url.startsWith('http://xxx.xx.xx.xx:xxxx')) {
+    // 浏览器环境下，将该地址转发给 .umirc.ts 配置的代理解决跨域
+    requestUrl = url.replace('http://xxx.xx.xx.xx:xxxx', '/swagger-proxy');
+  }
+
   try {
     const res = await axios({
-      url,
+      url: requestUrl,
       method,
       headers,
       data,
+      params,
     });
     if (res.status !== 200) {
       return null;

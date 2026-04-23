@@ -4,7 +4,7 @@
  * @Description:
  */
 import { requestToBody } from '@/shared/fetch/requestToBody';
-import { formatUrlChar } from '@/shared/utils';
+import { formatUrlChar, classifyPathsToTags } from '@/shared/utils';
 import { useRequest } from 'ahooks';
 import { isArray, uniq } from 'lodash';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -14,7 +14,6 @@ import state from '@/stores/index';
 import { message } from 'antd';
 import { resourceItems, pathsItem, tagsItem } from '@/shared/ts/api-interface';
 import { TransformSate } from '@/shared/ts/settings';
-import { classifyPathsToTags } from '@/shared/utils';
 const yaml = require('js-yaml');
 
 export default function useApiSwitchModel() {

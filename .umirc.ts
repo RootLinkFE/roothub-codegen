@@ -13,9 +13,11 @@ export default defineConfig({
     type: 'none',
   },
   proxy: {
-    // 'http://youip/swagger-resources': {
-    //   target: 'http://youip/swagger-resources',
+    // 解决浏览器开发时的跨域问题，可以添加对应的代理配置
+    // '/swagger-proxy': {
+    //   target: 'http://xxx.xx.xx.xx:xxxx',
     //   changeOrigin: true,
+    //   pathRewrite: { '^/swagger-proxy': '' },
     // },
   },
   history: {
